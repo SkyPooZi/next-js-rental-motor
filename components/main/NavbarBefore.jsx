@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from 'react';
 import React from 'react';
 import Image from 'next/image';
@@ -78,9 +76,11 @@ export default function NavbarAfter() {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline" size="sm" className="text-[#FF4D30] hover:text-[#FF4D30] border-[#FF4D30] hover:border-[#FF4D30]">
-                        Login
-                    </Button>
+                    <Link href="/login">
+                        <Button variant="outline" size="icon">
+                            Login
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </div >
