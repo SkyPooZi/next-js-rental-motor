@@ -43,8 +43,8 @@ export default function Footer() {
                     <a href="">
                         <Label>
                             <span className='font-bold'>
-                                <ReactWhatsapp number="+62-888-0326-5650" message="Hello World!!!" className="flex items-center font-semibold text-[#29A71A]">
-                                    <FaWhatsapp color='#29A71A' className="mr-1" /> 0888-0326-5650
+                                <ReactWhatsapp number="+62-858-7812-3310" message="" className="flex items-center font-semibold text-[#29A71A]">
+                                    <FaWhatsapp color='#29A71A' className="mr-1" /> +62-858-7812-3310
                                 </ReactWhatsapp>
                             </span>
                         </Label>
