@@ -52,7 +52,7 @@ export default function NavbarAfter() {
                         <Link href="/about" passHref className={activeLink === '/about' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>
                             Tentang Kami
                         </Link>
-                        <Link href="/terms" passHref className={activeLink === '/terms' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/syarat-dan-ketentuan')}>
+                        <Link href="/snk" passHref className={activeLink === '/terms' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/syarat-dan-ketentuan')}>
                             Syarat dan Ketentuan
                         </Link>
                     </div>
@@ -78,9 +78,67 @@ export default function NavbarAfter() {
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <Button variant="outline" size="sm" className="text-[#FF4D30] hover:text-[#FF4D30] border-[#FF4D30] hover:border-[#FF4D30]">
-                        Login
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger>
+                            <div className='flex flex-row justify-center items-center gap-2'>
+                                <Avatar>
+                                    <AvatarImage src="https://github.com/shadcn.png" />
+                                    <AvatarFallback>CN</AvatarFallback>
+                                </Avatar>
+                                <Label>
+                                    <span className='font-bold ml-[10px] hidden md:block'>
+                                        Hai, User
+                                    </span>
+                                </Label>
+                                <IoIosArrowDown />
+                            </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem>
+                                <Link href="/profile" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
+                                    <CgProfile size="25" />
+                                    <Label>
+                                        <span className='font-bold ml-[10px] hidden md:block'>
+                                            Profil
+                                        </span>
+                                    </Label>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href="/history" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
+                                    <AiOutlineHistory size="25" />
+                                    <Label>
+                                        <span className='font-bold ml-[10px] hidden md:block'>
+                                            Riwayat Penyewaan
+                                        </span>
+                                    </Label>
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Link href="/policy" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
+                                    <FiInfo size="25" />
+                                    <Label>
+                                        <span className='font-bold ml-[10px] hidden md:block'>
+                                            Kebijakan Privasi
+                                        </span>
+                                    </Label>
+                                </Link>
+                            </DropdownMenuItem>
+                            <div className="border-t border-[#FF4D30] m-2"></div>
+                            <DropdownMenuItem>
+                                <Link href="/NavbarBefore">
+                                    <div className='flex flex-row justify-center items-center text-[#FF4D30]'>
+                                        <RiLogoutCircleLine size="25" />
+                                        <Label>
+                                            <span className='font-bold ml-[10px] hidden md:block'>
+                                                Keluar
+                                            </span>
+                                        </Label>
+                                    </div>
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
         </div >
