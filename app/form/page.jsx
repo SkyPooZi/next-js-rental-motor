@@ -11,6 +11,7 @@ import { FaCircleCheck } from "react-icons/fa6";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { AiOutlineDollarCircle } from "react-icons/ai";
+import { IoLocationSharp, IoMapSharp } from "react-icons/io5";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import Modal from '@/components/sub/rescheduleModal';
+import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 
 export default function page({ className }) {
@@ -176,7 +177,7 @@ export default function page({ className }) {
                     </div>
                 </div>
                 <div className='flex flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
-                    <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} className='cursor-pointer' />
+                    <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
                     <div className='flex flex-col gap-5 '>
                         <div className='flex flex-row gap-2 items-center '>
                             <PiScroll className='' size='25' color='black' />
@@ -218,8 +219,8 @@ export default function page({ className }) {
                         </span>
                     </div>
                     <div className='mt-10 '>
-                        <div className='flex flex-col gap-8 '>
-                            <div className='flex flex-row gap-5'>
+                        <div className='flex flex-col gap-2'>
+                            <div className='flex flex-row gap-7'>
                                 <div className='text-black'>
                                     Nama Motor
                                     <Select>
@@ -325,11 +326,32 @@ export default function page({ className }) {
                                     </span>
                                 </div>
                             </div>
-                            <div className={`text-black w-full ${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
-                                <div className="grid w-full gap-1.5">
-                                    <Label>Alamat Lengkap</Label>
-                                    <Textarea placeholder="Nama Jalan, Gedung, No. Rumah" id="message" />
+                            <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
+                                <div className="grid w-full gap-1.5 mt-4">
+                                    <Label>
+                                        <div className='flex flex-row gap-1 items-center'>
+                                            <IoMapSharp size='25' />
+                                            <span className='font-semibold text-lg'>
+                                                Lokasi Rental Motor
+                                            </span>
+                                        </div>
+                                    </Label>
+                                    <Image src='/images/rentalmotormap.png' alt='map' width={1000} height={1000} className='w-full h-full max-h-[380px]' />
+                                    <Label>
+                                        <div className='flex flex-row gap-1 items-center mt-2'>
+                                            <IoLocationSharp size='25' color='red' />
+                                            <a href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
+                                                <span className='font-semibold text-[#0194F3] hover:underline'>
+                                                    Click Disini
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </Label>
                                 </div>
+                            </div>
+                            <div className={`text-black w-full ${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
+                                <Label>Alamat Lengkap</Label>
+                                <Textarea placeholder="Nama Jalan, Gedung, No. Rumah" id="message" />
                             </div>
                         </div>
                     </div>

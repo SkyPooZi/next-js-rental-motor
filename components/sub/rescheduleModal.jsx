@@ -1,7 +1,29 @@
-import React, { useRef, useEffect } from 'react';
-import { PiScroll } from "react-icons/pi";
+import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import { addDays, format } from "date-fns";
 
-const Modal = ({ isOpen, onClose }) => {
+import { CalendarIcon } from "@radix-ui/react-icons";
+
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select";
+
+import { cn } from "@/lib/utils";
+
+const RescheduleModal = ({ isOpen, onClose, className }) => {
+    const currentDate = new Date();
+
+    const [date, setDate] = useState({
+        from: currentDate,
+        to: addDays(currentDate, 1),
+    });
+
     const modalRef = useRef(null);
 
     useEffect(() => {
@@ -27,26 +49,95 @@ const Modal = ({ isOpen, onClose }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
             <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
-                <div className='flex flex-col gap-5 bg-white font-medium'>
-                    <div className='flex flex-row gap-2 items-center bg-white'>
-                        <PiScroll className='bg-white' size='25' />
-                        <span className='font-semibold text-black bg-white'>
-                            Kebijakan Penjadwalan Ulang
+                <div className='w-full flex flex-col gap-5'>
+                    <Label>
+                        <span className='font-semibold text-base'>
+                            Penjadwalan Ulang
                         </span>
+                    </Label>
+                    <div className='flex flex-row gap-2'>
+                        <Image src='/images/motor/dummy.png' alt='motor' width={70} height={0} />
+                        <div className="flex flex-col gap-1">
+                            <Label>
+                                <span className="text-base">
+                                    Motor
+                                </span>
+                            </Label>
+                            <Label>
+                                <span className="text-base">
+                                    08-03-2024 - 09-03-2024
+                                </span>
+                            </Label>
+                        </div>
                     </div>
-                    <div className='flex flex-col gap-1 items-start font-semibold bg-white'>
-                        <span className='font-semibold text-[#00875A] bg-white'>
-                            Penjadwalan Ulang Gratis sebelum
-                        </span>
-                        25-Maret-2024
+                    <div className='w-full flex flex-col gap-5'>
+                        <div className={cn("grid", className)}>
+                            <span className='text-black'>Tanggal Mulai</span>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        id="date"
+                                        variant={"outline"}
+                                        className={cn(
+                                            "w-[368px] justify-start text-left font-normal",
+                                            !date && "text-muted-foreground"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        {date?.from ? (
+                                            date.to ? (
+                                                <>
+                                                    {format(date.from, "LLL dd, y")} -{" "}
+                                                    {format(date.to, "LLL dd, y")}
+                                                </>
+                                            ) : (
+                                                format(date.from, "LLL dd, y")
+                                            )
+                                        ) : (
+                                            <span>Pilih</span>
+                                        )}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0" align="start">
+                                    <Calendar
+                                        initialFocus
+                                        mode="range"
+                                        defaultMonth={date?.from}
+                                        selected={date}
+                                        onSelect={setDate}
+                                        numberOfMonths={2}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                     </div>
-                    <div className='flex flex-col gap-1 items-start font-semibold bg-white'>
-                        <span className='font-semibold text-[#E80D12] bg-white'>
-                            Biaya Penjadwalan Ulang Rp, 140.000 berlaku setelah
-                        </span>
-                        26-Maret-2024
+                    <div className='flex flex-row gap-5 '>
+                        <div className='text-black'>
+                            Durasi
+                            <Select disabled>
+                                <SelectTrigger className='w-[368px]'>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem className='hover:bg-accent' value="matic">
+                                            <span>Matic</span>
+                                        </SelectItem>
+                                        <SelectItem className='hover:bg-accent' value="manual">
+                                            <span>Manual</span>
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    Pemesanan ini bisa dijadwalkan ulang, namun dikenakan biaya setelah 25 Maret 2023
+                    <Button className='cursor-pointer'>
+                        <Label>
+                            <span className='cursor-pointer'>
+                                Simpan
+                            </span>
+                        </Label>
+                    </Button>
                 </div>
                 {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
                     Close
@@ -56,4 +147,4 @@ const Modal = ({ isOpen, onClose }) => {
     );
 };
 
-export default Modal;
+export default RescheduleModal;
