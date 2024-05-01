@@ -81,16 +81,13 @@ const SeeRatingModal = ({ isOpen, onClose, className }) => {
                         </div>
                     </div>
                     <div className='flex flex-row gap-2 justify-end'>
-                        <a className="hover:underline cursor-pointer " onClick={openModal}>
-                            <Button>
-                                <Label>
-                                    <span className='cursor-pointer text-xs'>
-                                        OK
-                                    </span>
-                                </Label>
-                            </Button>
-                        </a>
-                        <SeeRatingModal isOpen={isModalOpen} onClose={closeModal} />
+                        <Button>
+                            <Label>
+                                <span className='cursor-pointer text-xs'>
+                                    OK
+                                </span>
+                            </Label>
+                        </Button>
                     </div>
                 </div>
                 {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
