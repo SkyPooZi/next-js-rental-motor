@@ -20,7 +20,7 @@ import { RiLogoutCircleLine } from "react-icons/ri";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Label } from '@/components/ui/label';
 
-export default function NavbarAfter() {
+export default function NavbarBefore() {
     const { setTheme } = useTheme();
     const [activeLink, setActiveLink] = useState('');
 
