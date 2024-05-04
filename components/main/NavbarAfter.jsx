@@ -40,26 +40,10 @@ import Terms from "@/components/sub/terms";
 import Point from "@/components/sub/point";
 
 export default function NavbarAfter() {
-    const { setTheme } = useTheme();
     const [activeLink, setActiveLink] = useState('');
 
     const handleLinkClick = (link) => {
         setActiveLink(link);
-    };
-
-    const renderComponent = () => {
-        switch (activeLink) {
-            case '/profile':
-                return <Profile />;
-            case '/history':
-                return <History />;
-            case '/terms':
-                return <Terms />;
-            case '/point':
-                return <Point />;
-            default:
-                return null;
-        }
     };
 
     return (
@@ -90,26 +74,6 @@ export default function NavbarAfter() {
                     </div>
                 </div>
                 <div className='flex flex-row gap-5 max-sm:w-20 max-sm:gap-1 cursor-pointer'>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon">
-                                <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                                <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                                <span className="sr-only">Toggle theme</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setTheme("light")}>
-                                Light
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("dark")}>
-                                Dark
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setTheme("system")}>
-                                System
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                     <DropdownMenu>
                         <DropdownMenuTrigger>
                             <div className='flex flex-row justify-center items-center gap-2'>
@@ -224,7 +188,6 @@ export default function NavbarAfter() {
                     </Sheet>
                 </div>
             </div>
-            {renderComponent()}
         </div >
     );
 }
