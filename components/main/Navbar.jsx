@@ -18,7 +18,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger
-} from "../ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
     Sheet,
     SheetContent,
@@ -57,23 +57,18 @@ export default function Navbar() {
                                     <li>
                                         <a href="/" passHref className={activeLink === '/' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}> Beranda </a>
                                     </li>
-
                                     <li>
                                         <a href="/list" passHref className={activeLink === '/list' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/list')}> Daftar Motor </a>
                                     </li>
-
                                     <li>
                                         <a href="/about" passHref className={activeLink === '/about' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}> Tentang Kami </a>
                                     </li>
-
                                     <li>
                                         <a href="/terms" passHref className={activeLink === '/terms' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/syarat-dan-ketentuan')}> Syarat & Ketentuan </a>
                                     </li>
-
                                 </ul>
                             </nav>
                         </div>
-
                         <div className="flex items-center gap-4">
                             <div className="sm:flex sm:gap-4">
                                 <DropdownMenu>
