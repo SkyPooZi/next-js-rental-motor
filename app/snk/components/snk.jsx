@@ -2,9 +2,9 @@ import React from 'react';
 
 const Snk = () => {
   return (
-    <div style={{ marginTop: '50px', textAlign: 'center' }}>
-      <h1 style={{ fontSize: '30px', fontWeight: 'medium', marginBottom: '50px' }}>Syarat & Ketentuan</h1>
-      <p style={{ fontSize: '16px', textAlign: 'left', marginLeft: '150px', marginRight: '150px'}}>
+    <div className="mt-10 text-center">
+      <h1 className="text-2xl font-medium mb-5">Syarat & Ketentuan</h1>
+      <p className="text-base text-left ml-36 mr-36">
         1. KTP asli penyewa<br />
         2. Dokumen tambahan (KK/BPJS/ID Card/lainnya)<br/>
         3. Menunjukkan AKUN SOSMED asli yang aktif, bisa Facebook/Instagram<br/>
@@ -20,7 +20,6 @@ const Snk = () => {
         13. Bersedia didokumentasikan saat serah terima motor.<br/>
         14. Keterlambatan pengembalian akan dikenakan denda sebesar 10% dari harga sewa per 24 jam.<br/>
         15. Segala tindak kejahatan dan penggelapan akan diproses secara hukum yang berlaku.
-
       </p>
     </div>
   );
