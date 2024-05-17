@@ -13,12 +13,13 @@ import { addDays, format } from "date-fns";
 import { AiOutlineDollarCircle } from "react-icons/ai";
 import { IoLocationSharp, IoMapSharp } from "react-icons/io5";
 
+import { Textarea } from "@material-tailwind/react";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Textarea } from "@/components/ui/textarea"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
     Popover,
@@ -112,18 +113,51 @@ export default function page({ className }) {
     return (
         <>
             <Navbar />
-            <div className='h-full w-full px-24 py-16 bg-[#F6F7F9]'>
-                <div className='text-[#666666]'>
-                    <span className='font-extrabold text-black text-xl hidden md:block'>
+            <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
+                <div className='text-[#666666] mb-5'>
+                    <span className='font-semibold text-black md:text-xl text-base flex'>
                         Booking
                     </span>
-                    Pastikan semua detail pada halaman ini sudah benar sebelum melanjutkan ke pembayaran.
+                    <span className='text-sm md:text-base'>
+                        Pastikan semua detail pada halaman ini sudah benar sebelum melanjutkan ke pembayaran.
+                    </span>
                 </div>
-                <div className='flex flex-row gap-5'>
-                    <div className='w-full rounded-xl mt-14 px-5 py-5 bg-white'>
+                <div className='flex lg:flex-row flex-col gap-5'>
+                    <div className='flex lg:hidden flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
+                        <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
+                        <div className='flex flex-col gap-5 '>
+                            <div className='flex flex-row gap-2 items-center '>
+                                <PiScroll className='' size='25' color='black' />
+                                <span className='font-bold text-black text-sm'>
+                                    Kebijakan Pembatalan & Penjadwalan Ulang
+                                </span>
+                            </div>
+                            <div className='flex flex-row gap-2 items-center justify-start '>
+                                <MdCancel
+                                    className='' color='grey' size='25'
+                                />
+                                <span className='font-bold text-black text-sm'>
+                                    Booking ini tidak dapat di refund
+                                </span>
+                            </div>
+                            <div className='flex flex-row gap-2 items-center justify-start '>
+                                <FaCircleCheck
+                                    className='' color='#0BC175' size='22'
+                                />
+                                <span className='font-bold text-black text-sm'>
+                                    Dapat dijadwalkan ulang
+                                </span>
+                            </div>
+                            <div className='cursor-pointer'>
+                                <a className=" text-[#FF4D30]" onClick={openModal}>Lihat Detail</a>
+                                <Modal isOpen={isModalOpen} onClose={closeModal} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className='w-full rounded-xl px-5 py-5 bg-white'>
                         <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
                             <Label>
-                                <span className='font-extrabold text-black text-xl  hidden md:block'>
+                                <span className='font-extrabold text-black text-lg'>
                                     Detail Kontak
                                 </span>
                             </Label>
@@ -133,7 +167,7 @@ export default function page({ className }) {
                         </div>
                         <div className='mt-10'>
                             <div className='flex flex-col gap-8 '>
-                                <div className='flex flex-row gap-5 w-full'>
+                                <div className='flex md:flex-row flex-col gap-5 w-full'>
                                     <div className='text-black w-full'>
                                         <Label>
                                             Nama Lengkap
@@ -147,7 +181,7 @@ export default function page({ className }) {
                                         <Input type="text" placeholder="Instagram, Facebook, dll" />
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-5 '>
+                                <div className='flex md:flex-row flex-col gap-5 '>
                                     <div className='text-black w-full'>
                                         <Label>
                                             Email
@@ -161,16 +195,16 @@ export default function page({ className }) {
                                         <Input type="number" placeholder="08xxxxxxx" />
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-12 mt-3 '>
-                                    <div className={`flex flex-row gap-3 cursor-pointer ${clickedUntukSaya ? 'clicked' : ''}`} onClick={handleClickUntukSaya}>
+                                <div className='flex flex-row gap-12 mt-3'>
+                                    <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedUntukSaya ? 'clicked' : ''}`} onClick={handleClickUntukSaya}>
                                         {clickedUntukSaya ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                        <span className='font-bold '>
+                                        <span className='font-bold text-sm'>
                                             Untuk Saya Sendiri
                                         </span>
                                     </div>
-                                    <div className={`flex flex-row gap-3 cursor-pointer ${clickedUntukOrangLain ? 'clicked' : ''}`} onClick={handleClickUntukOrangLain}>
+                                    <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedUntukOrangLain ? 'clicked' : ''}`} onClick={handleClickUntukOrangLain}>
                                         {clickedUntukOrangLain ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                        <span className='font-bold '>
+                                        <span className='font-bold text-sm'>
                                             Untuk Orang Lain
                                         </span>
                                     </div>
@@ -181,12 +215,12 @@ export default function page({ className }) {
                             </div>
                         </div>
                     </div>
-                    <div className='flex flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
+                    <div className='hidden lg:flex flex-col rounded-xl px-5 py-5 items-center gap-3 bg-white'>
                         <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
                         <div className='flex flex-col gap-5 '>
                             <div className='flex flex-row gap-2 items-center '>
                                 <PiScroll className='' size='25' color='black' />
-                                <span className='font-bold text-black '>
+                                <span className='font-bold text-black text-sm'>
                                     Kebijakan Pembatalan & Penjadwalan Ulang
                                 </span>
                             </div>
@@ -194,7 +228,7 @@ export default function page({ className }) {
                                 <MdCancel
                                     className='' color='grey' size='25'
                                 />
-                                <span className='font-bold text-black '>
+                                <span className='font-bold text-black text-sm'>
                                     Booking ini tidak dapat di refund
                                 </span>
                             </div>
@@ -202,11 +236,11 @@ export default function page({ className }) {
                                 <FaCircleCheck
                                     className='' color='#0BC175' size='22'
                                 />
-                                <span className='font-bold text-black '>
+                                <span className='font-bold text-black text-sm'>
                                     Dapat dijadwalkan ulang
                                 </span>
                             </div>
-                            <div className=' cursor-pointer'>
+                            <div className='cursor-pointer'>
                                 <a className=" text-[#FF4D30]" onClick={openModal}>Lihat Detail</a>
                                 <Modal isOpen={isModalOpen} onClose={closeModal} />
                             </div>
@@ -214,9 +248,9 @@ export default function page({ className }) {
                     </div>
                 </div>
                 <div className='flex flex-row gap-5'>
-                    <div className='w-full max-w-[985px] rounded-xl mt-5 px-5 py-5 bg-white'>
+                    <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                         <div className='flex flex-col items-start justify-start gap-3 text-[#666666] '>
-                            <span className='font-extrabold text-black text-xl  hidden md:block'>
+                            <span className='font-extrabold text-black text-lg flex'>
                                 Detail Booking
                             </span>
                             <span className='text-[#FF4D30] text-[14px]'>
@@ -224,12 +258,12 @@ export default function page({ className }) {
                             </span>
                         </div>
                         <div className='mt-10 '>
-                            <div className='flex flex-col gap-2'>
-                                <div className='flex flex-row gap-7'>
-                                    <div className='text-black'>
+                            <div className='flex flex-col gap-5'>
+                                <div className='flex md:flex-row flex-col gap-7'>
+                                    <div className='text-black w-full text-sm'>
                                         Nama Motor
                                         <Select>
-                                            <SelectTrigger className='w-[368px]'>
+                                            <SelectTrigger>
                                                 <SelectValue placeholder='Pilih' />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -244,15 +278,15 @@ export default function page({ className }) {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className={cn("grid", className)}>
-                                        <span className='text-black'>Tanggal Mulai</span>
+                                    <div className={cn("grid w-full", className)}>
+                                        <span className='text-black text-sm'>Tanggal Mulai</span>
                                         <Popover>
                                             <PopoverTrigger asChild>
                                                 <Button
                                                     id="date"
                                                     variant={"outline"}
                                                     className={cn(
-                                                        "w-[368px] justify-start text-left font-normal",
+                                                        "w-full justify-start text-left font-normal",
                                                         !date && "text-muted-foreground"
                                                     )}
                                                 >
@@ -284,11 +318,11 @@ export default function page({ className }) {
                                         </Popover>
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-5 '>
-                                    <div className='text-black'>
+                                <div className='flex md:flex-row flex-col gap-5 '>
+                                    <div className='text-black w-full text-sm'>
                                         Durasi
                                         <Select disabled>
-                                            <SelectTrigger className='w-[368px]'>
+                                            <SelectTrigger>
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -303,7 +337,7 @@ export default function page({ className }) {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className='text-black w-full'>
+                                    <div className='text-black w-full text-sm'>
                                         Fasilitas
                                         <ul className="list-disc ml-5">
                                             <li>2 Helm</li>
@@ -313,22 +347,87 @@ export default function page({ className }) {
                                 </div>
                                 <div className='text-black w-full'>
                                     <div className="grid w-full gap-1.5">
-                                        <Label htmlFor="message">Keperluan Menyewa</Label>
-                                        <Textarea placeholder="Keperluan anda" id="message" />
+                                        <Textarea label='Keperluan Menyewa' id="message" />
                                     </div>
                                 </div>
-                                <div className='flex flex-row gap-12 mt-3 '>
-                                    <div className={`flex flex-row gap-3 cursor-pointer ${clickedAmbil ? 'clicked' : ''}`} onClick={handleClickAmbil}>
+                                <div className='flex flex-row gap-12 mt-3'>
+                                    <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedAmbil ? 'clicked' : ''}`} onClick={handleClickAmbil}>
                                         {clickedAmbil ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                        <span className='font-bold '>
+                                        <span className='font-bold text-sm'>
                                             Diambil
                                         </span>
                                     </div>
-                                    <div className={`flex flex-row gap-3 cursor-pointer ${clickedDiantar ? 'clicked' : ''}`} onClick={handleClickDiantar}>
+                                    <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedDiantar ? 'clicked' : ''}`} onClick={handleClickDiantar}>
                                         {clickedDiantar ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                        <span className='font-bold '>
+                                        <span className='font-bold text-sm'>
                                             Diantar
                                         </span>
+                                    </div>
+                                </div>
+                                <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
+                                    <div className="grid w-full gap-1.5 mt-4">
+                                        <Label>
+                                            <div className='flex flex-row gap-1 items-center'>
+                                                <IoMapSharp size='25' />
+                                                <span className='font-semibold text-sm'>
+                                                    Lokasi Rental Motor
+                                                </span>
+                                            </div>
+                                        </Label>
+                                        <Image src='/images/rentalmotormap.png' alt='map' width={1000} height={1000} className='w-full h-full max-h-[380px]' />
+                                        <Label>
+                                            <div className='flex flex-row gap-1 items-center mt-2'>
+                                                <IoLocationSharp size='25' color='red' />
+                                                <a href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
+                                                    <span className='font-semibold text-[#0194F3] text-sm hover:underline'>
+                                                        Click Disini
+                                                    </span>
+                                                </a>
+                                            </div>
+                                        </Label>
+                                    </div>
+                                </div>
+                                <div className={`text-black w-full ${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
+                                    <Textarea value="Nama Jalan, Gedung, No. Rumah" label='Alamat Lengkap' id="message" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='flex'>
+                    <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
+                        <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
+                            <Label>
+                                <span className='font-extrabold text-black text-lg'>
+                                    Kontak Darurat
+                                </span>
+                            </Label>
+                            <span className='text-[#FF4D30] text-[14px]'>
+                                Untuk mengatasi masalah seperti kecelakaan dibutuhkan kontak selain pemesan
+                            </span>
+                        </div>
+                        <div className='mt-10'>
+                            <div className='flex flex-col gap-8 '>
+                                <div className='flex md:flex-row flex-col gap-5 '>
+                                    <div className='text-black w-full'>
+                                        <Label>
+                                            Nama Kontak Darurat
+                                        </Label>
+                                        <Input type="text" placeholder="Nama Kontak" />
+                                    </div>
+                                    <div className='text-black w-full'>
+                                        <Label>
+                                            Nomor Kontak Darurat
+                                        </Label>
+                                        <Input type="number" placeholder="08xxxxxxx" />
+                                    </div>
+                                </div>
+                                <div className='flex flex-row gap-5 '>
+                                    <div className='text-black w-full'>
+                                        <Label>
+                                            Hubungan Kontak Darurat
+                                        </Label>
+                                        <Input type="text" placeholder="" />
                                     </div>
                                 </div>
                                 <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
@@ -362,51 +461,11 @@ export default function page({ className }) {
                         </div>
                     </div>
                 </div>
-                <div className='flex'>
-                    <div className='w-full max-w-[985px] rounded-xl mt-5 px-5 py-5 bg-white'>
-                        <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
-                            <Label>
-                                <span className='font-extrabold text-black text-xl  hidden md:block'>
-                                    Kontak Darurat
-                                </span>
-                            </Label>
-                            <span className='text-[#FF4D30] text-[14px]'>
-                                Untuk mengatasi masalah seperti kecelakaan dibutuhkan kontak selain pemesan
-                            </span>
-                        </div>
-                        <div className='mt-10'>
-                            <div className='flex flex-col gap-8 '>
-                                <div className='flex flex-row gap-5 '>
-                                    <div className='text-black w-full'>
-                                        <Label>
-                                            Nama Kontak Darurat
-                                        </Label>
-                                        <Input type="text" placeholder="Nama Kontak" />
-                                    </div>
-                                    <div className='text-black w-full'>
-                                        <Label>
-                                            Nomor Kontak Darurat
-                                        </Label>
-                                        <Input type="number" placeholder="08xxxxxxx" />
-                                    </div>
-                                </div>
-                                <div className='flex flex-row gap-5 '>
-                                    <div className='text-black w-full'>
-                                        <Label>
-                                            Hubungan Kontak Darurat
-                                        </Label>
-                                        <Input type="text" placeholder="" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div className='flex flex-col w-full'>
-                    <div className='w-full max-w-[985px] rounded-xl mt-5 px-5 py-5 bg-white'>
+                    <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                         <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
                             <Label>
-                                <span className='font-extrabold text-black text-xl  hidden md:block'>
+                                <span className='font-extrabold text-black text-lg'>
                                     Detail Harga
                                 </span>
                             </Label>
@@ -424,7 +483,7 @@ export default function page({ className }) {
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span className='font-medium text-base'>
+                                            <span className='font-medium text-sm'>
                                                 Rp. 00.000 (x3)
                                             </span>
                                         </Label>
@@ -436,16 +495,16 @@ export default function page({ className }) {
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span className='font-medium text-base'>
+                                            <span className='font-medium text-sm'>
                                                 Rp. 00.000
                                             </span>
                                         </Label>
                                     </div>
                                     <div className='flex flex-row justify-end'>
-                                        <div className='text-black'>
+                                        <div className='w-full max-w-[368px] text-sm'>
                                             Diskon
                                             <Select>
-                                                <SelectTrigger className='w-[368px]'>
+                                                <SelectTrigger>
                                                     <SelectValue placeholder='Gunakan' />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -463,12 +522,12 @@ export default function page({ className }) {
                                     </div>
                                     <div className='flex flex-row justify-between mt-2'>
                                         <Label>
-                                            <span className='font-medium text-[14px] text-[#00875A]'>
+                                            <span className='font-medium md:text-base text-xs text-[#00875A]'>
                                                 Masukkan kode referal untuk bonus point!
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span className='font-medium text-base'>
+                                            <span className='font-medium md:text-base text-xs'>
                                                 Rp. 00.000
                                             </span>
                                         </Label>
@@ -487,26 +546,26 @@ export default function page({ className }) {
                                     <div className="border-t border-[#757575] mt-2"></div>
                                     <div className='flex flex-row justify-between'>
                                         <Label>
-                                            <span className='font-semibold text-base'>
+                                            <span className='font-medium text-base'>
                                                 Total Harga
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span className='font-semibold text-base text-[#FF4D30]'>
+                                            <span className='font-medium text-base text-[#FF4D30]'>
                                                 Rp. 00.000
                                             </span>
                                         </Label>
                                     </div>
                                     <div className='flex flex-row gap-12 mt-2 '>
-                                        <div className={`flex flex-row gap-3 cursor-pointer ${clickedTunai ? 'clicked' : ''}`} onClick={handleClickTunai}>
+                                        <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedTunai ? 'clicked' : ''}`} onClick={handleClickTunai}>
                                             {clickedTunai ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                            <span className='font-bold '>
+                                            <span className='font-bold text-sm'>
                                                 Tunai
                                             </span>
                                         </div>
-                                        <div className={`flex flex-row gap-3 cursor-pointer ${clickedCashless ? 'clicked' : ''}`} onClick={handleClickCashless}>
+                                        <div className={`flex flex-row gap-3 items-center cursor-pointer ${clickedCashless ? 'clicked' : ''}`} onClick={handleClickCashless}>
                                             {clickedCashless ? <FaRegDotCircle color='#0194F3' className='' size={25} /> : <FaRegCircle className='' size={25} />}
-                                            <span className='font-bold '>
+                                            <span className='font-bold text-sm'>
                                                 Cashless
                                             </span>
                                         </div>
@@ -515,25 +574,25 @@ export default function page({ className }) {
                             </div>
                         </div>
                     </div>
-                    <div className='flex flex-row gap-1 mt-4 items-center w-full pl-[220px]'>
+                    <div className='flex flex-row gap-1 mt-4 items-center justify-center     w-full'>
                         <MdOutlineTimer size='22px' color='#149CF3' />
-                        <span className='text-[#149CF3] text-[14px] font-semibold'>
+                        <span className='text-[#149CF3] text-sm font-medium'>
                             Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
                         </span>
                     </div>
                 </div>
                 <div className='flex flex-col w-full'>
-                    <div className='w-full max-w-[985px] rounded-xl mt-5 px-5 py-5 bg-white'>
+                    <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                         <div className='flex flex-col gap-8'>
                             <Button>
-                                <span className='text-base'>
+                                <span className='text-sm'>
                                     Lanjut Pembayaran
                                 </span>
                             </Button>
                         </div>
-                        <div className='flex flex-row gap-1 px-5 mt-3 justify-center     items-center'>
+                        <div className='flex md:flex-row flex-col gap-1 px-5 mt-3 justify-center items-center'>
                             <Label>
-                                <span className='font-semibold'>
+                                <span className='font-medium text-sm'>
                                     Dengan melanjutkan pembayaran, Anda telah menyetujui
                                 </span>
                             </Label>
