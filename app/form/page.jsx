@@ -574,7 +574,7 @@ export default function page({ className }) {
                             </div>
                         </div>
                     </div>
-                    <div className='flex flex-row gap-1 mt-4 items-center justify-center     w-full'>
+                    <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
                         <MdOutlineTimer size='22px' color='#149CF3' />
                         <span className='text-[#149CF3] text-sm font-medium'>
                             Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
