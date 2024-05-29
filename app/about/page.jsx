@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
+import ContactButton from '@/components/ui/ContactButton';
 
 export default function About(){
     return (
@@ -69,7 +70,7 @@ export default function About(){
                             <br/>
                             <p>Hubungi kami sekarang untuk informasi lebih lanjut atau lakukan pemesanan online. Terima kasih atas kepercayaan Anda kepada kami sebagai mitra perjalanan Anda di Kudus!</p>
                             <div className="flex space-x-4 mt-4">
-                                <button className="bg-white text-[#FF4D30] py-2 px-4 rounded-full">Hubungi Untuk Tanya Tanya</button>
+                                <ContactButton />
                                 <button className="border border-white text-white py-2 px-4 rounded-full">Lihat Pilihan Motor</button>
                             </div>
                         </div>
