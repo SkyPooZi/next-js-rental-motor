@@ -63,3 +63,7 @@
   opacity: 0;
   visibility: hidden;
 }
+
+.hint-color{
+  color:white;
+}
