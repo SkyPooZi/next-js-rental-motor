@@ -1,16 +1,6 @@
 import React from 'react';
 
 export default function Detail() {
-    const motor = {
-        name: 'Nama Motor',
-        daily: '150K',
-        weekly: '750K',
-        img: '/images/motor/dummy.png',
-        stock: 1,
-        facilities: ['2 Helm & 2 Jas Hujan'],
-        status: 'Tersedia',
-    };
-
     return (
         <div className="flex flex-col justify-center items-center min-h-screen">
             <div className="bg-white p-8 rounded-lg shadow-lg w-3/4 mt-10">
