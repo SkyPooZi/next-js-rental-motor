@@ -21,7 +21,7 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/user/create', formData);
+      const response = await axios.post('https://rental-motor.ruscarestudent.com/api/user/create', formData);
       console.log(response.data);
       router.push('/form');
     } catch (error) {
@@ -96,7 +96,7 @@ const RegisterPage = () => {
             <input
               type="kode"
               placeholder="Masukkan Kode"
-              className="bg-white mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
+              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
               style={{ width: '448px'}}
             />
           </div>

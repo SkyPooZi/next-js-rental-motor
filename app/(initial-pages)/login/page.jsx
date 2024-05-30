@@ -29,21 +29,20 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/user/all');
+      const response = await axios.post('https://rental-motor.ruscarestudent.com/api/login', {
+        email,
+        password
+      });
+
       console.log('API response:', response);
 
-      const users = response.data.user; // Adjusted to access the correct key
-      console.log('Users data:', users);
+      const user = response.data.user; 
+      console.log('User data:', user);
 
-      if (!Array.isArray(users)) {
-        throw new Error('Invalid response format');
-      }
+      const token = response.data.access_token;
+      console.log('Token:', token);
 
-      const user = users.find(user => user.email === email);
-      console.log('User found:', user); // Debugging line to check the user object
-
-      if (user) {
-        // Debugging line to check the user.peran value
+      if (user && user.email === email) {
         console.log('User role:', user.peran);
         if (user.peran === 'admin') {
           router.push('/admin');
