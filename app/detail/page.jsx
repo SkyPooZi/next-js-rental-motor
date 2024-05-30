@@ -16,18 +16,18 @@ export default function Detail() {
             <div className="bg-white p-8 rounded-lg shadow-lg w-3/4 mt-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="flex flex-col items-center mt-10">
-                        <h2 className="text-3xl font-bold mb-4">{motor.name}</h2>
+                        <h2 className="text-3xl font-bold mb-4">Nama Motor</h2>
                         <img
-                            src={motor.img}
+                            src="/images/motor/dummy.png"
                             alt="Motor"
                             className="w-96 h-auto object-cover rounded-lg mt-20"
                         />
                         <div className="flex justify-between w-full mt-10">
                             <div className="mx-20">
-                                <p>Daily: <span className="font-bold">{motor.daily}</span></p>
+                                <p>Daily: <span className="font-bold">150K</span></p>
                             </div>
                             <div className="mx-20">
-                                <p>Weekly: <span className="font-bold">{motor.weekly}</span></p>
+                                <p>Weekly: <span className="font-bold">750K</span></p>
                             </div>
                         </div>
                         <div className="text-center mt-10">
@@ -40,17 +40,15 @@ export default function Detail() {
                     <div>
                         <div className="mt-40">
                             <h3 className="font-bold">Detail:</h3>
-                            <p>• Stok: {motor.stock}</p>
+                            <p>• Stok: 1</p>
                         </div>
                         <div className="mt-10">
                             <h3 className="font-bold">Fasilitas:</h3>
-                            {motor.facilities.map((facility, index) => (
-                                <p key={index}>• {facility}</p>
-                            ))}
+                            <p>• 2 Helm & 2 Jas Hujan</p>
                         </div>
                         <div className="mt-10">
                             <h3 className="font-bold">Status:</h3>
-                            <p className="text-green-500 font-bold">{motor.status}</p>
+                            <p className="text-green-500 font-bold">Tersedia</p>
                         </div>
                     </div>
                 </div>
