@@ -1,8 +1,5 @@
-'use client';
-
-import { React, useState } from "react";
+import React from 'react';
 import Image from "next/image";
-
 import { IoReorderThree, IoReorderThreeOutline } from "react-icons/io5";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
 import { CiDiscount1 } from "react-icons/ci";
@@ -18,44 +15,9 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import Discount from "@/components/sub/admin/discount";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import EditMotor from "@/components/sub/admin/editMotor";
-
-export default function Admin() {
-    const [activeComponent, setActiveComponent] = useState("editMotor");
-
-    const renderComponent = () => {
-        switch (activeComponent) {
-            case "editMotor":
-                return <EditMotor />;
-            case "dashboard":
-                return <Dashboard />;
-            case "list":
-                return <MotorList />;
-            case "user":
-                return <User />;
-            case "discount":
-                return <Discount />;
-            case "history":
-                return <History />;
-            case "rating":
-                return <Rating />;
-            default:
-                return null;
-        }
-    };
-
-    const handleButtonClick = (component) => {
-        setActiveComponent(component);
-    };
-
+const Sidebar = ({ activeComponent, handleButtonClick }) => {
     return (
-        <div className="min-h-screen bg-gray-50/50">
+        <div className="bg-gray-50/50">
             <aside className="bg-gradient-to-br from-gray-800 to-gray-900 -translate-x-80 fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0">
                 <div className="relative border-b border-white/20">
                     <a className="flex items-center gap-4 py-6 px-8" href="#/">
@@ -205,7 +167,7 @@ export default function Admin() {
             <button className="relative middle none font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden" type="button">
                 <span className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
                     <Sheet>
-                        <div className='block md:hidden'>
+                        <div className='block xl:hidden'>
                             <SheetTrigger>
                                 <div className='border border-white p-2 rounded-md'>
                                     <IoReorderThreeOutline size='25' />
@@ -352,7 +314,8 @@ export default function Admin() {
                     </Sheet>
                 </span>
             </button>
-            {renderComponent()}
         </div>
-    );
+    )
 }
+
+export default Sidebar;
