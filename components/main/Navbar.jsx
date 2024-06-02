@@ -51,7 +51,7 @@ export default function Navbar() {
                                 </Label>
                             </a>
                         </div>
-                        <div className="hidden md:block">
+                        <div className="hidden lg:block">
                             <nav aria-label="Global">
                                 <ul className="flex items-center gap-6 text-sm">
                                     <li>
@@ -116,7 +116,7 @@ export default function Navbar() {
                                 </DropdownMenu>
                             </div>
                             <Sheet>
-                                <div className='block md:hidden'>
+                                <div className='block lg:hidden'>
                                     <SheetTrigger>
                                         <div className='border border-white p-2 rounded-md'>
                                             <IoReorderThreeOutline size='25' />
