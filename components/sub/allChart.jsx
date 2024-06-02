@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Card,
     CardBody,
@@ -6,6 +6,7 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
+import { format } from 'date-fns'; // If you're using date-fns for date formatting
 
 import {
     DropdownMenu,
@@ -20,13 +21,15 @@ import {
 import { Button } from "@/components/ui/button";
 
 const AllChart = () => {
+    const [history, setHistory] = useState([]);
+    const [totalHistory, setTotalHistory] = useState(0);
     const [chartData, setChartData] = useState({
         type: 'line',
         height: 240,
         series: [
             {
                 name: "Total Sewa",
-                data: [50, 40, 300, 320, 500, 350, 200],
+                data: [],
             },
         ],
         options: {
@@ -106,6 +109,47 @@ const AllChart = () => {
             },
         },
     });
+
+    const fetchData = async () => {
+        try {
+            let url = `${process.env.NEXT_PUBLIC_API_URL}/api/history/all`;
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+
+            const responseText = await response.text();
+            console.log('Response Text:', responseText);
+
+            const data = JSON.parse(responseText);
+            console.log('Parsed JSON Data:', data);
+
+            setHistory(data.history || []);
+
+            const totalHistory = data.history?.length || 0;
+            setTotalHistory(totalHistory);
+
+            // Update chart data
+            setChartData(prevState => ({
+                ...prevState,
+                series: [
+                    {
+                        ...prevState.series[0],
+                        data: [totalHistory],
+                    },
+                ],
+            }));
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
 
     const [activeComponent, setActiveComponent] = useState('chartDay');
 
@@ -210,10 +254,9 @@ const AllChart = () => {
                             Total Sewa
                         </Typography>
                         <Typography color="blue-gray" className="text-lg font-semibold pl-5">
-                            8
+                            {totalHistory}
                         </Typography>
                     </div>
-
                     <div className="md:hidden flex justify-end">
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -223,34 +266,26 @@ const AllChart = () => {
                                 <DropdownMenuLabel>Pilih Kategori</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
-                                    <DropdownMenuRadioItem value="all">
-                                        <button className={`cursor-pointer ${activeComponent === 'chartDay' ? 'text-black' : ''}`} onClick={() => handleButtonClick('chartDay')}>
-                                            <Typography className={`text-sm ${activeComponent !== 'chartDay' ? '' : ''}`}>
-                                                7 Hari Terakhir
-                                            </Typography>
-                                        </button>
-                                    </DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="paymentWait">
-                                        <button className={`cursor-pointer ${activeComponent === 'chartWeek' ? 'text-black' : ''}`} onClick={() => handleButtonClick('chartWeek')}>
-                                            <Typography className={`text-sm ${activeComponent !== 'chartWeek' ? '' : ''}`}>
-                                                4 Minggu Terakhir
-                                            </Typography>
-                                        </button>
-                                    </DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="inOrder">
-                                        <button className={`cursor-pointer ${activeComponent === 'chartMonth' ? 'text-black' : ''}`} onClick={() => handleButtonClick('chartMonth')}>
-                                            <Typography className={`text-sm ${activeComponent !== 'chartMonth' ? '' : ''}`}>
-                                                6 Bulan Terakhir
-                                            </Typography>
-                                        </button>
-                                    </DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="inUse">
-                                        <button className={`cursor-pointer ${activeComponent === 'chartYear' ? 'text-black' : ''}`} onClick={() => handleButtonClick('chartYear')}>
-                                            <Typography className={`text-sm ${activeComponent !== 'chartYear' ? '' : ''}`}>
-                                                5 Tahun Terakhir
-                                            </Typography>
-                                        </button>
-                                    </DropdownMenuRadioItem>
+                                    <button className={`cursor-pointer ${position === 'chartDay' ? 'text-black' : ''}`} onClick={() => setPosition('chartDay')}>
+                                        <Typography className={`text-sm ${position !== 'chartDay' ? '' : ''}`}>
+                                            7 Hari Terakhir
+                                        </Typography>
+                                    </button>
+                                    <button className={`cursor-pointer ${position === 'chartWeek' ? 'text-black' : ''}`} onClick={() => setPosition('chartWeek')}>
+                                        <Typography className={`text-sm ${position !== 'chartWeek' ? '' : ''}`}>
+                                            4 Minggu Terakhir
+                                        </Typography>
+                                    </button>
+                                    <button className={`cursor-pointer ${position === 'chartMonth' ? 'text-black' : ''}`} onClick={() => setPosition('chartMonth')}>
+                                        <Typography className={`text-sm ${position !== 'chartMonth' ? '' : ''}`}>
+                                            6 Bulan Terakhir
+                                        </Typography>
+                                    </button>
+                                    <button className={`cursor-pointer ${position === 'chartYear' ? 'text-black' : ''}`} onClick={() => setPosition('chartYear')}>
+                                        <Typography className={`text-sm ${position !== 'chartYear' ? '' : ''}`}>
+                                            5 Tahun Terakhir
+                                        </Typography>
+                                    </button>
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -280,7 +315,11 @@ const AllChart = () => {
                 </div>
             </CardHeader>
             <CardBody className="px-2 pb-0">
-                <Chart {...chartData} />
+                <Chart
+                    options={chartData.options}
+                    series={chartData.series}
+                    type={chartData.type}
+                    height={chartData.height} />
             </CardBody>
         </Card>
     );

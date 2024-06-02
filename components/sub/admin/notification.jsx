@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Breadcrumbs } from "@material-tailwind/react";
 import {
     Card,
@@ -19,6 +19,7 @@ import {
     ArrowDownTrayIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
+import { MdDone } from "react-icons/md";
 import { CheckCircleIcon, CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/react/24/solid";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
@@ -46,55 +47,109 @@ function AlertCancel() {
     );
 }
 
-function AlertConfirm() {
-    const [showAlert, setShowAlert] = useState(true);
-
-    const handleCloseAlert = () => {
-        setShowAlert(false);
-        window.location.reload();
-    };
-
-    return (
-        showAlert && (
-            <div className="fixed z-50 flex items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <IconButton variant="text" className="bg-[#DEF7EC]">
-                    <CheckCircleIcon color="#0E9F6E" className="h-6 w-6" />
-                </IconButton>
-                <span className="mx-2 text-[#6B7280] text-sm">Berhasil menyetujui.</span>
-                <button onClick={handleCloseAlert}>
-                    <XMarkIcon className="h-6 w-6" color="#9CA3AF" />
-                </button>
-            </div>
-        )
-    );
-}
-
 export default function Notification() {
     const [showAlertCancel, setShowAlertCancel] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const [id, setId] = useState(null); // State to store the id
+    const [history, setHistory] = useState([]);
+    const [status_history, setStatusHistory] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [btnLoading, setBtnLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const filteredHistories = data.history.filter(item => item.status_history === 'Menunggu Pembayaran');
+                setHistory(filteredHistories);
+
+                if (filteredHistories.length > 0) {
+                    setId(filteredHistories[0].id);
+                }
+
+            } catch (error) {
+                console.error('Fetch Data Error:', error);
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, []);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        if (!id) {
+            setError('No ID available to edit.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('status_history', 'Dipesan');
+
+        setBtnLoading(true);
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                setError(`Failed to update data: ${response.statusText}`);
+            } else {
+                const data = await response.json();
+                console.log('Updated data:', data);
+                setShowNotification(true);
+
+                setHistory(prevHistory => prevHistory.map(item =>
+                    item.id === id ? { ...item, status_history: 'Dipesan' } : item
+                ));
+
+                setTimeout(() => {
+                    setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+                    setBtnLoading(false);
+                    setShowNotification(false);
+                    setTimeout(() => setShowNotification(false), 3000);
+                }, 1000);
+            }
+        } catch (err) {
+            setError(`An error occurred: ${err.message}`);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleCloseAlertCancel = () => {
         setShowAlertCancel(false);
     };
 
-    const handleShowAlertCancel = () => {
+    const handleShowAlertCancel = (id) => {
         setShowAlertCancel(true);
     };
 
-    const [showAlertConfirm, setShowAlertConfirm] = useState(false);
-
-    const handleCloseAlertConfirm = () => {
-        setShowAlertConfirm(false);
-    };
-
-    const handleShowAlertConfirm = () => {
-        setShowAlertConfirm(true);
+    const handleCloseAlert = () => {
+        setShowNotification(false);
     };
 
     return (
         <div className="p-4 xl:ml-80">
             <div className="h-full w-full flex flex-row justify-center">
                 {showAlertCancel && <AlertCancel onClose={handleCloseAlertCancel} />}
-                {showAlertConfirm && <AlertConfirm onClose={handleCloseAlertConfirm} />}
             </div>
             <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
                 <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">
@@ -118,110 +173,52 @@ export default function Notification() {
                 </div>
             </nav>
             <div className="mt-12 flex flex-col gap-4">
-                <Card className="w-full h-full">
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-4 flex flex-col gap-4">
-                            <div className="flex flex-row gap-4">
-                                <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
-                                <div className="flex flex-col gap-2">
-                                    <span className="font-semibold text-black">
-                                        Qamar
-                                    </span>
-                                    <span className="text-black">
-                                        Qamar ingin menyewa motor NMAX, apakah anda menyetujui pemintaan ini?
-                                    </span>
-                                </div>
+                {loading ? (
+                    <div>Loading...</div>
+                ) : (
+                    Array.isArray(history) && history.length > 0 ? (
+                        history.map(item => (
+                            <div key={item.id}>
+                                <Card className="w-full h-full">
+                                    <form onSubmit={(e) => handleSubmit(e, item.id)} method="post">
+                                        <CardHeader floated={false} shadow={false} className="rounded-none">
+                                            <div className="mb-4 flex flex-col gap-4">
+                                                <div className="flex flex-row gap-4">
+                                                    <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
+                                                    <div className="flex flex-col gap-2">
+                                                        <span className="font-semibold text-black">
+                                                            {item.nama_lengkap}
+                                                        </span>
+                                                        <span className="text-black">
+                                                            {item.nama_lengkap} ingin menyewa motor {item.list_motor.nama_motor}, apakah anda menyetujui pemintaan ini?
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="border-t border-[#969696] w-full"></div>
+                                                <div className="w-full justify-end flex flex-row gap-4">
+                                                    <Button color="red" onClick={() => handleShowAlertCancel(item.id)}>
+                                                        Batal
+                                                    </Button>
+                                                    <Button type="submit" color="green">
+                                                        Konfirmasi
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardHeader>
+                                    </form>
+                                </Card>
                             </div>
-                            <div className="border-t border-[#969696] w-full"></div>
-                            <div className="w-full justify-end flex flex-row gap-4">
-                                <Button color="red" onClick={handleShowAlertCancel}>
-                                    Batal
-                                </Button>
-                                <Button color="green" onClick={handleShowAlertConfirm}>
-                                    Konfirmasi
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-                <Card className="w-full h-full">
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-4 flex flex-col gap-4">
-                            <div className="flex flex-row gap-4">
-                                <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
-                                <div className="flex flex-col gap-2">
-                                    <span className="font-semibold text-black">
-                                        Qamar
-                                    </span>
-                                    <span className="text-black">
-                                        Qamar ingin menyewa motor NMAX, apakah anda menyetujui pemintaan ini?
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="border-t border-[#969696] w-full"></div>
-                            <div className="w-full justify-end flex flex-row gap-4">
-                                <Button color="red" onClick={handleShowAlertCancel}>
-                                    Batal
-                                </Button>
-                                <Button color="green" onClick={handleShowAlertConfirm}>
-                                    Konfirmasi
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-                <Card className="w-full h-full">
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-4 flex flex-col gap-4">
-                            <div className="flex flex-row gap-4">
-                                <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
-                                <div className="flex flex-col gap-2">
-                                    <span className="font-semibold text-black">
-                                        Qamar
-                                    </span>
-                                    <span className="text-black">
-                                        Qamar ingin menyewa motor NMAX, apakah anda menyetujui pemintaan ini?
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="border-t border-[#969696] w-full"></div>
-                            <div className="w-full justify-end flex flex-row gap-4">
-                                <Button color="red" onClick={handleShowAlertCancel}>
-                                    Batal
-                                </Button>
-                                <Button color="green" onClick={handleShowAlertConfirm}>
-                                    Konfirmasi
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
-                <Card className="w-full h-full">
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-4 flex flex-col gap-4">
-                            <div className="flex flex-row gap-4">
-                                <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
-                                <div className="flex flex-col gap-2">
-                                    <span className="font-semibold text-black">
-                                        Qamar
-                                    </span>
-                                    <span className="text-black">
-                                        Qamar ingin menyewa motor NMAX, apakah anda menyetujui pemintaan ini?
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="border-t border-[#969696] w-full"></div>
-                            <div className="w-full justify-end flex flex-row gap-4">
-                                <Button color="red" onClick={handleShowAlertCancel}>
-                                    Batal
-                                </Button>
-                                <Button color="green" onClick={handleShowAlertConfirm}>
-                                    Konfirmasi
-                                </Button>
-                            </div>
-                        </div>
-                    </CardHeader>
-                </Card>
+                        ))
+                    ) : (
+                        <div>Notification kosong</div>
+                    )
+                )}
+                {showNotification && (
+                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                        <span>Konfirmasi Berhasil</span>
+                        <MdDone className="ml-2 text-white" />
+                    </div>
+                )}
             </div>
         </div>
     );
