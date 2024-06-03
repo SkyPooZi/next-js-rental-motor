@@ -1,68 +1,117 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Navbar from '@/components/main/Navbar';
+import Footer from '@/components/main/Footer';
+import { useRouter } from 'next/navigation';
 
-const Catalog = () => {
-    const [activeTab, setActiveTab] = useState('Rekomendasi');
+const Motor = ({ motor }) => {
+  const router = useRouter();
 
-    const motors = [
-        { id: 1, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-        { id: 2, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-        { id: 3, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-        { id: 4, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-        { id: 5, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-        { id: 6, name: 'Nama Motor', daily: '50K', weekly: '320K', img: '/images/motor/dummy.png' },
-    ];
+  const handleFormRedirect = () => {
+    router.push('/form');
+  };
 
-    return (
-        <div style={{ marginTop: '50px', marginLeft: '300px', marginRight: '300px' }}>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Pilihan Motor</h2>
-                <div className="flex space-x-4">
-                    <a
-                        href="#"
-                        className={`text-${activeTab === 'Rekomendasi' ? '[#FF4D30]' : 'gray-600'} border-b-2 ${activeTab === 'Rekomendasi' ? 'border-[#FF4D30]' : 'border-transparent'}`}
-                        onClick={() => setActiveTab('Rekomendasi')}
-                    >
-                        Rekomendasi
-                    </a>
-                    <a
-                        href="#"
-                        className={`text-${activeTab === 'Matic' ? '[#FF4D30]' : 'gray-600'} border-b-2 ${activeTab === 'Matic' ? 'border-[#FF4D30]' : 'border-transparent'}`}
-                        onClick={() => setActiveTab('Matic')}
-                    >
-                        Matic
-                    </a>
-                    <a
-                        href="#"
-                        className={`text-${activeTab === 'Manual' ? '[#FF4D30]' : 'gray-600'} border-b-2 ${activeTab === 'Manual' ? 'border-[#FF4D30]' : 'border-transparent'}`}
-                        onClick={() => setActiveTab('Manual')}
-                    >
-                        Manual
-                    </a>
-                </div>
-            </div>
-
-            <div className="bg-white p-4 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {motors.map((motor) => (
-                        <div key={motor.id} className="bg-white rounded-lg shadow p-4">
-                            <img src={motor.img} alt="Motor" className="w-full h-48 object-cover rounded-t-lg" />
-                            <h3 className="text-center font-bold my-2 mt-10">{motor.name}</h3>
-                            <div className="flex justify-around my-2 mt-5">
-                                <p>Daily: <br />{motor.daily}</p>
-                                <p>Weekly: <br />{motor.weekly}</p>
-                            </div>
-                            <div className="text-center mt-4">
-                                <button className="bg-white text-[#FF4D30] border border-[#FF4D30] px-8 py-2 font-bold hover:bg-[#FF4D30] hover:text-white transition mt-10">Booking Now!</button>
-                                <p className="text-[#FF4D30] mt-2">Lihat detail</p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
+  return (
+    <div className="border border-gray-300 rounded-lg p-4 shadow-md flex flex-col items-center">
+      <div className="flex justify-center mb-4">
+        <Image
+          src={`/${motor.gambar_motor}`}
+          alt={motor.nama_motor}
+          width={300}
+          height={200}
+          className="rounded-lg"
+        />
+      </div>
+      <div className="text-center">
+        <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 text-black">{motor.nama_motor}</h3>
+        <div className="mb-2">
+          <span className="font-bold text-black">Daily: </span>
+          <span className="font-bold text-black">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
         </div>
-    );
+        <div className="mb-4">
+          <span className="font-bold text-black">Weekly: </span>
+          <span className='font-bold text-black'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
+        </div>
+        <div className="flex flex-col items-center mb-2"> {/* Column layout for all screen sizes */}
+          <button onClick={handleFormRedirect} className="bg-[#FF4D30] hover:bg-red-800 text-white py-2 px-4 sm:px-6 rounded mb-2">Booking Now!</button>
+          <a href="/detail" className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</a>
+        </div>
+      </div>
+    </div>
+  );
 };
 
-export default Catalog;
+const MotorList = () => {
+  const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
+  const [motors, setMotors] = useState([]);
+
+  useEffect(() => {
+    const fetchMotors = async () => {
+      try {
+        const response = await fetch('https://415d-2001-448a-406f-12e7-4642-c87e-9b1-fbb6.ngrok-free.app/api/list-motor/all', {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer 4|EKzYACQsN5zLTUUpcJmp2i9fJYhpuy1DGQbEmmg9bf8b6a26'
+          },
+        });
+
+        // Log the raw response
+        console.log('Raw response:', response);
+
+        // Check if the response is not ok and throw an error
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        // Ensure the response is in JSON format
+        const data = await response.json();
+        console.log('JSON response:', data);
+
+        if (data.status === 200) {
+          setMotors(data.listMotor);
+        } else {
+          console.error('Unexpected response status:', data.status);
+        }
+      } catch (error) {
+        console.error('Error fetching motor data:', error);
+      }
+    };
+
+    fetchMotors();
+  }, []);
+
+  return (
+    <>
+      <Navbar />
+      <div className="flex flex-col items-center p-5 bg-white min-h-screen w-full overflow-x-hidden">
+        <div className="w-full max-w-6xl mb-5">
+          <div className="flex justify-between items-center">
+            <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold text-black">Pilihan Motor</h1>
+            <div className="flex gap-1 sm:gap-3"> {/* Adjusting gap for smaller screens */}
+              {['Rekomendasi', 'Matic', 'Manual'].map(filter => (
+                <button
+                  key={filter}
+                  className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 ${selectedFilter === filter ? 'border-[#FF4D30]' : 'border-transparent'}`}
+                  onClick={() => setSelectedFilter(filter)}
+                >
+                  <span className="text-sm sm:text-base lg:text-lg text-black">{filter}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+          {motors.map((motor, index) => (
+            <Motor key={index} motor={motor} />
+          ))}
+        </div>
+      </div>
+      <Footer />
+    </>
+  );
+};
+
+export default MotorList;

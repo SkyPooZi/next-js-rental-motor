@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
@@ -29,17 +28,28 @@ const LoginPage = () => {
     }
 
     try {
-      const response = await axios.post('https://rental-motor.ruscarestudent.com/api/login', {
-        email,
-        password
+      const response = await fetch("https://0b8f-2001-448a-406f-12e7-60f1-470f-bf01-4e39.ngrok-free.app/api/login", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
       });
 
-      console.log('API response:', response);
+      if (!response.ok) {
+        console.log('Response status:', response.status);
+        console.log('Response body:', await response.text());
+        throw new Error('Login failed');
+      }
 
-      const user = response.data.user; 
+      const data = await response.json();
+
+      console.log('API response:', data);
+
+      const user = data.user;
       console.log('User data:', user);
 
-      const token = response.data.access_token;
+      const token = data.access_token;
       console.log('Token:', token);
 
       if (user && user.email === email) {
@@ -47,7 +57,7 @@ const LoginPage = () => {
         if (user.peran === 'admin') {
           router.push('/admin');
         } else {
-          router.push('/form');
+          router.push('/');
         }
       } else {
         setError('Invalid email or password');
@@ -59,74 +69,62 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-white">
-      <div className="flex flex-row">
+    <div className="flex items-center justify-center min-h-screen bg-white p-4">
+      <div className="flex flex-col md:flex-row items-center">
         <img
           src="/images/login.png"
           alt="Login"
-          className="w-500 h-500 object-cover mr-10"
+          className="w-full md:w-1/2 lg:w-auto h-auto object-cover mb-4 md:mb-0 md:mr-10"
         />
-        <div className="flex flex-col items-center justify-center w-full">
-          <h1 className="text-4xl font-bold mb-6 text-black">Login</h1>
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col items-center justify-center w-full md:w-1/2">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 md:mb-6 text-black">Login</h1>
+          {error && <div className="text-red-500 mb-2 md:mb-4">{error}</div>}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2 items-center w-full">
             <input
               type="text"
               placeholder="Email"
               value={email}
               onChange={handleEmailChange}
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              className="bg-white text-black mt-2 md:mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full md:w-80 lg:w-96 h-10 md:h-12 shadow"
             />
             <input
               type="password"
               placeholder="Kata Sandi"
               value={password}
               onChange={handlePasswordChange}
-              className="bg-white text-black mt-2 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              className="bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full md:w-80 lg:w-96 h-10 md:h-12 shadow"
             />
-            <div className="flex items-center mt-4 text-black bg-white">
+            <div className="flex items-center w-full mt-2 md:mt-4 text-black bg-white">
               <input type="checkbox" id="ingat-saya" className="mr-2" />
               <label htmlFor="ingat-saya">Ingat Saya</label>
-              <span className="mx-20"> </span>
-              <a href="#" className="hover:underline ml-auto">
-                Lupa Kata Sandi?
-              </a>
+              <span className="flex-grow"></span>
+              <a href="/forgot-email" className="hover:underline">Lupa Kata Sandi?</a>
             </div>
-            <div className="flex mt-4">
-              <button
-                type="submit"
-                className="bg-[#ff4d30] text-white font-bold py-2 px-4 rounded-lg h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1 hover:bg-FF0000 flex-grow"
-                style={{ width: '448px' }}
-              >
-                Login
-              </button>
-            </div>
+            <button
+              type="submit"
+              className="bg-[#ff4d30] text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 w-full md:w-80 lg:w-96 hover:bg-red-600 mt-2 md:mt-4"
+            >
+              Login
+            </button>
           </form>
-          <div className="flex justify-center text-center mt-4 text-base text-black">
-            <span>Belum punya akun? </span>
-            <span className="mx-20"> </span>
-            <a href="/register" className="hover:underline">
-              Daftar di sini
-            </a>
+          <div className="flex justify-center mt-2 md:mt-4 text-sm md:text-base text-black">
+            <span>Belum punya akun?</span>
+            <a href="/register" className="hover:underline ml-1 md:ml-2">Daftar di sini</a>
           </div>
-          <div className="flex justify-center items-center mt-4 text-base">
+          <div className="flex justify-center items-center mt-2 md:mt-4 text-sm md:text-base">
             <span>Atau</span>
           </div>
-          <div className="flex items-center ml-4">
-            <a href="#" className="flex items-center justify-center rounded-lg p-2 shadow shadow-black shadow-opacity-25 shadow-radius-1 hover:bg-gray-300">
+          <div className="flex items-center justify-center gap-2 md:gap-4 mt-1 md:mt-2">
+            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
               <img
                 src="/images/google.png"
                 alt="Google"
-                className="w-500 h-5 mr-10 ml-10"
               />
             </a>
-            <a href="#" className="flex items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow shadow-black shadow-opacity-25 shadow-radius-1 ml-4">
+            <a href="#" className="flex items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg px-4 py-2 md:px-6 md:py-3 shadow">
               <img
                 src="/images/facebook.png"
                 alt="Facebook"
-                className="w-100 h-5 mr-10 ml-10"
               />
             </a>
           </div>
