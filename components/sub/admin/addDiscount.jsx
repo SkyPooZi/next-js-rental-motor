@@ -326,7 +326,7 @@ export default function AddDiscount() {
                                         className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         disabled={loading}
                                     >
-                                        {loading ? 'Loading...' : 'Tambah Motor Baru'}
+                                        {loading ? 'Loading...' : 'Tambah Diskon Baru'}
                                     </Button>
                                 </div>
                             </div>

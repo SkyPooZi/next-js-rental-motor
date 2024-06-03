@@ -64,7 +64,7 @@ const Page = ({ params: { id } }) => {
         fetchData();
     }, [id]);
 
-    const handleButtonClick = (component) => {
+    const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
 

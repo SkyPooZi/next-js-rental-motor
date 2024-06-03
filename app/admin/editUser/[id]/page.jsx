@@ -323,7 +323,7 @@ const Page = ({ params: { id } }) => {
                                                 className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 loading={loading}
                                             >
-                                                {loading ? 'Loading...' : 'Simpan'}
+                                                {loading ? 'Loading...' : 'Ubah Data'}
                                             </Button>
                                         </div>
                                     </div>

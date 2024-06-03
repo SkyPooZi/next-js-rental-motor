@@ -208,43 +208,6 @@ const Page = ({ params: { id } }) => {
                                             </span>
                                             <div className="w-full cursor-not-allowed">
                                                 <Input label="Masukkan tanggal booking" value={history.tanggal_booking} disabled />
-                                                {/* <Popover>
-                                                    <PopoverTrigger asChild>
-                                                        <Button
-                                                            disabled
-                                                            id="date"
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-full justify-between text-left font-normal",
-                                                                !date && "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {date?.from ? (
-                                                                date.to ? (
-                                                                    <>
-                                                                        {format(date.from, "LLL dd, y")} -{" "}
-                                                                        {format(date.to, "LLL dd, y")}
-                                                                    </>
-                                                                ) : (
-                                                                    format(date.from, "LLL dd, y")
-                                                                )
-                                                            ) : (
-                                                                <span>Pilih</span>
-                                                            )}
-                                                            <CalendarIcon className="h-5 w-5" color="black" />
-                                                        </Button>
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-auto p-0" align="start">
-                                                        <Calendar
-                                                            initialFocus
-                                                            mode="range"
-                                                            defaultMonth={date?.from}
-                                                            selected={date}
-                                                            onSelect={setDate}
-                                                            numberOfMonths={2}
-                                                        />
-                                                    </PopoverContent>
-                                                </Popover> */}
                                             </div>
                                         </div>
                                     </div>

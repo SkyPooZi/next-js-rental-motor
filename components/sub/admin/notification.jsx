@@ -24,37 +24,15 @@ import { CheckCircleIcon, CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/r
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
 
-function AlertCancel() {
-    const [showAlert, setShowAlert] = useState(true);
-
-    const handleCloseAlert = () => {
-        setShowAlert(false);
-        window.location.reload();
-    };
-
-    return (
-        showAlert && (
-            <div className="fixed z-50 flex items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <IconButton variant="text" className="bg-[#FDE8E8]">
-                    <XCircleIcon color="#F05252" className="h-6 w-6" />
-                </IconButton>
-                <span className="mx-2 text-[#6B7280] text-sm">Gagal menyetujui.</span>
-                <button onClick={handleCloseAlert}>
-                    <XMarkIcon className="h-6 w-6" color="#9CA3AF" />
-                </button>
-            </div>
-        )
-    );
-}
-
 export default function Notification() {
-    const [showAlertCancel, setShowAlertCancel] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [showNotificationCancel, setShowNotificationCancel] = useState(false);
     const [id, setId] = useState(null); // State to store the id
     const [history, setHistory] = useState([]);
     const [status_history, setStatusHistory] = useState('');
     const [loading, setLoading] = useState(true);
     const [btnLoading, setBtnLoading] = useState(false);
+    const [loadingCancel, setLoadingCancel] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -134,23 +112,55 @@ export default function Notification() {
         }
     };
 
-    const handleCloseAlertCancel = () => {
-        setShowAlertCancel(false);
-    };
+    const handleSubmitCancel = async (e) => {
+        e.preventDefault();
 
-    const handleShowAlertCancel = (id) => {
-        setShowAlertCancel(true);
-    };
+        if (!id) {
+            setError('No ID available to edit.');
+            return;
+        }
 
-    const handleCloseAlert = () => {
-        setShowNotification(false);
+        const formData = new FormData();
+        formData.append('status_history', 'Dibatalkan');
+
+        setLoadingCancel(true);
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                setError(`Failed to update data: ${response.statusText}`);
+            } else {
+                const data = await response.json();
+                console.log('Updated data:', data);
+                setShowNotificationCancel(true);
+
+                setHistory(prevHistory => prevHistory.map(item =>
+                    item.id === id ? { ...item, status_history: 'Dibatalkan' } : item
+                ));
+
+                setTimeout(() => {
+                    setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+                    setLoadingCancel(false);
+                    setShowNotificationCancel(false);
+                    setTimeout(() => setShowNotificationCancel(false), 3000);
+                }, 1000);
+            }
+        } catch (err) {
+            setError(`An error occurred: ${err.message}`);
+        } finally {
+            setLoadingCancel(false);
+        }
     };
 
     return (
         <div className="p-4 xl:ml-80">
-            <div className="h-full w-full flex flex-row justify-center">
-                {showAlertCancel && <AlertCancel onClose={handleCloseAlertCancel} />}
-            </div>
             <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
                 <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">
                     <div className="capitalize">
@@ -180,32 +190,34 @@ export default function Notification() {
                         history.map(item => (
                             <div key={item.id}>
                                 <Card className="w-full h-full">
-                                    <form onSubmit={(e) => handleSubmit(e, item.id)} method="post">
-                                        <CardHeader floated={false} shadow={false} className="rounded-none">
-                                            <div className="mb-4 flex flex-col gap-4">
-                                                <div className="flex flex-row gap-4">
-                                                    <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
-                                                    <div className="flex flex-col gap-2">
-                                                        <span className="font-semibold text-black">
-                                                            {item.nama_lengkap}
-                                                        </span>
-                                                        <span className="text-black">
-                                                            {item.nama_lengkap} ingin menyewa motor {item.list_motor.nama_motor}, apakah anda menyetujui pemintaan ini?
-                                                        </span>
-                                                    </div>
+                                    <CardHeader floated={false} shadow={false} className="rounded-none">
+                                        <div className="mb-4 flex flex-col gap-4">
+                                            <div className="flex flex-row gap-4">
+                                                <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
+                                                <div className="flex flex-col gap-2">
+                                                    <span className="font-semibold text-black">
+                                                        {item.nama_lengkap}
+                                                    </span>
+                                                    <span className="text-black">
+                                                        {item.nama_lengkap} ingin menyewa motor {item.list_motor.nama_motor}, apakah anda menyetujui pemintaan ini?
+                                                    </span>
                                                 </div>
-                                                <div className="border-t border-[#969696] w-full"></div>
-                                                <div className="w-full justify-end flex flex-row gap-4">
-                                                    <Button color="red" onClick={() => handleShowAlertCancel(item.id)}>
+                                            </div>
+                                            <div className="border-t border-[#969696] w-full"></div>
+                                            <div className="w-full justify-end flex flex-row gap-4">
+                                                <form onSubmit={(e) => handleSubmitCancel(e, item.id)} method="post">
+                                                    <Button color="red" type="submit">
                                                         Batal
                                                     </Button>
+                                                </form>
+                                                <form onSubmit={(e) => handleSubmit(e, item.id)} method="post">
                                                     <Button type="submit" color="green">
                                                         Konfirmasi
                                                     </Button>
-                                                </div>
+                                                </form>
                                             </div>
-                                        </CardHeader>
-                                    </form>
+                                        </div>
+                                    </CardHeader>
                                 </Card>
                             </div>
                         ))
@@ -216,6 +228,12 @@ export default function Notification() {
                 {showNotification && (
                     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
                         <span>Konfirmasi Berhasil</span>
+                        <MdDone className="ml-2 text-white" />
+                    </div>
+                )}
+                {showNotificationCancel &&(
+                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                        <span>Pembatalan Berhasil</span>
                         <MdDone className="ml-2 text-white" />
                     </div>
                 )}
