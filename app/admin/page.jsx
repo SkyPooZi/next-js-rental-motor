@@ -16,7 +16,7 @@ import {
     SheetHeader,
     SheetTitle,
     SheetTrigger,
-} from "@/components/ui/sheet"
+} from "@/components/ui/sheet";
 
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
@@ -202,7 +202,7 @@ export default function Admin() {
             <button className="relative middle none font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden" type="button">
                 <span className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
                     <Sheet>
-                        <div className='block md:hidden'>
+                        <div className='block xl:hidden'>
                             <SheetTrigger>
                                 <div className='border border-white p-2 rounded-md'>
                                     <IoReorderThreeOutline size='25' />

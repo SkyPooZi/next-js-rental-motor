@@ -1,6 +1,7 @@
 'use client';
 
 import React from "react";
+import { useState, useRef, useEffect } from 'react';
 
 import { MdHistory } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
@@ -8,8 +9,191 @@ import { FaUserCircle } from "react-icons/fa";
 
 import AllChart from "@/components/sub/allChart";
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import { set } from "date-fns";
 
 export default function Dashboard() {
+    const [motor, setMotor] = useState([]);
+    const [sewa, setSewa] = useState([]);
+    const [ulasan, setUlasan] = useState([]);
+    const [availableMotor, setAvailableMotor] = useState([]);
+    const [unavailableMotor, setUnavailableMotor] = useState([]);
+    const [user, setUser] = useState([]);
+    const [totalMotor, setTotalMotor] = useState(0);
+    const [totalSewa, setTotalSewa] = useState(0);
+    const [totalUlasan, setTotalUlasan] = useState(0);
+    const [totalUser, setTotalUser] = useState(0);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                const { listMotor } = responseData;
+                console.log('listMotor Data:', listMotor);
+
+                setMotor(listMotor);
+
+                const totalMotor = listMotor.length;
+                setTotalMotor(totalMotor);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchSewa = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                const { history } = responseData;
+                console.log('History Data:', history);
+
+                setSewa(history);
+
+                const totalSewa = history.length;
+                setTotalSewa(totalSewa);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchSewa();
+    }, []);
+
+    useEffect(() => {
+        const fetchReview = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                const { review } = responseData;
+                console.log('Review Data:', review);
+
+                setUlasan(review);
+
+                const totalUlasan = review.length;
+                setTotalUlasan(totalUlasan);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchReview();
+    }, []);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                const { user } = responseData;
+                console.log('User Data:', user);
+
+                setUser(user);
+
+                const totalUser = user.length;
+                setTotalUser(totalUser);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        }
+        fetchUser();
+    }, []);
+
+    useEffect(() => {
+        const fetchAvailableMotor = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                if (responseData.listMotor && Array.isArray(responseData.listMotor)) {
+                    const { listMotor } = responseData;
+                    console.log('ListMotor Data:', listMotor);
+
+                    const available = listMotor.filter(motor => motor.status_motor === 'Tersedia');
+                    console.log('Available Motors:', available);
+
+                    setMotor(listMotor);
+                    setAvailableMotor(available);
+                } else {
+                    console.error('ListMotor is not defined or not an array');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchAvailableMotor();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                const responseData = await response.json();
+                console.log('Response Data:', responseData);
+
+                if (responseData.listMotor && Array.isArray(responseData.listMotor)) {
+                    const { listMotor } = responseData;
+                    console.log('ListMotor Data:', listMotor);
+
+                    const available = listMotor.filter(motor => motor.status_motor === 'Tersedia');
+                    console.log('Available Motors:', available);
+
+                    const unavailable = listMotor.filter(motor => motor.status_motor !== 'Tersedia');
+                    console.log('Unavailable Motors:', unavailable);
+
+                    setMotor(listMotor);
+                    setAvailableMotor(available);
+                    setUnavailableMotor(unavailable);
+                } else {
+                    console.error('ListMotor is not defined or not an array');
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchData();
+    }, []);
+
     return (
         <div className="p-4 xl:ml-80">
             <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
@@ -43,7 +227,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-medium">Total Motor</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">29</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalMotor}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
@@ -57,7 +241,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-medium">Total Sewa</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">134</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalSewa}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
@@ -71,7 +255,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-normal">Total Ulasan</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">352</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalUlasan}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
@@ -85,7 +269,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-normal">Total Pengguna</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug text-blue-gray-900">258</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug text-blue-gray-900">{totalUser}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
@@ -101,7 +285,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tersedia</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">19</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{availableMotor.length}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
@@ -117,7 +301,7 @@ export default function Dashboard() {
                         </div>
                         <div className="p-4 text-right">
                             <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tidak Tersedia</p>
-                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">10</h4>
+                            <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{unavailableMotor.length}</h4>
                         </div>
                         <div className="border-t border-blue-gray-50 p-4">
                             <p className="block antialiased text-sm leading-relaxed font-normal">
