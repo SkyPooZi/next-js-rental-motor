@@ -97,7 +97,7 @@ export default function NavbarAdmin() {
                         </DropdownMenuItem>
                         <div className="border-t border-[#FF4D30] m-2"></div>
                         <DropdownMenuItem>
-                            <Link href="/logout">
+                            <Link href="/login">
                                 <div className='flex flex-row justify-center items-center text-[#FF4D30]'>
                                     <RiLogoutCircleLine size="20" />
                                     <span className='font-bold ml-[10px]'>
