@@ -22,18 +22,18 @@ const ForgotOTP = () => {
 
   const sendOtpEmail = async (email) => {
     try {
-      const response = await fetch('https://415d-2001-448a-406f-12e7-4642-c87e-9b1-fbb6.ngrok-free.app/api/send-otp', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/send-otp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer 4|EKzYACQsN5zLTUUpcJmp2i9fJYhpuy1DGQbEmmg9bf8b6a26`,
+          'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
         },
         body: JSON.stringify({ email }),
       });
 
       if (response.ok) {
         const data = await response.json();
-        const otp = data.otp;
+        const otp = data.OTP;
         setSentOtp(otp);
         setMessage('OTP has been sent to your email.');
         console.log(otp)
@@ -48,7 +48,9 @@ const ForgotOTP = () => {
 
   const verifyOtp = () => {
     const enteredOtp = otp.join('');
-    if (enteredOtp === sentOtp) {
+    console.log('OTP Set verify:', enteredOtp);
+    console.log('OTP Set:', sentOtp);
+    if (enteredOtp === `${sentOtp}`) {
       router.push('/forgot-pass');
     } else {
       setMessage('Invalid OTP. Please try again.');
@@ -61,6 +63,7 @@ const ForgotOTP = () => {
 
     const newOtp = [...otp];
     newOtp[index] = value;
+    console.log('OTP Set:', newOtp);
     setOtp(newOtp);
 
     // Focus on the next input field if it's not the last one
