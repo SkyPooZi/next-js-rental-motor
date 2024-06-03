@@ -81,6 +81,7 @@ export function UserListTable() {
     const endIndex = startIndex + itemsPerPage;
     const currentUserData = filteredUsers.slice(startIndex, endIndex);
 
+    // Calculate the total number of pages based on the filtered data
     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
     const handlePageChange = (page) => {
@@ -144,7 +145,10 @@ export function UserListTable() {
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -183,7 +187,7 @@ export function UserListTable() {
                                                     color="blue-gray"
                                                     className="font-normal"
                                                 >
-                                                    {userData.id}
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
                                                 </Typography>
                                             </td>
                                             <td className="p-4">

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from "next/image";
 import { IoReorderThree, IoReorderThreeOutline } from "react-icons/io5";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
@@ -14,6 +14,13 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
+
+import Dashboard from "@/components/sub/admin/dashboard";
+import MotorList from "@/components/sub/admin/motorList";
+import User from "@/components/sub/admin/user";
+import Discount from "@/components/sub/admin/discount";
+import History from "@/components/sub/admin/history";
+import Rating from "@/components/sub/admin/rating";
 
 const Sidebar = ({ activeComponent, handleButtonClick }) => {
     return (
@@ -42,7 +49,7 @@ const Sidebar = ({ activeComponent, handleButtonClick }) => {
                                         <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"></path>
                                     </svg>
                                     <a aria-current="page" className="active">
-                                        <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">dashboard</p>
+                                        <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">beranda</p>
                                     </a>
                                 </div>
                             </button>

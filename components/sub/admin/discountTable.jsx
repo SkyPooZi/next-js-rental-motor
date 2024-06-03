@@ -109,6 +109,7 @@ export function DiscountTable() {
     const endIndex = startIndex + itemsPerPage;
     const currentDiscountData = filteredDiscounts.slice(startIndex, endIndex);
 
+    // Calculate the total number of pages based on the filtered data
     const totalPages = Math.ceil(filteredDiscounts.length / itemsPerPage);
 
     const handlePageChange = (page) => {
@@ -180,7 +181,10 @@ export function DiscountTable() {
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                                 <a href="/admin/addDiscount">
@@ -225,7 +229,7 @@ export function DiscountTable() {
                                                     color="blue-gray"
                                                     className="font-normal"
                                                 >
-                                                    {diskonData.id}
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
                                                 </Typography>
                                             </td>
                                             <td className="p-4">

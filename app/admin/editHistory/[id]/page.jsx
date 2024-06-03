@@ -40,6 +40,8 @@ import Sidebar from '@/components/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const Page = ({ params: { id } }) => {
+    const [motors, setMotors] = useState([]);
+    const [diskons, setDiskons] = useState([]);
     const [history, setHitory] = useState(null);
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
@@ -55,7 +57,7 @@ const Page = ({ params: { id } }) => {
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
     const [hubungan_dengan_kontak_darurat, setHubunganKontakDarurat] = useState('');
-    const [diskon, setDiskon] = useState('');
+    const [id_diskon, setDiskon] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [total_pembayaran, setTotalPembayaran] = useState('');
     const [status_history, setStatusHistory] = useState('');
@@ -64,6 +66,65 @@ const Page = ({ params: { id } }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+
+    const handleSelectChangeDiskon = (value) => {
+        setDiskon(value);
+    }
+
+    const handleSelectChangeNamaMotor = (value) => {
+        setNamaMotor(value);
+    }
+
+    useEffect(() => {
+        const fetchMotor = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    },
+                });
+
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    console.log('Fetched motor:', data);
+                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                }
+            } catch (err) {
+                setError(`An error occurred: ${err.message}`);
+            }
+        };
+        fetchMotor();
+    }, []);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    console.log('Fetched motor:', data);
+                    setDiskons(data.diskon || []); // Ensure data.listMotor is an array or default to empty array
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchData();
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -109,7 +170,7 @@ const Page = ({ params: { id } }) => {
         if (nama_kontak_darurat) formData.append('nama_kontak_darurat', nama_kontak_darurat);
         if (nomor_kontak_darurat) formData.append('nomor_kontak_darurat', nomor_kontak_darurat);
         if (hubungan_dengan_kontak_darurat) formData.append('hubungan_kontak_darurat', hubungan_dengan_kontak_darurat);
-        if (diskon) formData.append('diskon', diskon);
+        if (id_diskon) formData.append('diskon.id', id);
         if (metode_pembayaran) formData.append('metode_pembayaran', metode_pembayaran);
         if (total_pembayaran) formData.append('total_pembayaran', total_pembayaran);
         if (status_history) formData.append('status_history', status_history);
@@ -149,7 +210,7 @@ const Page = ({ params: { id } }) => {
                     ...(nama_kontak_darurat && { nama_kontak_darurat: data.history.nama_kontak_darurat }),
                     ...(nomor_kontak_darurat && { nomor_kontak_darurat: data.history.nomor_kontak_darurat }),
                     ...(hubungan_dengan_kontak_darurat && { hubungan_dengan_kontak_darurat: data.history.hubungan_dengan_kontak_darurat }),
-                    ...(diskon && { diskon: data.history.diskon.nama_diskon }),
+                    ...(id_diskon && { id_diskon: data.history.id_diskon }),
                     ...(metode_pembayaran && { metode_pembayaran: data.history.metode_pembayaran }),
                     ...(total_pembayaran && { total_pembayaran: data.history.total_pembayaran }),
                     ...(status_history && { status_history: data.history.status_history }),
@@ -200,6 +261,9 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
+            <div className='hidden xl:block'>
+                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -244,8 +308,14 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
                         </div>
-                        <NavbarAdmin />
-                        <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
+                        </div>
                     </div>
                 </nav>
                 <div className="mt-12">
@@ -320,14 +390,16 @@ const Page = ({ params: { id } }) => {
                                                     <div className="flex items-center">
                                                         <Checkbox
                                                             value="Diri Sendiri"
-                                                            onChange={(e) => setPenyewa(e.target.value)}
+                                                            checked={history.penyewa === "Diri Sendiri"}
+                                                            disabled
                                                         />
                                                         Diri Sendiri
                                                     </div>
                                                     <div className="flex items-center">
                                                         <Checkbox
                                                             value="Orang Lain"
-                                                            onChange={(e) => setPenyewa(e.target.value)}
+                                                            checked={history.penyewa === "Orang Lain"}
+                                                            disabled
                                                         />
                                                         Orang Lain
                                                     </div>
@@ -339,10 +411,21 @@ const Page = ({ params: { id } }) => {
                                                 <span className="text-black">
                                                     Nama Motor
                                                 </span>
-                                                <Input
-                                                    label={`Masukkan nama motor (${history.list_motor.nama_motor})`}
-                                                    onChange={(e) => setNamaMotor(e.target.value)}
-                                                />
+                                                {motors.length > 0 && (
+                                                    <div className="w-full">
+                                                        <Select
+                                                            label={`Pilih nama motor (${history.list_motor.nama_motor})`}
+                                                            onChange={handleSelectChangeNamaMotor}
+                                                            disabled
+                                                        >
+                                                            {motors.map((motor) => (
+                                                                <Option key={motor.id} value={motor.nama_motor}>
+                                                                    {motor.nama_motor}
+                                                                </Option>
+                                                            ))}
+                                                        </Select>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row gap-4">
@@ -474,6 +557,7 @@ const Page = ({ params: { id } }) => {
                                                         <Checkbox
                                                             value="Diambil"
                                                             checked={history.penerimaan_motor === "Diambil"}
+                                                            disabled
                                                         />
                                                         Diambil
                                                     </div>
@@ -481,6 +565,7 @@ const Page = ({ params: { id } }) => {
                                                         <Checkbox
                                                             value="Diantar"
                                                             checked={history.penerimaan_motor === "Diantar"}
+                                                            disabled
                                                         />
                                                         Diantar
                                                     </div>
@@ -522,17 +607,21 @@ const Page = ({ params: { id } }) => {
                                                 <span className="text-black">
                                                     Diskon
                                                 </span>
-                                                <Select
-                                                    label={`Masukkan diskon (${history.diskon.nama_diskon})`}
-                                                    onChange={handleSelectChangeDiscount}
-                                                >
-                                                    <Option className="text-white rounded-md w-full bg-green-400" value='Ramadhan'>
-                                                        Ramadhan
-                                                    </Option>
-                                                    <Option className="text-white my-2 rounded-md w-full bg-red-400" value='Natal'>
-                                                        Natal
-                                                    </Option>
-                                                </Select>
+                                                {diskons.length > 0 && (
+                                                    <div className="w-full">
+                                                        <Select
+                                                            label={`Pilih diskon (${history.diskon.nama_diskon})`}
+                                                            onChange={handleSelectChangeDiskon}
+                                                            disabled
+                                                        >
+                                                            {diskons.map((id_diskon) => (
+                                                                <Option key={id_diskon.id} value={id_diskon.id}>
+                                                                    {id_diskon.nama_diskon}
+                                                                </Option>
+                                                            ))}
+                                                        </Select>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex flex-col md:flex-row gap-4">
@@ -545,6 +634,7 @@ const Page = ({ params: { id } }) => {
                                                         <Checkbox
                                                             value="Tunai"
                                                             checked={history.metode_pembayaran === "Tunai"}
+                                                            disabled
                                                         />
                                                         Tunai
                                                     </div>
@@ -552,6 +642,7 @@ const Page = ({ params: { id } }) => {
                                                         <Checkbox
                                                             value="Cashless"
                                                             checked={history.metode_pembayaran === "Cashless"}
+                                                            disabled
                                                         />
                                                         Cashless
                                                     </div>
@@ -601,7 +692,7 @@ const Page = ({ params: { id } }) => {
                                                 className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 loading={loading}
                                             >
-                                                {loading ? 'Loading...' : 'Tambah Motor Baru'}
+                                                {loading ? 'Loading...' : 'Ubah Data'}
                                             </Button>
                                         </div>
                                     </div>

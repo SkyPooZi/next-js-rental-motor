@@ -18,7 +18,8 @@ import {
     Input,
     Select,
     Option,
-    Textarea
+    Textarea,
+    MenuItem
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
@@ -33,6 +34,8 @@ import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const Page = ({ params: { id } }) => {
     const [motor, setMotor] = useState(null);
+    const [motors, setMotors] = useState([]);
+    const [selectedMotor, setSelectedMotor] = useState('');
     const [nama_motor, setNamaMotor] = useState('');
     const [tipe_motor, setTipeMotor] = useState('');
     const [merk_motor, setMerkMotor] = useState('');
@@ -74,13 +77,43 @@ const Page = ({ params: { id } }) => {
         setTipeMotor(value);
     }
 
+    const handleSelectChangeNamaMotor = (value) => {
+        setNamaMotor(value);
+    }
+
+    useEffect(() => {
+        const fetchMotor = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    },
+                });
+
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    console.log('Fetched motor:', data);
+                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                }
+            } catch (err) {
+                setError(`An error occurred: ${err.message}`);
+            }
+        };
+        fetchMotor();
+    }, []);
+
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 1|1X1MbNxFmRxyrFbZHD7Hpjj8oLkSy7FaX41Ji1U2d10f8fc4`
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
                     },
                 });
 
@@ -121,7 +154,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 1|1X1MbNxFmRxyrFbZHD7Hpjj8oLkSy7FaX41Ji1U2d10f8fc4`
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
                 },
                 body: formData
             });
@@ -164,6 +197,9 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
+            <div className='hidden xl:block'>
+                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -192,7 +228,7 @@ const Page = ({ params: { id } }) => {
                                 <ol className="hidden md:flex flex-col md:flex-row items-start w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
                                     <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
                                         <a href="#">
-                                            <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">dashboard</p>
+                                            <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">beranda</p>
                                         </a>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
@@ -208,8 +244,14 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
                         </div>
-                        <NavbarAdmin />
-                        <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
+                        </div>
                     </div>
                 </nav>
                 <div className="mt-12">
@@ -256,11 +298,20 @@ const Page = ({ params: { id } }) => {
                                                 <span className="text-black">
                                                     Nama Motor
                                                 </span>
-                                                <Input
-                                                    label={`Masukkan nama motor (${motor.nama_motor})`}
-                                                    onChange={(e) => setNamaMotor(e.target.value)}
-                                                    type='text'
-                                                />
+                                                {motors.length > 0 && (
+                                                    <div className="w-full">
+                                                        <Select
+                                                            label={`Pilih nama motor (${motor.nama_motor})`}
+                                                            onChange={handleSelectChangeNamaMotor}
+                                                        >
+                                                            {motors.map((motor) => (
+                                                                <Option key={motor.id} value={motor.nama_motor}>
+                                                                    {motor.nama_motor}
+                                                                </Option>
+                                                            ))}
+                                                        </Select>
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="w-full flex flex-col gap-2">
                                                 <span className="text-black">

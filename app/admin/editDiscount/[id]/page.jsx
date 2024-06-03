@@ -166,6 +166,9 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
+            <div className='hidden xl:block'>
+                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -210,8 +213,14 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
                         </div>
-                        <NavbarAdmin />
-                        <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
+                        </div>
                     </div>
                 </nav>
                 <div className="mt-12">
