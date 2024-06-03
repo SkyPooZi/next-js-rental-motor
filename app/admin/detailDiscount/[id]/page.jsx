@@ -93,6 +93,10 @@ const Page = ({ params: { id } }) => {
         }
     }
 
+    const handleBtnClick = (component) => {
+        setActiveComponent(component);
+    };
+
     return (
         <>
             <div className='hidden xl:block'>

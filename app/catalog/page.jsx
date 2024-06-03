@@ -17,10 +17,10 @@ const Motor = ({ motor }) => {
     <div className="border border-gray-300 rounded-lg p-4 shadow-md flex flex-col items-center">
       <div className="flex justify-center mb-4">
         <Image
-          src={`/${motor.gambar_motor}`}
+          src={`https://rental-motor.ruscarestudent.com/storage/${motor.gambar_motor}`}
           alt={motor.nama_motor}
-          width={300}
-          height={200}
+          width={1000}
+          height={1000}
           className="rounded-lg"
         />
       </div>
@@ -46,14 +46,16 @@ const Motor = ({ motor }) => {
 const MotorList = () => {
   const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
   const [motors, setMotors] = useState([]);
+  const [image, setImage] = useState('');
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     const fetchMotors = async () => {
       try {
-        const response = await fetch('https://415d-2001-448a-406f-12e7-4642-c87e-9b1-fbb6.ngrok-free.app/api/list-motor/all', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer 4|EKzYACQsN5zLTUUpcJmp2i9fJYhpuy1DGQbEmmg9bf8b6a26'
+            'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
           },
         });
 
@@ -68,6 +70,7 @@ const MotorList = () => {
         // Ensure the response is in JSON format
         const data = await response.json();
         console.log('JSON response:', data);
+        setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.listMotor.gambar_motor}`);
 
         if (data.status === 200) {
           setMotors(data.listMotor);
