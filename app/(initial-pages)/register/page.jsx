@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
 const RegisterPage = () => {
@@ -21,32 +20,40 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('https://rental-motor.ruscarestudent.com/api/user/create', formData);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/create`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({formData}),
+      
+      });
+      
       console.log(response.data);
-      router.push('/form');
+      router.push('/');
     } catch (error) {
       console.error('Registration failed:', error);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-white">
-      <div className="flex flex-row bg-white">
+    <div className="flex items-center justify-center min-h-screen bg-white px-4">
+      <div className="flex flex-col md:flex-row bg-white w-full max-w-5xl">
         <img
           src="/images/register.png"
           alt="register"
-          className="w-500 h-500 object-cover mr-10"
+          className="w-full md:w-1/2 object-cover mb-4 md:mb-0 md:mr-4"
         />
-        <div className="flex flex-col w-full">
-          <h1 className="text-4xl font-bold mb-3 text-black">Register</h1>
+        <div className="flex flex-col w-full md:w-1/2">
+          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-black text-center md:text-left">Register</h1>
+          <form onSubmit={handleSubmit} className="flex flex-col items-center md:items-start">
             <input
               type="text"
               name="nama_pengguna"
               value={formData.nama_pengguna}
               onChange={handleChange}
               placeholder="Nama Pengguna"
-              className="bg-white text-black mt-2 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              className="bg-white text-black mt-2 md:mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
             <input
               type="email"
@@ -54,8 +61,7 @@ const RegisterPage = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
             <input
               type="password"
@@ -63,60 +69,49 @@ const RegisterPage = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Kata Sandi"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
-            <form onSubmit={handleSubmit}>
             <button
               type="submit"
-              className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1 hover:bg-FF0000 flex-grow"
-              style={{ width: '448px' }}
+              className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 shadow hover:bg-red-600 w-full max-w-sm"
             >
               Register
             </button>
           </form>
-
-          <div className="flex mt-4 text-black">
+          <div className="flex justify-center md:justify-start mt-4 text-black">
             <input type="checkbox" id="ingat-saya" className="mr-2" />
             <label htmlFor="ingat-saya">Ingat Saya</label>
-            <span className="mx-20"> </span>
           </div>
-          <div className="flex justify-center text-center mt-4 text-base text-black">
+          <div className="flex justify-center md:justify-start mt-4 text-base text-black">
             <span>Sudah Punya Akun? </span>
-            <span className="mx-20"> </span>
-            <a href="/login" className="hover:underline">
+            <a href="/login" className="ml-1 hover:underline">
               Bergabung Disini
             </a>
           </div>
-          <div className="flex text-base">
-            <span>Masukkan kode referal untuk reward! </span>
-            <span className="mx-15"> </span>
+          <div className="flex items-center justify-center md:justify-start mt-4 text-base">
+            <span className='text-black'>Masukkan kode referal untuk reward! </span>
           </div>
-          <div className="flex flex-col gap-2 items-center">
+          <div className="flex flex-col md:flex-row gap-2 items-center mt-3">
             <input
-              type="kode"
+              type="text"
               placeholder="Masukkan Kode"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px'}}
+              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
           </div>
-          <div className="flex justify-center items-center mt-4 text-base">
+          <div className="flex justify-center items-center md:justify-start mt-4 text-base">
             <span>Atau</span>
           </div>
-          <span className="m-2"> </span>
-          <div className="flex justify-center items-center ml-4">
-            <a href="#" className="flex items-center justify-center rounded-lg p-2 shadow shadow-black shadow-opacity-25 shadow-radius-1 hover:bg-gray-300">
+          <div className="flex justify-center md:justify-start items-center mt-2 gap-2">
+            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
               <img
                 src="/images/google.png"
                 alt="Google"
-                className="w-500 h-5 mr-10 ml-10"
               />
             </a>
-            <a href="#" className="flex items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow shadow-black shadow-opacity-25 shadow-radius-1 ml-4">
+            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow ">
               <img
                 src="/images/facebook.png"
                 alt="Facebook"
-                className="w-100 h-5 mr-10 ml-10"
               />
             </a>
           </div>

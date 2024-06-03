@@ -1,33 +1,58 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const ForgotEmail = () => {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!email || !emailRegex.test(email)) {
+      alert('Please enter a valid email address.');
+      return;
+    }
+
+    localStorage.setItem('email', email); // Store email in localStorage
+    console.log(email);
+    router.push('/forgot-pass');
+  };
+
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="flex flex-row">
+    <div className="flex items-center justify-center min-h-screen bg-white">
+      <div className="flex flex-col md:flex-row items-center">
         <img
           src="/images/reset.png"
-          alt="Login"
-          className="w-500 h-500 object-cover mr-10"
+          alt="Reset"
+          className="w-3/4 md:w-1/2 object-cover md:mr-10 mb-4 md:mb-0"
         />
-        <div className="flex flex-col items-center justify-center w-full">
-          <h1 className="text-4xl font-bold mb-6">Reset Kata Sandi</h1>
-          <div className="flex flex-col gap-2">
+        <div className="flex flex-col items-start w-full px-4 md:px-0">
+          <h1 className="text-2xl md:text-4xl font-bold text-black">Reset Kata Sandi</h1>
+          <h3 className="text-1xl md:text-2xl mt-4 text-black">Silahkan isi alamat email anda</h3>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full items-start">
             <input
               type="text"
               placeholder="Email"
-              className="mt-10 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-448px h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1"
-              style={{ width: '448px' }}
+              value={email}
+              onChange={handleEmailChange}
+              className="mt-4 p-2 border bg-white text-black border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-11/12 md:w-96 h-12 shadow shadow-black shadow-opacity-25"
             />
-          </div>
-          <div className="flex mt-4">
-            <button
-              type="submit"
-              className="bg-black text-white font-bold py-2 px-4 rounded-lg h-50 shadow shadow-black shadow-opacity-25 shadow-radius-1 hover:bg-FF0000 flex-grow"
-              style={{ width: '448px' }}
-            >
-              Kirim Kode OTP
-            </button>
-          </div>
+            <div className="flex mt-4 w-full justify-start">
+              <button
+                type="submit"
+                className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg h-12 shadow shadow-black shadow-opacity-25 hover:bg-red-800 w-11/12 md:w-96"
+              >
+                Kirim Kode OTP
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
