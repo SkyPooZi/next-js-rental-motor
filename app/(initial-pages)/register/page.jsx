@@ -12,6 +12,8 @@ const RegisterPage = () => {
     password: ''
   });
 
+  const [error, setError] = useState(null);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -20,19 +22,23 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/create`,{
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({formData}),
-      
+        body: JSON.stringify(formData),
       });
-      
-      console.log(response.data);
-      router.push('/');
+
+      if (response.ok) {
+        router.push('/');
+      } else {
+        const errorData = await response.json();
+        setError(errorData.message || 'Registration failed');
+      }
     } catch (error) {
       console.error('Registration failed:', error);
+      setError('An unexpected error occurred');
     }
   };
 
@@ -71,6 +77,7 @@ const RegisterPage = () => {
               placeholder="Kata Sandi"
               className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
+            {error && <p className="text-red-500 mt-2">{error}</p>}
             <button
               type="submit"
               className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 shadow hover:bg-red-600 w-full max-w-sm"
