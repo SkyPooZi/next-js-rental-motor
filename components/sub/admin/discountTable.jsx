@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
+import { MdDone } from "react-icons/md";
 import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
     ArrowDownTrayIcon,
@@ -25,39 +28,6 @@ import {
 import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
-
-const TABLE_ROWS = [
-    {
-        no: 1,
-        name: "Ramadhan",
-        discount: "30%",
-        period: "12 Maret 2024 - 10 April 2024",
-    },
-    {
-        no: 2,
-        name: "Lebaran",
-        discount: "20%",
-        period: "12 Maret 2024 - 10 April 2024",
-    },
-    {
-        no: 3,
-        name: "Natal",
-        discount: "10%",
-        period: "12 Maret 2024 - 10 April 2024",
-    },
-    {
-        no: 4,
-        name: "Kemerdekaan",
-        discount: "17%",
-        period: "12 Maret 2024 - 10 April 2024",
-    },
-    {
-        no: 5,
-        name: "Valentine",
-        discount: "22%",
-        period: "12 Maret 2024 - 10 April 2024",
-    },
-];
 
 function PopupDelete() {
     const [showPopup, setShowPopup] = useState(true);
@@ -87,7 +57,101 @@ function PopupDelete() {
 }
 
 export function DiscountTable() {
+    const [id, setId] = useState(null); // State to store the id
+    const [error, setError] = useState(null);
+    const [showNotification, setShowNotification] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [diskon, setDiskon] = useState([]);
+    const [totalDiskon, setTotalDiskon] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+            const responseText = await response.text();
+            console.log('Response Text:', responseText);
+
+            const data = JSON.parse(responseText);
+            console.log('Parsed JSON Data:', data);
+
+            const diskons = data.diskon;
+            console.log('Diskon Data:', diskons);
+
+            setDiskon(diskons);
+
+            const totalDiskon = diskons.length;
+            setTotalDiskon(totalDiskon);
+
+            if (diskons.length > 0) {
+                setId(diskons[0].id);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const filteredDiscounts = diskon.filter(diskon =>
+        diskon.nama_diskon.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentDiscountData = filteredDiscounts.slice(startIndex, endIndex);
+
+    // Calculate the total number of pages based on the filtered data
+    const totalPages = Math.ceil(filteredDiscounts.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const deleteDiscount = async (discountId) => {
+        if (!discountId) {
+            setError('No ID available to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/delete/${discountId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Trigger a new fetch request to update the data
+                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                setDiskon((prevDiskon) => prevDiskon.filter(m => m.id !== discountId));
+                console.log(`discount with id ${discountId} deleted successfully.`);
+                setError(''); // Clear any previous errors
+                setShowNotification(true); // Show notification
+                // Optionally, hide notification after a certain duration
+                setTimeout(() => {
+                    setShowNotification(false);
+                }, 3000); // 3000 milliseconds (3 seconds)
+            } else {
+                const errorMessage = await response.text();
+                console.error('Failed to delete the discount:', errorMessage);
+                setError(`Failed to delete the discount: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(`Delete error: ${error.message}`);
+        }
+    };
 
     const handleClosePopup = () => {
         setShowPopup(false);
@@ -99,9 +163,6 @@ export function DiscountTable() {
 
     return (
         <>
-            <div className="h-full w-full flex flex-row justify-center">
-                {showPopup && <PopupDelete onClose={handleClosePopup} />}
-            </div>
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -111,7 +172,7 @@ export function DiscountTable() {
                                     Semua Diskon
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Total 5 Diskon
+                                    Total {totalDiskon} Diskon
                                 </Typography>
                             </div>
                             <div className="flex md:flex-row flex-col w-full shrink-0 gap-2 md:w-max items-end md:items-center">
@@ -119,6 +180,11 @@ export function DiscountTable() {
                                     <Input
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                                 <a href="/admin/addDiscount">
@@ -141,8 +207,7 @@ export function DiscountTable() {
                                         >
                                             <Typography
                                                 variant="small"
-                                                color="blue-gray"
-                                                className="font-normal leading-none opacity-70"
+                                                className="font-semibold text-black leading-none opacity-70"
                                             >
                                                 {head}
                                             </Typography>
@@ -151,101 +216,102 @@ export function DiscountTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {TABLE_ROWS.map(
-                                    (
-                                        {
-                                            no,
-                                            name,
-                                            discount,
-                                            period,
-                                        },
-                                        index,
-                                    ) => {
-                                        const isLast = index === TABLE_ROWS.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
-                                        return (
-                                            <tr key={name}>
-                                                <td className={classes}>
+                                {currentDiscountData.length === 0 ? (
+                                    <Typography className="p-4" variant="small" color="grey">
+                                        Data tidak ditemukan
+                                    </Typography>
+                                ) : (
+                                    currentDiscountData && currentDiscountData.map((diskonData, index) => (
+                                        <tr key={index}>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-bold"
+                                                >
+                                                    {diskonData.nama_diskon}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="pl-3">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        {no}
+                                                        {diskonData.potongan_harga}%
                                                     </Typography>
-                                                </td>
-                                                <td className={classes}>
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="pl-3">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
-                                                        className="font-bold"
+                                                        className="font-normal"
                                                     >
-                                                        {name}
+                                                        {diskonData.tanggal_mulai} - {diskonData.tanggal_selesai}
                                                     </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            {discount}
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            {period}
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <a href="/admin/detailDiscount">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                                <MagnifyingGlassIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <a href="/admin/editDiscount">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text" className="bg-[#FFC107] mx-2">
-                                                                <PencilSquareIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <Tooltip content="Delete">
-                                                        <IconButton variant="text" className="bg-red-500" onClick={handleShowPupup}>
-                                                            <TrashIcon color="white" className="h-5 w-5" />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Link href={`/admin/detailDiscount/${diskonData.id}`}>
+                                                    <Tooltip content="Detail">
+                                                        <IconButton variant="text" className="bg-[#0D6EFD]">
+                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
+                                                </Link>
+                                                <Link href={`/admin/editDiscount/${diskonData.id}`}>
+                                                    <Tooltip content="Edit">
+                                                        <IconButton variant="text" className="bg-[#FFC107] mx-2">
+                                                            <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => deleteDiscount(diskonData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </td>
+                                        </tr>
+                                    )))}
+                                {showNotification && (
+                                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                        <span>Delete Berhasil</span>
+                                        <MdDone className="ml-2 text-white" />
+                                    </div>
                                 )}
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2">
-                            <IconButton variant="outlined" size="sm">
-                                1
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                2
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                3
-                            </IconButton>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <IconButton
+                                    key={i}
+                                    variant="text"
+                                    size="sm"
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                >
+                                    {i + 1}
+                                </IconButton>
+                            ))}
                         </div>
                     </CardFooter>
                 </Card>

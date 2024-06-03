@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
 
 import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
@@ -22,7 +23,9 @@ import {
 } from "@material-tailwind/react";
 
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { format } from "date-fns"
+import { addDays, format } from "date-fns"
+import { DateRange } from "react-day-picker"
+import { MdDone } from "react-icons/md";
 
 import {
     DropdownMenu,
@@ -42,127 +45,146 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import Link from "next/link";
 
 const TABLE_HEAD = ["No", "Pengguna", "Jenis Motor", "Tanggal Booking", "Status", ""];
 
-const TABLE_ROWS = [
-    {
-        no: 1,
-        name: "Qamar",
-        motorType: "Vario 150",
-        bookingDate: "10-03-2024 - 18-03-2024",
-        status: "Menunggu Pembayaran",
-    },
-    {
-        no: 2,
-        name: "Khalid",
-        motorType: "CRF",
-        bookingDate: "10-03-2024 - 18-03-2024",
-        status: "Dipesan",
-    },
-    {
-        no: 3,
-        name: "Khidir",
-        motorType: "NMAX",
-        bookingDate: "10-03-2024 - 18-03-2024",
-        status: "Sedang Digunakan",
-    },
-    {
-        no: 4,
-        name: "Ismail",
-        motorType: "Beat",
-        bookingDate: "10-03-2024 - 18-03-2024",
-        status: "Selesai",
-    },
-    {
-        no: 5,
-        name: "Skipo",
-        motorType: "PCX",
-        bookingDate: "10-03-2024 - 18-03-2024",
-        status: "Dibatalkan",
-    },
-];
-
-function PopupDelete() {
-    const [showPopup, setShowPopup] = useState(true);
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        window.location.reload();
-    };
-
-    return (
-        showPopup && (
-            <div className="fixed z-50 flex flex-col gap-2 items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <span className="">
-                    Apakah anda yakin ingin menghapus history ini?
-                </span>
-                <div className="w-full flex flex-row justify-end gap-4">
-                    <Button variant="destructive" onClick={handleClosePopup}>
-                        Batal
-                    </Button>
-                    <Button variant="done">
-                        Konfirmasi
-                    </Button>
-                </div>
-            </div>
-        )
-    );
-}
-
-export function HistoryTable() {
-    const [date, setDate] = React.useState(Date);
-
+export function HistoryTable({ onSelectRange }) {
+    const [date, setDate] = useState(null);
+    const [id, setId] = useState(null); // State to store the id
+    const [error, setError] = useState(null);
+    const [showNotification, setShowNotification] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-    };
-
-    const handleShowPupup = () => {
-        setShowPopup(true);
-    };
-
-    const [filteredData, setFilteredData] = useState(TABLE_ROWS);
+    const [history, setHistory] = useState([]);
+    const [totalHistory, setTotalHistory] = useState(0);
     const [activeComponent, setActiveComponent] = useState('all');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-    const handleButtonClick = (type) => {
-        let newData = [];
+    const fetchData = async () => {
+        try {
+            let url = `${process.env.NEXT_PUBLIC_API_URL}/api/history/all`;
 
-        switch (type) {
-            case 'all':
-                newData = TABLE_ROWS;
-                break;
-            case 'paymentWait':
-                newData = TABLE_ROWS.filter(row => row.status === "Menunggu Pembayaran");
-                break;
-            case 'inOrder':
-                newData = TABLE_ROWS.filter(row => row.status === "Dipesan");
-                break;
-            case 'inUse':
-                newData = TABLE_ROWS.filter(row => row.status === "Sedang Digunakan");
-                break;
-            case 'done':
-                newData = TABLE_ROWS.filter(row => row.status === "Selesai");
-                break;
-            case 'cancelled':
-                newData = TABLE_ROWS.filter(row => row.status === "Dibatalkan");
-                break;
-            default:
-                newData = TABLE_ROWS;
+            if (date?.from && date?.to) {
+                const fromDate = format(date.from, 'yyyy-MM-dd');
+                const toDate = format(date.to, 'yyyy-MM-dd');
+                url += `?tanggal_mulai=${fromDate}&tanggal_selesai=${toDate}`;
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+
+            const responseText = await response.text();
+            console.log('Response Text:', responseText);
+
+            const data = JSON.parse(responseText);
+            console.log('Parsed JSON Data:', data);
+
+            setHistory(data.history || []);
+
+            const totalHistory = data.history?.length || 0;
+            setTotalHistory(totalHistory);
+
+            if (data.history.length > 0) {
+                setId(data.history[0].id);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchData();
+    }, [date]);
+
+    const getFilteredHistory = () => {
+        let filteredHistory = history;
+
+        if (activeComponent !== 'all') {
+            filteredHistory = filteredHistory.filter(history => history.status_history === activeComponent);
         }
 
-        setFilteredData(newData);
-        setActiveComponent(type);
+        // Filter by search term
+        if (searchTerm) {
+            filteredHistory = filteredHistory.filter(history =>
+                history.nama_lengkap.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Filter by date range
+        if (date?.from && date?.to) {
+            filteredHistory = filteredHistory.filter(history => {
+                const itemStartDate = new Date(history.tanggal_mulai);
+                const itemEndDate = new Date(history.tanggal_selesai);
+                return itemStartDate >= date.from && itemEndDate <= date.to;
+            });
+        }
+
+        return filteredHistory;
+    }
+
+    const filteredHistory = getFilteredHistory();
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentHistoryData = filteredHistory.slice(startIndex, endIndex);
+
+    const totalPages = Math.ceil(filteredHistory.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const deleteHistory = async (historyId) => {
+        if (!historyId) {
+            setError('No ID available to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Trigger a new fetch request to update the data
+                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyId));
+                console.log(`history with id ${historyId} deleted successfully.`);
+                setError(''); // Clear any previous errors
+                setShowNotification(true); // Show notification
+                // Optionally, hide notification after a certain duration
+                setTimeout(() => {
+                    setShowNotification(false);
+                }, 3000); // 3000 milliseconds (3 seconds)
+            } else {
+                const errorMessage = await response.text();
+                console.error('Failed to delete the history:', errorMessage);
+                setError(`Failed to delete the history: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(`Delete error: ${error.message}`);
+        }
+    };
+
+    const handleButtonClick = (component) => {
+        setActiveComponent(component);
     };
 
     const [position, setPosition] = React.useState("bottom");
 
     return (
         <>
-            <div className="h-full w-full flex flex-row justify-center">
-                {showPopup && <PopupDelete onClose={handleClosePopup} />}
-            </div>
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -172,52 +194,59 @@ export function HistoryTable() {
                                     Semua Riwayat
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Total 134 Riwayat
+                                    Total {totalHistory} Riwayat
                                 </Typography>
                             </div>
                             <div className="flex md:flex-row flex-col w-full shrink-0 gap-2 md:w-max items-end md:items-center">
                                 <div className="w-full md:w-72">
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                id="date"
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-full justify-between text-left font-normal",
-                                                    !date && "text-muted-foreground"
-                                                )}
-                                            >
-                                                {date?.from ? (
-                                                    date.to ? (
-                                                        <>
-                                                            {format(date.from, "LLL dd, y")} -{" "}
-                                                            {format(date.to, "LLL dd, y")}
-                                                        </>
+                                    <div className={cn("grid gap-2")}>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    id="date"
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "justify-start text-left font-normal",
+                                                        !date && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {date?.from ? (
+                                                        date.to ? (
+                                                            <>
+                                                                {format(date.from, "yyyy-MM-dd")} -{" "}
+                                                                {format(date.to, "yyyy-MM-dd")}
+                                                            </>
+                                                        ) : (
+                                                            format(date.from, "yyyy-MM-dd")
+                                                        )
                                                     ) : (
-                                                        format(date.from, "LLL dd, y")
-                                                    )
-                                                ) : (
-                                                    <span>Pilih</span>
-                                                )}
-                                                <CalendarIcon className="h-5 w-5" color="black" />
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                initialFocus
-                                                mode="range"
-                                                defaultMonth={date?.from}
-                                                selected={date}
-                                                onSelect={setDate}
-                                                numberOfMonths={2}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
+                                                        <span>Pilih Tanggal</span>
+                                                    )}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    initialFocus
+                                                    mode="range"
+                                                    defaultMonth={date?.from}
+                                                    selected={date}
+                                                    onSelect={setDate}
+                                                    numberOfMonths={2}
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
                                 </div>
                                 <div className="w-full md:w-72">
                                     <Input
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -230,81 +259,69 @@ export function HistoryTable() {
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuLabel>Pilih Kategori</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuRadioGroup value={position} onValueChange={setPosition}>
+                                    <DropdownMenuRadioGroup value={position} onValueChange={handleButtonClick}>
                                         <DropdownMenuRadioItem value="all">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'all' ? 'text-black' : ''}`} onClick={() => handleButtonClick('all')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'all' ? '' : ''}`}>
-                                                    Semua
-                                                </Typography>
-                                            </button>
+                                            <Typography className={`text-sm ${activeComponent === 'all' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Semua
+                                            </Typography>
                                         </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="paymentWait">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'paymentWait' ? 'text-black' : ''}`} onClick={() => handleButtonClick('paymentWait')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'paymentWait' ? '' : ''}`}>
-                                                    Menunggu Pembayaran
-                                                </Typography>
-                                            </button>
+                                        <DropdownMenuRadioItem value="Menunggu Pembayaran">
+                                            <Typography className={`text-sm ${activeComponent === 'Menunggu Pembayaran' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Menunggu Pembayaran
+                                            </Typography>
                                         </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="inOrder">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'inOrder' ? 'text-black' : ''}`} onClick={() => handleButtonClick('inOrder')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'inOrder' ? '' : ''}`}>
-                                                    Dipesan
-                                                </Typography>
-                                            </button>
+                                        <DropdownMenuRadioItem value="Dipesan">
+                                            <Typography className={`text-sm ${activeComponent === 'Dipesan' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Dipesan
+                                            </Typography>
                                         </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="inUse">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'inUse' ? 'text-black' : ''}`} onClick={() => handleButtonClick('inUse')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'inUse' ? '' : ''}`}>
-                                                    Sedang Digunakan
-                                                </Typography>
-                                            </button>
+                                        <DropdownMenuRadioItem value="Sedang Digunakan">
+                                            <Typography className={`text-sm ${activeComponent === 'Sedang Digunakan' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Sedang Digunakan
+                                            </Typography>
                                         </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="done">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'done' ? 'text-black' : ''}`} onClick={() => handleButtonClick('done')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'done' ? '' : ''}`}>
-                                                    Selesai
-                                                </Typography>
-                                            </button>
+                                        <DropdownMenuRadioItem value="Selesai">
+                                            <Typography className={`text-sm ${activeComponent === 'Selesai' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Selesai
+                                            </Typography>
                                         </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="cancelled">
-                                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'cancelled' ? 'text-black' : ''}`} onClick={() => handleButtonClick('cancelled')}>
-                                                <Typography className={`text-sm ${activeComponent !== 'cancelled' ? '' : ''}`}>
-                                                    Dibatalkan
-                                                </Typography>
-                                            </button>
+                                        <DropdownMenuRadioItem value="Dibatalkan">
+                                            <Typography className={`text-sm ${activeComponent === 'Dibatalkan' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                                Dibatalkan
+                                            </Typography>
                                         </DropdownMenuRadioItem>
                                     </DropdownMenuRadioGroup>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
                         <div className="w-full justify-between hidden md:flex">
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'all' ? 'text-black' : ''}`} onClick={() => handleButtonClick('all')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'all' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('all')}>
                                 <Typography className={`text-sm ${activeComponent !== 'all' ? '' : ''}`}>
                                     Semua
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'paymentWait' ? 'text-black' : ''}`} onClick={() => handleButtonClick('paymentWait')}>
-                                <Typography className={`text-sm ${activeComponent !== 'paymentWait' ? '' : ''}`}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Menunggu Pembayaran' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Menunggu Pembayaran')}>
+                                <Typography className={`text-sm ${activeComponent !== 'Menunggu Pembayaran' ? '' : ''}`}>
                                     Menunggu Pembayaran
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'inOrder' ? 'text-black' : ''}`} onClick={() => handleButtonClick('inOrder')}>
-                                <Typography className={`text-sm ${activeComponent !== 'inOrder' ? '' : ''}`}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dipesan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Dipesan')}>
+                                <Typography className={`text-sm ${activeComponent !== 'Dipesan' ? '' : ''}`}>
                                     Dipesan
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'inUse' ? 'text-black' : ''}`} onClick={() => handleButtonClick('inUse')}>
-                                <Typography className={`text-sm ${activeComponent !== 'inUse' ? '' : ''}`}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Sedang Digunakan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Sedang Digunakan')}>
+                                <Typography className={`text-sm ${activeComponent !== 'Sedang Digunakan' ? '' : ''}`}>
                                     Sedang Digunakan
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'done' ? 'text-black' : ''}`} onClick={() => handleButtonClick('done')}>
-                                <Typography className={`text-sm ${activeComponent !== 'done' ? '' : ''}`}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Selesai' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Selesai')}>
+                                <Typography className={`text-sm ${activeComponent !== 'Selesai' ? '' : ''}`}>
                                     Selesai
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'cancelled' ? 'text-black' : ''}`} onClick={() => handleButtonClick('cancelled')}>
-                                <Typography className={`text-sm ${activeComponent !== 'cancelled' ? '' : ''}`}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dibatalkan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Dibatalkan')}>
+                                <Typography className={`text-sm ${activeComponent !== 'Dibatalkan' ? '' : ''}`}>
                                     Dibatalkan
                                 </Typography>
                             </button>
@@ -321,8 +338,7 @@ export function HistoryTable() {
                                         >
                                             <Typography
                                                 variant="small"
-                                                color="blue-gray"
-                                                className="font-normal leading-none opacity-70"
+                                                className="font-semibold text-black leading-none opacity-70"
                                             >
                                                 {head}
                                             </Typography>
@@ -331,122 +347,122 @@ export function HistoryTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredData.map(
-                                    (
-                                        {
-                                            no,
-                                            name,
-                                            motorType,
-                                            bookingDate,
-                                            status,
-                                        },
-                                        index,
-                                    ) => {
-                                        const isLast = index === filteredData.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
-
-                                        return (
-                                            <tr key={name}>
-                                                <td className={classes}>
+                                {currentHistoryData.length === 0 ? (
+                                    <Typography className="p-4" variant="small" color="grey">
+                                        Data tidak ditemukan
+                                    </Typography>
+                                ) : (
+                                    currentHistoryData && currentHistoryData.map((historyData, index) => (
+                                        <tr key={index}>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-bold"
+                                                >
+                                                    {historyData.nama_lengkap}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="pl-3">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        {no}
+                                                        {historyData.list_motor.nama_motor}
                                                     </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-bold"
-                                                    >
-                                                        {name}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            {motorType}
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {bookingDate}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="w-max">
-                                                        <Chip
-                                                            className="capitalize"
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            value={status}
-                                                            color={
-                                                                status === "Selesai"
-                                                                    ? "green"
-                                                                    : status === "Menunggu Pembayaran"
-                                                                        ? "blue"
-                                                                        : status === "Dipesan"
-                                                                            ? "yellow"
-                                                                            : status === "Sedang Digunakan"
-                                                                                ? "orange"
-                                                                                : "red"
-                                                            }
-                                                        />
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <a href="/admin/detailHistory">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                                <MagnifyingGlassIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <a href="/admin/editHistory">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text" className="bg-[#FFC107] mx-2">
-                                                                <PencilSquareIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <Tooltip content="Delete">
-                                                        <IconButton variant="text" className="bg-red-500" onClick={handleShowPupup}>
-                                                            <TrashIcon color="white" className="h-5 w-5" />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal tracking-widest"
+                                                >
+                                                    {historyData.tanggal_mulai} - {historyData.tanggal_selesai}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="w-max">
+                                                    <Chip
+                                                        className="capitalize"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        value={historyData.status_history}
+                                                        color={
+                                                            historyData.status_history === "Selesai"
+                                                                ? "green"
+                                                                : historyData.status_history === "Menunggu Pembayaran"
+                                                                    ? "blue"
+                                                                    : historyData.status_history === "Dipesan"
+                                                                        ? "yellow"
+                                                                        : historyData.status_history === "Sedang Digunakan"
+                                                                            ? "orange"
+                                                                            : "red"
+                                                        }
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Link href={`/admin/detailHistory/${historyData.id}`}>
+                                                    <Tooltip content="Detail">
+                                                        <IconButton variant="text" className="bg-[#0D6EFD]">
+                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
+                                                </Link>
+                                                <Link href={`/admin/editHistory/${historyData.id}`}>
+                                                    <Tooltip content="Edit">
+                                                        <IconButton variant="text" className="bg-[#FFC107] mx-2">
+                                                            <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => deleteHistory(historyData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                {showNotification && (
+                                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                        <span>Delete Berhasil</span>
+                                        <MdDone className="ml-2 text-white" />
+                                    </div>
                                 )}
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2">
-                            <IconButton variant="outlined" size="sm">
-                                1
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                2
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                3
-                            </IconButton>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <IconButton
+                                    key={i}
+                                    variant="text"
+                                    size="sm"
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                >
+                                    {i + 1}
+                                </IconButton>
+                            ))}
                         </div>
                     </CardFooter>
                 </Card>

@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
+import { MdDone } from "react-icons/md";
 import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
     ArrowDownTrayIcon,
@@ -23,90 +26,106 @@ import {
 } from "@material-tailwind/react";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import PopupDelete from "@/components/sub/admin/popupDelete";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", ""];
 
-const TABLE_ROWS = [
-    {
-        no: 1,
-        name: "Vario 150",
-        stock: "1",
-        price: "150.000",
-        status: "tersedia",
-    },
-    {
-        no: 2,
-        name: "CRF",
-        stock: "3",
-        price: "200.000",
-        status: "tersedia",
-    },
-    {
-        no: 3,
-        name: "NMAX",
-        stock: "2",
-        price: "175.000",
-        status: "tertunda",
-    },
-    {
-        no: 4,
-        name: "Beat",
-        stock: "3",
-        price: "125.000",
-        status: "tersedia",
-    },
-    {
-        no: 5,
-        name: "PCX",
-        stock: "1",
-        price: "175.000",
-        status: "tidak tersedia",
-    },
-];
-
-function PopupDelete() {
-    const [showPopup, setShowPopup] = useState(true);
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        // window.location.reload();
-    };
-
-    return (
-        showPopup && (
-            <div className="fixed z-50 flex flex-col gap-2 items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <span className="">
-                    Apakah anda yakin ingin menghapus motor ini?
-                </span>
-                <div className="w-full flex flex-row justify-end gap-4">
-                    <Button color="red" onClick={handleClosePopup}>
-                        Batal
-                    </Button>
-                    <Button color="green">
-                        Konfirmasi
-                    </Button>
-                </div>
-            </div>
-        )
-    );
-}
-
 export function MotorListTable() {
+    const [id, setId] = useState(null); // State to store the id
     const [showPopup, setShowPopup] = useState(false);
+    const [motor, setMotor] = useState([]);
+    const [totalMotor, setTotalMotor] = useState(0);
+    const [error, setError] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-    const handleClosePopup = () => {
-        setShowPopup(false);
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+            const data = await response.json();
+            console.log('Parsed JSON Data:', data);
+
+            const motors = data.listMotor;
+            console.log('Motor Data:', motors);
+
+            setMotor(motors);
+
+            const totalMotor = motors.length;
+            setTotalMotor(totalMotor);
+
+            if (motors.length > 0) {
+                setId(motors[0].id);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+            setError(`Fetch error: ${error.message}`);
+        }
     };
 
-    const handleShowPupup = () => {
-        setShowPopup(true);
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const filteredMotors = motor.filter(motor =>
+        motor.nama_motor.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentMotorData = filteredMotors.slice(startIndex, endIndex);
+
+    // Calculate the total number of pages based on the filtered data
+    const totalPages = Math.ceil(filteredMotors.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const deleteMotor = async (motorId) => {
+        if (!motorId) {
+            setError('No ID available to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/delete/${motorId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Trigger a new fetch request to update the data
+                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                setMotor((prevMotor) => prevMotor.filter(m => m.id !== motorId));
+                console.log(`Motor with id ${motorId} deleted successfully.`);
+                setError(''); // Clear any previous errors
+                setShowNotification(true); // Show notification
+                // Optionally, hide notification after a certain duration
+                setTimeout(() => {
+                    setShowNotification(false);
+                }, 3000); // 3000 milliseconds (3 seconds)
+            } else {
+                const errorMessage = await response.text();
+                console.error('Failed to delete the motor:', errorMessage);
+                setError(`Failed to delete the motor: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(`Delete error: ${error.message}`);
+        }
     };
 
     return (
         <>
-            <div className="h-full w-full flex flex-row justify-center">
-                {showPopup && <PopupDelete onClose={handleClosePopup} />}
-            </div>
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -116,7 +135,7 @@ export function MotorListTable() {
                                     Semua Motor
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Total 29 Motor
+                                    Total {totalMotor} Motor
                                 </Typography>
                             </div>
                             <div className="flex md:flex-row flex-col w-full shrink-0 gap-2 md:w-max items-end md:items-center">
@@ -124,6 +143,11 @@ export function MotorListTable() {
                                     <Input
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                                 <a href="/admin/addMotor">
@@ -146,8 +170,7 @@ export function MotorListTable() {
                                         >
                                             <Typography
                                                 variant="small"
-                                                color="blue-gray"
-                                                className="font-normal leading-none opacity-70"
+                                                className="font-semibold text-black leading-none opacity-70"
                                             >
                                                 {head}
                                             </Typography>
@@ -156,118 +179,118 @@ export function MotorListTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {TABLE_ROWS.map(
-                                    (
-                                        {
-                                            no,
-                                            name,
-                                            stock,
-                                            price,
-                                            status,
-                                        },
-                                        index,
-                                    ) => {
-                                        const isLast = index === TABLE_ROWS.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
-
-                                        return (
-                                            <tr key={name}>
-                                                <td className={classes}>
+                                {currentMotorData.length === 0 ? (
+                                    <Typography className="p-4" variant="small" color="grey">
+                                        Data tidak ditemukan
+                                    </Typography>
+                                ) : (
+                                    currentMotorData && currentMotorData.map((motorData, index) => (
+                                        <tr key={index}>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-bold"
+                                                >
+                                                    {motorData.nama_motor}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="pl-3">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        {no}
+                                                        {motorData.stok_motor}
                                                     </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-bold"
-                                                    >
-                                                        {name}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            {stock}
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {price}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="w-max">
-                                                        <Chip
-                                                            className="capitalize"
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            value={status}
-                                                            color={
-                                                                status === "tersedia"
-                                                                    ? "green"
-                                                                    : status === "tertunda"
-                                                                        ? "amber"
-                                                                        : "red"
-                                                            }
-                                                        />
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <a href="/admin/detailMotor">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                                <MagnifyingGlassIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <a href="/admin/editMotor">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text" className="bg-[#FFC107] mx-2">
-                                                                <PencilSquareIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <Tooltip content="Delete">
-                                                        <IconButton variant="text" className="bg-red-500" onClick={handleShowPupup}>
-                                                            <TrashIcon color="white" className="h-5 w-5" />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {motorData.harga_motor_per_1_hari}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="w-max">
+                                                    <Chip
+                                                        className="capitalize"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        value={motorData.status_motor}
+                                                        color={
+                                                            motorData.status_motor === "Tersedia"
+                                                                ? "green"
+                                                                : motorData.status_motor === "Tertunda"
+                                                                    ? "amber"
+                                                                    : "red"
+                                                        }
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Link href={`/admin/detailMotor/${motorData.id}`}>
+                                                    <Tooltip content="Detail">
+                                                        <IconButton variant="text" className="bg-[#0D6EFD]">
+                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
+                                                </Link>
+                                                <Link href={`/admin/editMotor/${motorData.id}`}>
+                                                    <Tooltip content="Edit">
+                                                        <IconButton variant="text" className="bg-[#FFC107] mx-2">
+                                                            <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => deleteMotor(motorData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                {showNotification && (
+                                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                        <span>Delete Berhasil</span>
+                                        <MdDone className="ml-2 text-white" />
+                                    </div>
                                 )}
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2">
-                            <IconButton variant="outlined" size="sm">
-                                1
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                2
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                3
-                            </IconButton>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <IconButton
+                                    key={i}
+                                    variant="text"
+                                    size="sm"
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                >
+                                    {i + 1}
+                                </IconButton>
+                            ))}
                         </div>
                     </CardFooter>
                 </Card>

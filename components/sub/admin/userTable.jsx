@@ -1,7 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 
+import { MdDone } from "react-icons/md";
 import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
     ArrowDownTrayIcon,
@@ -26,82 +29,104 @@ import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const TABLE_HEAD = ["No", "Nama Pengguna", "Email", "Peran", ""];
 
-const TABLE_ROWS = [
-    {
-        no: 1,
-        name: "Qidir",
-        email: "user@gmail.com",
-        role: "User",
-    },
-    {
-        no: 2,
-        name: "Qamar",
-        email: "user@gmail.com",
-        role: "User",
-    },
-    {
-        no: 3,
-        name: "Zidan",
-        email: "user@gmail.com",
-        role: "User",
-    },
-    {
-        no: 4,
-        name: "Damar",
-        email: "user@gmail.com",
-        role: "User",
-    },
-    {
-        no: 5,
-        name: "Arvi",
-        email: "user@gmail.com",
-        role: "Admin",
-    },
-];
-
-function PopupDelete() {
-    const [showPopup, setShowPopup] = useState(true);
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        // window.location.reload();
-    };
-
-    return (
-        showPopup && (
-            <div className="fixed z-50 flex flex-col gap-2 items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <span className="">
-                    Apakah anda yakin ingin menghapus pengguna ini?
-                </span>
-                <div className="w-full flex flex-row justify-end gap-4">
-                    <Button color="red" onClick={handleClosePopup}>
-                        Batal
-                    </Button>
-                    <Button color="green">
-                        Konfirmasi
-                    </Button>
-                </div>
-            </div>
-        )
-    );
-}
-
 export function UserListTable() {
+    const [id, setId] = useState(null); // State to store the id
+    const [error, setError] = useState(null);
+    const [showNotification, setShowNotification] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
+    const [user, setUser] = useState([]);
+    const [totalUser, setTotalUser] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-    const handleClosePopup = () => {
-        setShowPopup(false);
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+            const responseText = await response.text();
+            console.log('Response Text:', responseText);
+
+            const data = JSON.parse(responseText);
+            console.log('Parsed JSON Data:', data);
+
+            const users = data.user;
+            console.log('User Data:', users);
+
+            setUser(users);
+
+            const totalUser = users.length;
+            setTotalUser(totalUser);
+
+            if (users.length > 0) {
+                setId(users[0].id);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
     };
 
-    const handleShowPupup = () => {
-        setShowPopup(true);
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const filteredUsers = user.filter(user =>
+        user.nama_pengguna.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentUserData = filteredUsers.slice(startIndex, endIndex);
+
+    // Calculate the total number of pages based on the filtered data
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const deleteUser = async (userId) => {
+        if (!userId) {
+            setError('No ID available to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/delete/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Trigger a new fetch request to update the data
+                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                setUser((prevUser) => prevUser.filter(m => m.id !== userId));
+                console.log(`user with id ${userId} deleted successfully.`);
+                setError(''); // Clear any previous errors
+                setShowNotification(true); // Show notification
+                // Optionally, hide notification after a certain duration
+                setTimeout(() => {
+                    setShowNotification(false);
+                }, 3000); // 3000 milliseconds (3 seconds)
+            } else {
+                const errorMessage = await response.text();
+                console.error('Failed to delete the user:', errorMessage);
+                setError(`Failed to delete the user: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(`Delete error: ${error.message}`);
+        }
     };
 
     return (
         <>
-            <div className="h-full w-full flex flex-row justify-center">
-                {showPopup && <PopupDelete onClose={handleClosePopup} />}
-            </div>
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -111,7 +136,7 @@ export function UserListTable() {
                                     Semua Pengguna
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Total 258 Pengguna
+                                    Total {totalUser} Pengguna
                                 </Typography>
                             </div>
                             <div className="flex md:flex-row flex-col w-full shrink-0 gap-2 md:w-max items-end md:items-center">
@@ -119,6 +144,11 @@ export function UserListTable() {
                                     <Input
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -135,8 +165,7 @@ export function UserListTable() {
                                         >
                                             <Typography
                                                 variant="small"
-                                                color="blue-gray"
-                                                className="font-normal leading-none opacity-70"
+                                                className="font-semibold text-black leading-none opacity-70"
                                             >
                                                 {head}
                                             </Typography>
@@ -145,100 +174,101 @@ export function UserListTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {TABLE_ROWS.map(
-                                    (
-                                        {
-                                            no,
-                                            name,
-                                            email,
-                                            role,
-                                        },
-                                        index,
-                                    ) => {
-                                        const isLast = index === TABLE_ROWS.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
-
-                                        return (
-                                            <tr key={name}>
-                                                <td className={classes}>
+                                {currentUserData.length === 0 ? (
+                                    <Typography className="p-4" variant="small" color="grey">
+                                        Data tidak ditemukan
+                                    </Typography>
+                                ) : (
+                                    currentUserData && currentUserData.map((userData, index) => (
+                                        <tr key={index}>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-bold"
+                                                >
+                                                    {userData.nama_pengguna}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="pl-3">
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        {no}
+                                                        {userData.email}
                                                     </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-bold"
-                                                    >
-                                                        {name}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            {email}
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {role}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <a href="/admin/detailUser">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                                <MagnifyingGlassIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <a href="/admin/editUser">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text" className="bg-[#FFC107] mx-2">
-                                                                <PencilSquareIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <Tooltip content="Delete">
-                                                        <IconButton variant="text" className="bg-red-500" onClick={handleShowPupup}>
-                                                            <TrashIcon color="white" className="h-5 w-5" />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {userData.peran}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Link href={`/admin/detailUser/${userData.id}`}>
+                                                    <Tooltip content="Detail">
+                                                        <IconButton variant="text" className="bg-[#0D6EFD]">
+                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
+                                                </Link>
+                                                <Link href={`/admin/editUser/${userData.id}`}>
+                                                    <Tooltip content="Edit">
+                                                        <IconButton variant="text" className="bg-[#FFC107] mx-2">
+                                                            <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => deleteUser(userData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                {showNotification && (
+                                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                        <span>Delete Berhasil</span>
+                                        <MdDone className="ml-2 text-white" />
+                                    </div>
                                 )}
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2">
-                            <IconButton variant="outlined" size="sm">
-                                1
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                2
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                3
-                            </IconButton>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <IconButton
+                                    key={i}
+                                    variant="text"
+                                    size="sm"
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                >
+                                    {i + 1}
+                                </IconButton>
+                            ))}
                         </div>
                     </CardFooter>
                 </Card>

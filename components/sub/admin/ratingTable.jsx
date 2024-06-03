@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 
+import { MdDone } from "react-icons/md";
 import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
     ArrowDownTrayIcon,
@@ -23,71 +25,105 @@ import {
 } from "@material-tailwind/react";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import Link from "next/link";
 
 const TABLE_HEAD = ["No", "Pengguna", "Penilaian", "Comment", ""];
 
-const TABLE_ROWS = [
-    {
-        no: 1,
-        user: "Qidir",
-        rating: 4,
-        comment: "Motor Vario 150 sangat keren",
-    },
-    {
-        no: 2,
-        user: "Qamar",
-        rating: 5,
-        comment: "Motor Vario 150 sangat keren",
-    },
-    {
-        no: 3,
-        user: "Zidan",
-        rating: 5,
-        comment: "Motor Vario 150 sangat keren",
-    },
-    {
-        no: 4,
-        user: "Damar",
-        rating: 3,
-        comment: "Motor Vario 150 sangat keren",
-    },
-    {
-        no: 5,
-        user: "Arvi",
-        rating: 3,
-        comment: "Bagus",
-    },
-];
+export function RatingTable() {
+    const [id, setId] = useState(null);
+    const [error, setError] = useState(null);
+    const [showNotification, setShowNotification] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [review, setReview] = useState([]);
+    const [totalReview, setTotalReview] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
 
-function PopupDelete() {
-    const [showPopup, setShowPopup] = useState(true);
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                }
+            });
+            const responseText = await response.text();
+            console.log('Response Text:', responseText);
 
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        // window.location.reload();
+            const data = JSON.parse(responseText);
+            console.log('Parsed JSON Data:', data);
+
+            const reviews = data.review;
+            console.log('Review Data:', reviews);
+
+            setReview(reviews);
+
+            const totalReview = reviews.length;
+            setTotalReview(totalReview);
+
+            if (reviews.length > 0) {
+                setId(reviews[0].id);
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        }
     };
 
-    return (
-        showPopup && (
-            <div className="fixed z-50 flex flex-col gap-2 items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <span className="">
-                    Apakah anda yakin ingin menghapus pengguna ini?
-                </span>
-                <div className="w-full flex flex-row justify-end gap-4">
-                    <Button color="red" onClick={handleClosePopup}>
-                        Batal
-                    </Button>
-                    <Button color="green">
-                        Konfirmasi
-                    </Button>
-                </div>
-            </div>
-        )
-    );
-}
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-export function RatingTable() {
-    const [showPopup, setShowPopup] = useState(false);
+    const filteredRatings = review.filter(review =>
+        review.user && review.user.nama_pengguna && review.user.nama_pengguna.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentRatingData = filteredRatings.slice(startIndex, endIndex);
+
+    // Calculate the total number of pages based on the filtered data
+    const totalPages = Math.ceil(filteredRatings.length / itemsPerPage);
+
+    const handlePageChange = (page) => {
+        setCurrentPage(page);
+    };
+
+    const deleteReview = async (reviewId) => {
+        if (!reviewId) {
+            setError('No ID available to delete.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/delete/${reviewId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                // Trigger a new fetch request to update the data
+                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                setReview((prevMotor) => prevMotor.filter(m => m.id !== reviewId));
+                console.log(`Motor with id ${reviewId} deleted successfully.`);
+                setError(''); // Clear any previous errors
+                setShowNotification(true); // Show notification
+                // Optionally, hide notification after a certain duration
+                setTimeout(() => {
+                    setShowNotification(false);
+                }, 3000); // 3000 milliseconds (3 seconds)
+            } else {
+                const errorMessage = await response.text();
+                console.error('Failed to delete the motor:', errorMessage);
+                setError(`Failed to delete the motor: ${errorMessage}`);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            setError(`Delete error: ${error.message}`);
+        }
+    };
 
     const handleClosePopup = () => {
         setShowPopup(false);
@@ -99,19 +135,16 @@ export function RatingTable() {
 
     return (
         <>
-            <div className="h-full w-full flex flex-row justify-center">
-                {showPopup && <PopupDelete onClose={handleClosePopup} />}
-            </div>
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Semua Pengguna
+                                    Semua ulasan
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Total 258 Pengguna
+                                    Total {totalReview} ulasan
                                 </Typography>
                             </div>
                             <div className="flex md:flex-row flex-col w-full shrink-0 gap-2 md:w-max items-end md:items-center">
@@ -119,6 +152,11 @@ export function RatingTable() {
                                     <Input
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+                                        value={searchTerm}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -135,8 +173,7 @@ export function RatingTable() {
                                         >
                                             <Typography
                                                 variant="small"
-                                                color="blue-gray"
-                                                className="font-normal leading-none opacity-70"
+                                                className="font-semibold text-black leading-none opacity-70"
                                             >
                                                 {head}
                                             </Typography>
@@ -145,98 +182,99 @@ export function RatingTable() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {TABLE_ROWS.map(
-                                    (
-                                        {
-                                            no,
-                                            user,
-                                            rating,
-                                            comment,
-                                        },
-                                        index,
-                                    ) => {
-                                        const isLast = index === TABLE_ROWS.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
-
-                                        return (
-                                            <tr key={user}>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {no}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-bold"
-                                                    >
-                                                        {user}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <div className="pl-3 flex items-center">
-                                                        {Array.from({ length: rating }, (_, i) => (
-                                                            <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" stroke="none">
-                                                                <path d="M12 .587l3.668 7.425 8.332 1.212-6.042 5.888 1.426 8.31L12 18.897l-7.384 3.925 1.426-8.31L.412 9.224l8.332-1.212L12 .587z" />
-                                                            </svg>
-                                                        ))}
-                                                    </div>
-                                                </td>
-                                                <td className={classes}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        {comment}
-                                                    </Typography>
-                                                </td>
-                                                <td className={classes}>
-                                                    <a href="/admin/detailRating">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                                <MagnifyingGlassIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <a href="/admin/editRating">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text" className="bg-[#FFC107] mx-2">
-                                                                <PencilSquareIcon color="white" className="h-5 w-5" />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </a>
-                                                    <Tooltip content="Delete">
-                                                        <IconButton variant="text" className="bg-red-500" onClick={handleShowPupup}>
-                                                            <TrashIcon color="white" className="h-5 w-5" />
+                                {currentRatingData.length === 0 ? (
+                                    <Typography className="p-4" variant="small" color="grey">
+                                        Data tidak ditemukan
+                                    </Typography>
+                                ) : (
+                                    currentRatingData && currentRatingData.map((reviewData, index) => (
+                                        <tr key={index}>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-bold"
+                                                >
+                                                    {reviewData.user.nama_pengguna}
+                                                </Typography>
+                                            </td>
+                                            <td>
+                                                <div className="pl-3 flex items-center gap-2">
+                                                    {Array.from({ length: reviewData.penilaian }, (_, i) => (
+                                                        <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                                                            <path d="M12 .587l3.668 7.425 8.332 1.212-6.042 5.888 1.426 8.31L12 18.897l-7.384 3.925 1.426-8.31L.412 9.224l8.332-1.212L12 .587z" />
+                                                        </svg>
+                                                    ))}
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="font-normal"
+                                                >
+                                                    {reviewData.komentar}
+                                                </Typography>
+                                            </td>
+                                            <td className="p-4">
+                                                <Link href={`/admin/detailRating/${reviewData.id}`}>
+                                                    <Tooltip content="Detail">
+                                                        <IconButton variant="text" className="bg-[#0D6EFD]">
+                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
+                                                </Link>
+                                                <Link href={`/admin/editRating/${reviewData.id}`}>
+                                                    <Tooltip content="Edit">
+                                                        <IconButton variant="text" className="bg-[#FFC107] mx-2">
+                                                            <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => deleteReview(reviewData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                {showNotification && (
+                                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                        <span>Delete Berhasil</span>
+                                        <MdDone className="ml-2 text-white" />
+                                    </div>
                                 )}
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2">
-                            <IconButton variant="outlined" size="sm">
-                                1
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                2
-                            </IconButton>
-                            <IconButton variant="text" size="sm">
-                                3
-                            </IconButton>
+                            {Array.from({ length: totalPages }, (_, i) => (
+                                <IconButton
+                                    key={i}
+                                    variant="text"
+                                    size="sm"
+                                    onClick={() => handlePageChange(i + 1)}
+                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                >
+                                    {i + 1}
+                                </IconButton>
+                            ))}
                         </div>
                     </CardFooter>
                 </Card>
