@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import React, { useState, useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { FaRegCircle, FaRegDotCircle } from 'react-icons/fa';
 import { PiScroll } from "react-icons/pi";
