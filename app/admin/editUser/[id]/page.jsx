@@ -154,6 +154,9 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
+            <div className='hidden xl:block'>
+                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -182,7 +185,7 @@ const Page = ({ params: { id } }) => {
                                 <ol className="hidden md:flex flex-col md:flex-row items-start w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
                                     <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
                                         <a href="#">
-                                            <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">dashboard</p>
+                                            <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">beranda</p>
                                         </a>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
@@ -198,8 +201,14 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
                         </div>
-                        <NavbarAdmin />
-                        <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
+                        </div>
                     </div>
                 </nav>
                 <div className="mt-12">
@@ -314,7 +323,7 @@ const Page = ({ params: { id } }) => {
                                                 className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 loading={loading}
                                             >
-                                                {loading ? 'Loading...' : 'Tambah Motor Baru'}
+                                                {loading ? 'Loading...' : 'Simpan'}
                                             </Button>
                                         </div>
                                     </div>

@@ -243,7 +243,10 @@ export function HistoryTable({ onSelectRange }) {
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -357,7 +360,7 @@ export function HistoryTable({ onSelectRange }) {
                                                     color="blue-gray"
                                                     className="font-normal"
                                                 >
-                                                    {historyData.id}
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
                                                 </Typography>
                                             </td>
                                             <td className="p-4">

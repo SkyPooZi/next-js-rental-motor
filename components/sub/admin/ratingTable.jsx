@@ -81,6 +81,7 @@ export function RatingTable() {
     const endIndex = startIndex + itemsPerPage;
     const currentRatingData = filteredRatings.slice(startIndex, endIndex);
 
+    // Calculate the total number of pages based on the filtered data
     const totalPages = Math.ceil(filteredRatings.length / itemsPerPage);
 
     const handlePageChange = (page) => {
@@ -152,7 +153,10 @@ export function RatingTable() {
                                         label="Ketik disini"
                                         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => {
+                                            setSearchTerm(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -191,7 +195,7 @@ export function RatingTable() {
                                                     color="blue-gray"
                                                     className="font-normal"
                                                 >
-                                                    {reviewData.id}
+                                                    {(currentPage - 1) * itemsPerPage + index + 1}
                                                 </Typography>
                                             </td>
                                             <td className="p-4">
