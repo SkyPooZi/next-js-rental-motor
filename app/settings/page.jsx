@@ -79,16 +79,18 @@ export default function Settings() {
                             </div>
                         </button>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
-                        <button onClick={() => handleButtonClick('logout')}>
-                            <div className='flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md text-[#FF4D30] hover:bg-[#FF4D30] hover:text-white hover:duration-500'>
-                                <RiLogoutCircleLine size="25" />
-                                <Label>
-                                    <span className='font-medium text-base'>
-                                        Keluar
-                                    </span>
-                                </Label>
-                            </div>
-                        </button>
+                        <a href="/login">
+                            <button>
+                                <div className='flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md text-[#FF4D30] hover:bg-[#FF4D30] hover:text-white hover:duration-500'>
+                                    <RiLogoutCircleLine size="25" />
+                                    <Label>
+                                        <span className='font-medium text-base'>
+                                            Keluar
+                                        </span>
+                                    </Label>
+                                </div>
+                            </button>
+                        </a>
                     </div>
                     {renderComponent()}
                 </div >
