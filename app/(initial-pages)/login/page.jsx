@@ -1,27 +1,20 @@
 'use client';
-
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
 const LoginPage = () => {
   const router = useRouter();
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
-
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (!email || !password) {
       alert('Email or password cannot be empty');
       return;
@@ -31,26 +24,21 @@ const LoginPage = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
         method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
-
       if (!response.ok) {
         console.log('Response status:', response.status);
         console.log('Response body:', await response.text());
         throw new Error('Login failed');
       }
-
       const data = await response.json();
-
       console.log('API response:', data);
-
       const user = data.user;
       console.log('User data:', user);
-
       const token = data.access_token;
       console.log('Token:', token);
-
       if (user && user.email === email) {
         console.log('User role:', user.peran);
         if (user.peran === 'admin') {
@@ -66,7 +54,6 @@ const LoginPage = () => {
       setError('An error occurred during login. Please try again.');
     }
   };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-white p-4">
       <div className="flex flex-col md:flex-row items-center">
@@ -132,5 +119,4 @@ const LoginPage = () => {
     </div>
   );
 };
-
 export default LoginPage;
