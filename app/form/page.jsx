@@ -227,9 +227,10 @@ export default function page() {
                 throw new Error(response.message); // Display the error message to the user
             }
 
-            const id_payment = data.id;
+            const id_payment = data.history.id;
+            console.log(id_payment);
 
-            const endpointURL = `${process.env.NEXT_PUBLIC_API_URL}/api/payment/8`;
+            const endpointURL = `${process.env.NEXT_PUBLIC_API_URL}/api/payment/${id_payment}`;
 
             const htmlResponse = await fetch(endpointURL, {
                 headers: {
@@ -345,7 +346,6 @@ export default function page() {
     return (
         <>
             <Navbar />
-            <div dangerouslySetInnerHTML={{ __html: HTMLResponse }} />
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <div className='text-[#666666] mb-5'>
                     <span className='font-semibold text-black md:text-xl text-base flex'>
