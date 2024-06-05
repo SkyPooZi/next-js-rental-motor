@@ -44,7 +44,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|MjQOQVQDqcxEp15R7O2WjxlI7QGdF7tTxraDuFl2759fc079`
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
                     }
                 });
 
@@ -57,6 +57,7 @@ const Page = ({ params: { id } }) => {
                     console.log('Fetched data:', data); // Log the fetched data to check its structure
                     setUserData(data.user);
                     setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.gambar}`);
+                    console.log(image);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -65,7 +66,7 @@ const Page = ({ params: { id } }) => {
         fetchData();
     }, [id]);
 
-    const handleButtonClick = (component) => {
+    const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
 

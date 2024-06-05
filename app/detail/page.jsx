@@ -26,7 +26,7 @@ export default function Detail() {
                             <button className="bg-white text-[#FF4D30] border border-[#FF4D30] px-8 py-2 hover:bg-[#FF4D30] hover:text-white transition">Booking Now!</button>
                         </div>
                         <div className="text-center mt-10">
-                            <a href="#" className="text-[#FF4D30]">Cek Juga Motor Lainnya</a>
+                            <a href="/catalog" className="text-[#FF4D30]">Cek Juga Motor Lainnya</a>
                         </div>
                     </div>
 
