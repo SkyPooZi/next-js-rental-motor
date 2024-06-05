@@ -1,7 +1,4 @@
-'use client';
-
-import React, { useState, useEffect } from "react";
-import { Breadcrumbs } from "@material-tailwind/react";
+'use client'; import React, { useState, useEffect } from "react"; import { Breadcrumbs } from "@material-tailwind/react";
 import {
     Card,
     CardHeader,
@@ -144,6 +141,7 @@ export default function Notification() {
                 setHistory(prevHistory => prevHistory.map(item =>
                     item.id === id ? { ...item, status_history: 'Dibatalkan' } : item
                 ));
+                setHistory(prevHistory => prevHistory.filter(item => item.id !== id));                
 
                 setTimeout(() => {
                     setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
