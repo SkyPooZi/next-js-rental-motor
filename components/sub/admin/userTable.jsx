@@ -5,27 +5,22 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import { MdDone } from "react-icons/md";
-import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
-    ArrowDownTrayIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import {
     Card,
     CardHeader,
     Typography,
-    Button,
     CardBody,
-    Chip,
     CardFooter,
-    Avatar,
     IconButton,
     Tooltip,
     Input,
-    Breadcrumbs,
+    Spinner
 } from "@material-tailwind/react";
 
-import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const TABLE_HEAD = ["No", "Nama Pengguna", "Email", "Peran", ""];
 
@@ -38,6 +33,7 @@ export function UserListTable() {
     const [totalUser, setTotalUser] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
 
     const fetchData = async () => {
@@ -67,6 +63,8 @@ export function UserListTable() {
             }
         } catch (error) {
             console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -127,6 +125,11 @@ export function UserListTable() {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
