@@ -20,6 +20,7 @@ export default function Notification() {
     const [loadingCancel, setLoadingCancel] = useState(false);
     const [error, setError] = useState(null);
     const [loadData, setLoadData] = useState(true);
+    const [selectedId, setSelectedId] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -32,13 +33,10 @@ export default function Notification() {
                 });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
-                };
+                }
                 const data = await response.json();
                 const filteredHistories = data.history.filter(item => item.status_history === 'Menunggu Pembayaran');
                 setHistory(filteredHistories);
-                if (filteredHistories.length > 0) {
-                    setId(filteredHistories[0].id);
-                };
             } catch (error) {
                 console.error('Fetch Data Error:', error);
                 setError(error.message);
@@ -50,7 +48,7 @@ export default function Notification() {
         fetchData();
     }, []);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, id) => {
         e.preventDefault();
         if (!id) {
             setError('No ID available to edit.');
@@ -82,15 +80,16 @@ export default function Notification() {
                     setShowNotification(false);
                     setTimeout(() => setShowNotification(false), 3000);
                 }, 1000);
-            }
+                setSelectedId(null);
+            };
         } catch (err) {
             setError(`An error occurred: ${err.message}`);
         } finally {
             setLoading(false);
-        }
+        };
     };
 
-    const handleSubmitCancel = async (e) => {
+    const handleSubmitCancel = async (e, id) => {
         e.preventDefault();
         if (!id) {
             setError('No ID available to edit.');
@@ -123,12 +122,13 @@ export default function Notification() {
                     setShowNotificationCancel(false);
                     setTimeout(() => setShowNotificationCancel(false), 3000);
                 }, 1000);
-            }
+                setSelectedId(null);
+            };
         } catch (err) {
             setError(`An error occurred: ${err.message}`);
         } finally {
             setLoadingCancel(false);
-        }
+        };
     };
 
     return (
