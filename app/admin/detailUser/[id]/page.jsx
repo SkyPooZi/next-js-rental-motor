@@ -1,24 +1,15 @@
 'use client';
 
-import { useRouter } from 'next/router';
-import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import { useState, useEffect } from 'react';
 
 import {
     Card,
     CardHeader,
-    Typography,
-    Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Option,
-    Textarea
+    Textarea,
+    Spinner
 } from "@material-tailwind/react";
 
 import Dashboard from "@/components/sub/admin/dashboard";
@@ -35,8 +26,7 @@ const Page = ({ params: { id } }) => {
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState(null);
-    const [imagePreview, setImagePreview] = useState('');
-    const fileInputRef = useRef(null);
+    const [loadData, setLoadData] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,11 +46,13 @@ const Page = ({ params: { id } }) => {
                     const data = await response.json();
                     console.log('Fetched data:', data); // Log the fetched data to check its structure
                     setUserData(data.user);
-                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.gambar}`);
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.user.gambar}`);
                     console.log(image);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -108,7 +100,7 @@ const Page = ({ params: { id } }) => {
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Daftar Motor</p>
+                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Pengguna</p>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
@@ -129,6 +121,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>
@@ -147,7 +144,7 @@ const Page = ({ params: { id } }) => {
                                         <img
                                             src={image || 'https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg='}
                                             alt="Image Preview"
-                                            className="max-w-40 h-auto rounded-md"
+                                            className="max-w-32 h-auto rounded-md"
                                         />
                                     </div>
                                     <div className="flex flex-col md:flex-row gap-4">

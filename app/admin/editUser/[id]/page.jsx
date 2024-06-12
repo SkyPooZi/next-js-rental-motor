@@ -1,24 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
 
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Option,
-    Textarea
+    Textarea,
+    Spinner
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
@@ -47,6 +39,7 @@ const Page = ({ params: { id } }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadData, setLoadData] = useState(true);
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -90,6 +83,8 @@ const Page = ({ params: { id } }) => {
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -190,7 +185,7 @@ const Page = ({ params: { id } }) => {
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Daftar Motor</p>
+                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Pengguna</p>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
@@ -211,6 +206,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>
@@ -230,7 +230,7 @@ const Page = ({ params: { id } }) => {
                                             <img
                                                 src={imagePreview || image}
                                                 alt="Image Preview"
-                                                className="max-w-40 h-auto rounded-md"
+                                                className="max-w-32 h-auto rounded-md"
                                             />
                                         </div>
                                         <div>
@@ -276,6 +276,7 @@ const Page = ({ params: { id } }) => {
                                                     Email
                                                 </span>
                                                 <Input
+                                                    disabled
                                                     label={`Masukkan email (${user.email})`}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     type='email'

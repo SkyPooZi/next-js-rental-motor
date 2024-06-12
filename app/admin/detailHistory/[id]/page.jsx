@@ -1,26 +1,22 @@
 'use client';
 
-import { useRouter } from 'next/router';
-import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import { useState, useEffect } from 'react';
 
 import {
     Card,
     CardHeader,
-    Typography,
-    Button,
     Checkbox,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Option,
-    Textarea
+    Textarea,
+    Popover,
+    PopoverHandler,
+    PopoverContent,
+    Spinner
 } from "@material-tailwind/react";
+import { format } from "date-fns";
+import { DayPicker } from "react-day-picker";
 
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
@@ -35,6 +31,7 @@ const Page = ({ params: { id } }) => {
     const [history, setHistory] = useState(null);
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
+    const [loadData, setLoadData] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -57,6 +54,8 @@ const Page = ({ params: { id } }) => {
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -104,7 +103,7 @@ const Page = ({ params: { id } }) => {
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Daftar Motor</p>
+                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">History</p>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
@@ -125,6 +124,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>
@@ -202,13 +206,111 @@ const Page = ({ params: { id } }) => {
                                             </span>
                                             <Input label="Masukkan nama motor" value={history.list_motor.nama_motor} disabled />
                                         </div>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row gap-4">
                                         <div className="w-full flex flex-col gap-2">
                                             <span className="text-black">
-                                                Tanggal Booking
+                                                Tanggal Mulai
                                             </span>
-                                            <div className="w-full cursor-not-allowed">
-                                                <Input label="Masukkan tanggal booking" value={history.tanggal_booking} disabled />
-                                            </div>
+                                            <Popover placement="bottom">
+                                                <PopoverHandler>
+                                                    <Input
+                                                        disabled
+                                                        value={format(new Date(history.tanggal_mulai), "dd MMMM yyyy")}
+                                                        onChange={() => null}
+                                                    />
+                                                </PopoverHandler>
+                                                <PopoverContent>
+                                                    <DayPicker
+                                                        mode="single"
+                                                        showOutsideDays
+                                                        className="border-0"
+                                                        classNames={{
+                                                            caption: "flex justify-center py-2 mb-4 relative items-center",
+                                                            caption_label: "text-sm font-medium text-gray-900",
+                                                            nav: "flex items-center",
+                                                            nav_button:
+                                                                "h-6 w-6 bg-transparent hover:bg-blue-gray-50 p-1 rounded-md transition-colors duration-300",
+                                                            nav_button_previous: "absolute left-1.5",
+                                                            nav_button_next: "absolute right-1.5",
+                                                            table: "w-full border-collapse",
+                                                            head_row: "flex font-medium text-gray-900",
+                                                            head_cell: "m-0.5 w-9 font-normal text-sm",
+                                                            row: "flex w-full mt-2",
+                                                            cell: "text-gray-600 rounded-md h-9 w-9 text-center text-sm p-0 m-0.5 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-gray-900/20 [&:has([aria-selected].day-outside)]:text-white [&:has([aria-selected])]:bg-gray-900/50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                                                            day: "h-9 w-9 p-0 font-normal",
+                                                            day_range_end: "day-range-end",
+                                                            day_selected:
+                                                                "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white",
+                                                            day_today: "rounded-md bg-gray-200 text-gray-900",
+                                                            day_outside:
+                                                                "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
+                                                            day_disabled: "text-gray-500 opacity-50",
+                                                            day_hidden: "invisible",
+                                                        }}
+                                                        components={{
+                                                            IconLeft: ({ ...props }) => (
+                                                                <ChevronLeftIcon {...props} className="h-4 w-4 stroke-2" />
+                                                            ),
+                                                            IconRight: ({ ...props }) => (
+                                                                <ChevronRightIcon {...props} className="h-4 w-4 stroke-2" />
+                                                            ),
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                        </div>
+                                        <div className="w-full flex flex-col gap-2">
+                                            <span className="text-black">
+                                                Tanggal Selesai
+                                            </span>
+                                            <Popover placement="bottom">
+                                                <PopoverHandler>
+                                                    <Input
+                                                        disabled
+                                                        value={format(new Date(history.tanggal_selesai), "dd MMMM yyyy")}
+                                                        onChange={() => null}
+                                                    />
+                                                </PopoverHandler>
+                                                <PopoverContent>
+                                                    <DayPicker
+                                                        mode="single"
+                                                        showOutsideDays
+                                                        className="border-0"
+                                                        classNames={{
+                                                            caption: "flex justify-center py-2 mb-4 relative items-center",
+                                                            caption_label: "text-sm font-medium text-gray-900",
+                                                            nav: "flex items-center",
+                                                            nav_button:
+                                                                "h-6 w-6 bg-transparent hover:bg-blue-gray-50 p-1 rounded-md transition-colors duration-300",
+                                                            nav_button_previous: "absolute left-1.5",
+                                                            nav_button_next: "absolute right-1.5",
+                                                            table: "w-full border-collapse",
+                                                            head_row: "flex font-medium text-gray-900",
+                                                            head_cell: "m-0.5 w-9 font-normal text-sm",
+                                                            row: "flex w-full mt-2",
+                                                            cell: "text-gray-600 rounded-md h-9 w-9 text-center text-sm p-0 m-0.5 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-gray-900/20 [&:has([aria-selected].day-outside)]:text-white [&:has([aria-selected])]:bg-gray-900/50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                                                            day: "h-9 w-9 p-0 font-normal",
+                                                            day_range_end: "day-range-end",
+                                                            day_selected:
+                                                                "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white",
+                                                            day_today: "rounded-md bg-gray-200 text-gray-900",
+                                                            day_outside:
+                                                                "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
+                                                            day_disabled: "text-gray-500 opacity-50",
+                                                            day_hidden: "invisible",
+                                                        }}
+                                                        components={{
+                                                            IconLeft: ({ ...props }) => (
+                                                                <ChevronLeftIcon {...props} className="h-4 w-4 stroke-2" />
+                                                            ),
+                                                            IconRight: ({ ...props }) => (
+                                                                <ChevronRightIcon {...props} className="h-4 w-4 stroke-2" />
+                                                            ),
+                                                        }}
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
                                         </div>
                                     </div>
                                     <div className="flex flex-col md:flex-row gap-4">
