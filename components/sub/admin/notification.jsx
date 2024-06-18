@@ -1,39 +1,26 @@
 'use client';
-
 import React, { useState, useEffect } from "react";
-import { Breadcrumbs } from "@material-tailwind/react";
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
     Avatar,
-    IconButton,
-    Tooltip,
-    Input,
+    Spinner
 } from "@material-tailwind/react";
-import {
-    ArrowDownTrayIcon,
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
 import { MdDone } from "react-icons/md";
-import { CheckCircleIcon, CheckIcon, XCircleIcon, XMarkIcon } from "@heroicons/react/24/solid";
-
 import NavbarAdmin from "@/components/sub/admin/navbar";
 
 export default function Notification() {
     const [showNotification, setShowNotification] = useState(false);
     const [showNotificationCancel, setShowNotificationCancel] = useState(false);
-    const [id, setId] = useState(null); // State to store the id
+    const [id, setId] = useState(null);
     const [history, setHistory] = useState([]);
-    const [status_history, setStatusHistory] = useState('');
     const [loading, setLoading] = useState(true);
     const [btnLoading, setBtnLoading] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
     const [error, setError] = useState(null);
+    const [loadData, setLoadData] = useState(true);
+    const [selectedId, setSelectedId] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -50,34 +37,26 @@ export default function Notification() {
                 const data = await response.json();
                 const filteredHistories = data.history.filter(item => item.status_history === 'Menunggu Pembayaran');
                 setHistory(filteredHistories);
-
-                if (filteredHistories.length > 0) {
-                    setId(filteredHistories[0].id);
-                }
-
             } catch (error) {
                 console.error('Fetch Data Error:', error);
                 setError(error.message);
             } finally {
                 setLoading(false);
+                setLoadData(false);
             }
         };
         fetchData();
     }, []);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, id) => {
         e.preventDefault();
-
         if (!id) {
             setError('No ID available to edit.');
             return;
-        }
-
+        };
         const formData = new FormData();
         formData.append('status_history', 'Dipesan');
-
         setBtnLoading(true);
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
@@ -86,45 +65,39 @@ export default function Notification() {
                 },
                 body: formData
             });
-
             if (!response.ok) {
                 setError(`Failed to update data: ${response.statusText}`);
             } else {
                 const data = await response.json();
                 console.log('Updated data:', data);
                 setShowNotification(true);
-
                 setHistory(prevHistory => prevHistory.map(item =>
                     item.id === id ? { ...item, status_history: 'Dipesan' } : item
                 ));
-
                 setTimeout(() => {
                     setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                     setBtnLoading(false);
                     setShowNotification(false);
                     setTimeout(() => setShowNotification(false), 3000);
                 }, 1000);
-            }
+                setSelectedId(null);
+            };
         } catch (err) {
             setError(`An error occurred: ${err.message}`);
         } finally {
             setLoading(false);
-        }
+        };
     };
 
-    const handleSubmitCancel = async (e) => {
+    const handleSubmitCancel = async (e, id) => {
         e.preventDefault();
-
         if (!id) {
             setError('No ID available to edit.');
             return;
-        }
-
+        };
         const formData = new FormData();
         formData.append('status_history', 'Dibatalkan');
-
         setLoadingCancel(true);
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
@@ -133,30 +106,29 @@ export default function Notification() {
                 },
                 body: formData
             });
-
             if (!response.ok) {
                 setError(`Failed to update data: ${response.statusText}`);
             } else {
                 const data = await response.json();
                 console.log('Updated data:', data);
                 setShowNotificationCancel(true);
-
                 setHistory(prevHistory => prevHistory.map(item =>
                     item.id === id ? { ...item, status_history: 'Dibatalkan' } : item
                 ));
-
+                setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                 setTimeout(() => {
                     setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                     setLoadingCancel(false);
                     setShowNotificationCancel(false);
                     setTimeout(() => setShowNotificationCancel(false), 3000);
                 }, 1000);
-            }
+                setSelectedId(null);
+            };
         } catch (err) {
             setError(`An error occurred: ${err.message}`);
         } finally {
             setLoadingCancel(false);
-        }
+        };
     };
 
     return (
@@ -182,6 +154,11 @@ export default function Notification() {
                     <NavbarAdmin />
                 </div>
             </nav>
+            {loadData && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="mt-12 flex flex-col gap-4">
                 {loading ? (
                     <div>Loading...</div>
@@ -231,7 +208,7 @@ export default function Notification() {
                         <MdDone className="ml-2 text-white" />
                     </div>
                 )}
-                {showNotificationCancel &&(
+                {showNotificationCancel && (
                     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
                         <span>Pembatalan Berhasil</span>
                         <MdDone className="ml-2 text-white" />

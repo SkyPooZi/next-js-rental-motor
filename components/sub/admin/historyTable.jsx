@@ -20,6 +20,7 @@ import {
     Tooltip,
     Input,
     Breadcrumbs,
+    Spinner
 } from "@material-tailwind/react";
 
 import { CalendarIcon } from "@radix-ui/react-icons";
@@ -60,6 +61,7 @@ export function HistoryTable({ onSelectRange }) {
     const [activeComponent, setActiveComponent] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
 
     const fetchData = async () => {
@@ -95,6 +97,8 @@ export function HistoryTable({ onSelectRange }) {
             }
         } catch (error) {
             console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -185,6 +189,11 @@ export function HistoryTable({ onSelectRange }) {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -295,32 +304,32 @@ export function HistoryTable({ onSelectRange }) {
                             </DropdownMenu>
                         </div>
                         <div className="w-full justify-between hidden md:flex">
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'all' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('all')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'all' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('all'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'all' ? '' : ''}`}>
                                     Semua
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Menunggu Pembayaran' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Menunggu Pembayaran')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Menunggu Pembayaran' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('Menunggu Pembayaran'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'Menunggu Pembayaran' ? '' : ''}`}>
                                     Menunggu Pembayaran
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dipesan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Dipesan')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dipesan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('Dipesan'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'Dipesan' ? '' : ''}`}>
                                     Dipesan
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Sedang Digunakan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Sedang Digunakan')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Sedang Digunakan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('Sedang Digunakan'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'Sedang Digunakan' ? '' : ''}`}>
                                     Sedang Digunakan
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Selesai' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Selesai')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Selesai' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('Selesai'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'Selesai' ? '' : ''}`}>
                                     Selesai
                                 </Typography>
                             </button>
-                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dibatalkan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => handleButtonClick('Dibatalkan')}>
+                            <button className={`cursor-pointer text-[#6B7280] ${activeComponent === 'Dibatalkan' ? 'middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`} onClick={() => { handleButtonClick('Dibatalkan'), setCurrentPage(1); }}>
                                 <Typography className={`text-sm ${activeComponent !== 'Dibatalkan' ? '' : ''}`}>
                                     Dibatalkan
                                 </Typography>

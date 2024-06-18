@@ -22,6 +22,7 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
+    Spinner
 } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
@@ -51,6 +52,7 @@ const Page = ({ params: { id } }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadData, setLoadData] = useState(true);
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -90,6 +92,8 @@ const Page = ({ params: { id } }) => {
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -111,7 +115,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 1|1X1MbNxFmRxyrFbZHD7Hpjj8oLkSy7FaX41Ji1U2d10f8fc4`
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
                 },
                 body: formData
             });
@@ -202,7 +206,7 @@ const Page = ({ params: { id } }) => {
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Daftar Motor</p>
+                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Diskon</p>
                                         <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
                                     </li>
                                     <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
@@ -223,6 +227,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>

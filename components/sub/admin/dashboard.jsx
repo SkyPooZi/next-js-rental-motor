@@ -9,7 +9,9 @@ import { FaUserCircle } from "react-icons/fa";
 
 import AllChart from "@/components/sub/allChart";
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import { Spinner } from "@material-tailwind/react";
 import Sidebar from '@/components/main/sidebar';
+import { Skeleton } from "@/components/ui/skeleton"
 import { set } from "date-fns";
 
 export default function Dashboard() {
@@ -23,6 +25,8 @@ export default function Dashboard() {
     const [totalSewa, setTotalSewa] = useState(0);
     const [totalUlasan, setTotalUlasan] = useState(0);
     const [totalUser, setTotalUser] = useState(0);
+    const [skeleton, setSkeleton] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,6 +49,8 @@ export default function Dashboard() {
                 setTotalMotor(totalMotor);
             } catch (error) {
                 console.error('Fetch error:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();
@@ -197,6 +203,11 @@ export default function Dashboard() {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4 xl:ml-80">
                 <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
                     <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">

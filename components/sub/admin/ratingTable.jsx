@@ -22,6 +22,7 @@ import {
     Tooltip,
     Input,
     Breadcrumbs,
+    Spinner
 } from "@material-tailwind/react";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
@@ -38,6 +39,7 @@ export function RatingTable() {
     const [totalReview, setTotalReview] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
 
     const fetchData = async () => {
@@ -67,6 +69,8 @@ export function RatingTable() {
             }
         } catch (error) {
             console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -81,7 +85,6 @@ export function RatingTable() {
     const endIndex = startIndex + itemsPerPage;
     const currentRatingData = filteredRatings.slice(startIndex, endIndex);
 
-    // Calculate the total number of pages based on the filtered data
     const totalPages = Math.ceil(filteredRatings.length / itemsPerPage);
 
     const handlePageChange = (page) => {
@@ -135,6 +138,11 @@ export function RatingTable() {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">

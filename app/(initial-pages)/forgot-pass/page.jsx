@@ -17,6 +17,7 @@ const ForgotPass = () => {
     if (storedEmail) {
       setEmail(storedEmail);
       fetchUserId(storedEmail);
+      console.log(storedEmail);
     } else {
       router.push('/forgot-email'); // Redirect if no email found
     }
@@ -24,10 +25,10 @@ const ForgotPass = () => {
 
   const fetchUserId = async (email) => {
     try {
-      const response = await fetch('https://415d-2001-448a-406f-12e7-4642-c87e-9b1-fbb6.ngrok-free.app/api/user/all', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer 4|EKzYACQsN5zLTUUpcJmp2i9fJYhpuy1DGQbEmmg9bf8b6a26`,
+          'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
         },
       });
 
@@ -35,8 +36,10 @@ const ForgotPass = () => {
       if (response.ok) {
         const data = await response.json();
         console.log('User data:', data);
-        const user = data.find((user) => user.email === email);
+        console.log('Type of data:', typeof data);
+        const user = data.user.find((user) => user.email === email);
         if (user) {
+          console.log('User data find: ', user)
           setUserId(user.id);
           console.log('User ID:', user.id);
         } else {
@@ -66,19 +69,25 @@ const ForgotPass = () => {
       alert('Please fill in both fields.');
     } else if (newPassword !== confirmPassword) {
       alert('Passwords do not match.');
+      console.log(newPassword);
+      console.log(confirmPassword);
     } else {
+      console.log(userId);
       if (userId) {
         try {
-          const response = await fetch(`https://415d-2001-448a-406f-12e7-4642-c87e-9b1-fbb6.ngrok-free.app/api/user/edit/${userId}`, {
+          console.log(newPassword);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/account/${userId}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer 4|EKzYACQsN5zLTUUpcJmp2i9fJYhpuy1DGQbEmmg9bf8b6a26`,
+              'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
             },
             body: JSON.stringify({ password: newPassword }),
           });
 
           console.log('Password change response:', response);
+          const data = await response.json();
+          console.log('Update data:', data);
 
           if (response.ok) {
             router.push('/login');

@@ -9,17 +9,11 @@ import {
     CardHeader,
     Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Option,
     Textarea,
-    MenuItem
+    Spinner
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
@@ -52,6 +46,7 @@ const Page = ({ params: { id } }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadData, setLoadData] = useState(true);
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -102,6 +97,8 @@ const Page = ({ params: { id } }) => {
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchMotor();
@@ -129,6 +126,8 @@ const Page = ({ params: { id } }) => {
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -254,6 +253,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>
@@ -263,7 +267,7 @@ const Page = ({ params: { id } }) => {
                                 <CardHeader floated={false} shadow={false} className="rounded-none">
                                     <div className="mb-4 flex flex-col justify-between gap-4">
                                         <span className="text-black font-medium">
-                                            Detail Motor
+                                            Edit Motor
                                         </span>
                                         <div className="border-t border-[#969696] w-full"></div>
                                         <span className="text-black">

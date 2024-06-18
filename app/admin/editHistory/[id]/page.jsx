@@ -1,29 +1,20 @@
 'use client';
 
-import { useRouter } from 'next/router';
-import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import { useState, useEffect } from 'react';
 
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
     Checkbox,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Option,
     Textarea,
     Popover,
-    PopoverTrigger,
     PopoverHandler,
     PopoverContent,
+    Spinner
 } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
@@ -63,9 +54,9 @@ const Page = ({ params: { id } }) => {
     const [status_history, setStatusHistory] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
-    const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [loadData, setLoadData] = useState(true);
 
     const handleSelectChangeDiskon = (value) => {
         setDiskon(value);
@@ -92,10 +83,12 @@ const Page = ({ params: { id } }) => {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                    setMotors(data.listMotor || []);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchMotor();
@@ -117,10 +110,12 @@ const Page = ({ params: { id } }) => {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setDiskons(data.diskon || []); // Ensure data.listMotor is an array or default to empty array
+                    setDiskons(data.diskon || []);
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
+            } finally {
+                setLoadData(false);
             }
         };
         fetchData();
@@ -195,7 +190,6 @@ const Page = ({ params: { id } }) => {
 
                 setHitory((prevHistory) => ({
                     ...prevHistory,
-                    // Update only the fields that have been modified
                     ...(nama_lengkap && { nama_lengkap: data.history.nama_lengkap }),
                     ...(email && { email: data.history.email }),
                     ...(no_telp && { no_telp: data.history.no_telp }),
@@ -245,19 +239,11 @@ const Page = ({ params: { id } }) => {
         } else {
             setAkunSosmed('');
         }
-    }
-
-    const handleSelectChangeDiscount = (value) => {
-        setDiskon(value);
     };
-
-    const handleSelectChangePayment = (value) => {
-        setMetodePembayaran(value);
-    }
 
     const handleSelectChangeStatus = (value) => {
         setStatusHistory(value);
-    }
+    };
 
     return (
         <>
@@ -318,6 +304,11 @@ const Page = ({ params: { id } }) => {
                         </div>
                     </div>
                 </nav>
+                {loadData && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                        <Spinner color="blue" size="xl" />
+                    </div>
+                )}
                 <div className="mt-12">
                     {error ? (
                         <p>Error: {error}</p>
