@@ -5,9 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { MdDone } from "react-icons/md";
-import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
-    ArrowDownTrayIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -18,15 +17,11 @@ import {
     CardBody,
     Chip,
     CardFooter,
-    Avatar,
     IconButton,
     Tooltip,
     Input,
-    Breadcrumbs,
 } from "@material-tailwind/react";
 
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import PopupDelete from "@/components/sub/admin/popupDelete";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", ""];
 

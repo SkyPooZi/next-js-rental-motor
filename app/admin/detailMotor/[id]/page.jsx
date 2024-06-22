@@ -44,7 +44,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|MjQOQVQDqcxEp15R7O2WjxlI7QGdF7tTxraDuFl2759fc079`
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
                     }
                 });
 
@@ -71,9 +71,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -118,8 +115,13 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Detail</h6>
                         </div>
-                        <div className='hidden xl:block'>
-                            <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
                         </div>
                     </div>
                 </nav>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Image from "next/image";
 import { IoReorderThree, IoReorderThreeOutline } from "react-icons/io5";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
@@ -9,18 +9,11 @@ import { FaStar } from "react-icons/fa";
 import {
     Sheet,
     SheetContent,
-    SheetDescription,
     SheetHeader,
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
 
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import Discount from "@/components/sub/admin/discount";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
 
 const Sidebar = ({ activeComponent, handleButtonClick }) => {
     return (

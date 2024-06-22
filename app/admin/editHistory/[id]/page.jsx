@@ -261,9 +261,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}

@@ -111,7 +111,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 1|1X1MbNxFmRxyrFbZHD7Hpjj8oLkSy7FaX41Ji1U2d10f8fc4`
+                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
                 },
                 body: formData
             });
@@ -166,9 +166,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
