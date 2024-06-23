@@ -3,7 +3,6 @@
 import { Poppins } from 'next/font/google'
 
 import NavbarAfter from '../components/main/NavbarAfter';
-import Footer from '@/components/main/Footer2';
 import { ThemeProvider } from "@/components/ui/themes";
 import './globals.css'
 import Navbar from '@/components/main/Navbar';

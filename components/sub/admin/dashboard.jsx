@@ -30,6 +30,7 @@ export default function Dashboard() {
     const [totalUlasan, setTotalUlasan] = useState(0);
     const [totalUser, setTotalUser] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
