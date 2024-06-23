@@ -34,6 +34,7 @@ export function MotorListTable() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showNotification, setShowNotification] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
 
     const fetchData = async () => {
@@ -61,6 +62,8 @@ export function MotorListTable() {
         } catch (error) {
             console.error('Fetch error:', error);
             setError(`Fetch error: ${error.message}`);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -121,6 +124,11 @@ export function MotorListTable() {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">

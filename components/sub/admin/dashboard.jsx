@@ -9,6 +9,7 @@ import { FaUserCircle } from "react-icons/fa";
 
 import AllChart from "@/components/sub/allChart";
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import { Spinner } from "@material-tailwind/react";
 import Sidebar from '@/components/main/sidebar';
 import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
@@ -51,6 +52,8 @@ export default function Dashboard() {
                 setTotalMotor(totalMotor);
             } catch (error) {
                 console.error('Fetch error:', error);
+            } finally {
+                setLoading(false);
             }
         };
         fetchData();

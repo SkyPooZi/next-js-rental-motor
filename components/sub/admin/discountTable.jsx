@@ -23,38 +23,12 @@ import {
     Tooltip,
     Input,
     Breadcrumbs,
+    Spinner
 } from "@material-tailwind/react";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
-
-function PopupDelete() {
-    const [showPopup, setShowPopup] = useState(true);
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        // window.location.reload();
-    };
-
-    return (
-        showPopup && (
-            <div className="fixed z-50 flex flex-col gap-2 items-center bg-[#F6F7F9] px-4 py-4 rounded-md shadow-lg" role="alert">
-                <span className="">
-                    Apakah anda yakin ingin menghapus diskon ini?
-                </span>
-                <div className="w-full flex flex-row justify-end gap-4">
-                    <Button color="red" onClick={handleClosePopup}>
-                        Batal
-                    </Button>
-                    <Button color="green">
-                        Konfirmasi
-                    </Button>
-                </div>
-            </div>
-        )
-    );
-}
 
 export function DiscountTable() {
     const [id, setId] = useState(null); // State to store the id
@@ -65,6 +39,7 @@ export function DiscountTable() {
     const [totalDiskon, setTotalDiskon] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
 
     const fetchData = async () => {
@@ -94,6 +69,8 @@ export function DiscountTable() {
             }
         } catch (error) {
             console.error('Fetch error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -163,6 +140,11 @@ export function DiscountTable() {
 
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div className="p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">

@@ -22,7 +22,7 @@ const ForgotEmail = () => {
 
     localStorage.setItem('email', email); // Store email in localStorage
     console.log(email);
-    router.push('/forgot-pass');
+    router.push('/forgot-otp');
   };
 
   return (
