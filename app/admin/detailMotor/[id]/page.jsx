@@ -72,9 +72,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -124,12 +121,15 @@ const Page = ({ params: { id } }) => {
                                 <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
                             </div>
                         </div>
-                    </nav>
-                    {loadData && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
-                            <Spinner color="blue" size="xl" />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
                         </div>
-                    )}
+                    </nav>
                     <div className="mt-12">
                         {error ? (
                             <p>Error: {error}</p>
