@@ -1,22 +1,25 @@
 'use client';
 
 import React from "react";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 import { MdHistory } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
 import { FaUserCircle } from "react-icons/fa";
+import { FaMotorcycle } from "react-icons/fa";
+import { LiaHandHoldingUsdSolid } from "react-icons/lia";
+import {
+    Spinner
+} from "@material-tailwind/react";
 
 import AllChart from "@/components/sub/allChart";
 import NavbarAdmin from "@/components/sub/admin/navbar";
-import { Spinner } from "@material-tailwind/react";
 import Sidebar from '@/components/main/sidebar';
 import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
-import { set } from "date-fns";
 
 export default function Dashboard() {
     const [motor, setMotor] = useState([]);
@@ -29,6 +32,8 @@ export default function Dashboard() {
     const [totalSewa, setTotalSewa] = useState(0);
     const [totalUlasan, setTotalUlasan] = useState(0);
     const [totalUser, setTotalUser] = useState(0);
+    const [loading, setLoading] = useState(true);
+    const [totalKeuntungan, setTotalKeuntungan] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
     const [loading, setLoading] = useState(true);
 
@@ -76,6 +81,11 @@ export default function Dashboard() {
                 console.log('History Data:', history);
 
                 setSewa(history);
+
+                const totalKeuntungan = history.reduce((sum, item) => sum + item.total_pembayaran, 0);
+                console.log('Total Pembayaran:', totalKeuntungan);
+
+                setTotalKeuntungan(totalKeuntungan);
 
                 const totalSewa = history.length;
                 setTotalSewa(totalSewa);
@@ -140,37 +150,6 @@ export default function Dashboard() {
     }, []);
 
     useEffect(() => {
-        const fetchAvailableMotor = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
-                    }
-                });
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                if (responseData.listMotor && Array.isArray(responseData.listMotor)) {
-                    const { listMotor } = responseData;
-                    console.log('ListMotor Data:', listMotor);
-
-                    const available = listMotor.filter(motor => motor.status_motor === 'Tersedia');
-                    console.log('Available Motors:', available);
-
-                    setMotor(listMotor);
-                    setAvailableMotor(available);
-                } else {
-                    console.error('ListMotor is not defined or not an array');
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
-            }
-        };
-        fetchAvailableMotor();
-    }, []);
-
-    useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
@@ -209,8 +188,17 @@ export default function Dashboard() {
         setActiveComponent(component);
     };
 
+    const formatToRupiah = (number) => {
+        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
+    };
+
     return (
         <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
+                    <Spinner color="blue" size="xl" />
+                </div>
+            )}
             <div>
                 {activeComponent === "list" && <MotorList />}
                 {activeComponent === "user" && <User />}
@@ -262,9 +250,7 @@ export default function Dashboard() {
                         <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
                                 <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                        <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 18.375V5.625zM21 9.375A.375.375 0 0020.625 9h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zM10.875 18.75a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5zM3.375 15h7.5a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375zm0-3.75h7.5a.375.375 0 00.375-.375v-1.5A.375.375 0 0010.875 9h-7.5A.375.375 0 003 9.375v1.5c0 .207.168.375.375.375z" clip-rule="evenodd"></path>
-                                    </svg>
+                                    <FaMotorcycle size='25' />
                                 </div>
                                 <div className="p-4 text-right">
                                     <p className="block antialiased text-sm leading-normal font-medium">Total Motor</p>
@@ -291,7 +277,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-green-600 to-green-400 text-white shadow-green-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
+                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-yellow-600 to-yellow-400 text-white shadow-yellow-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
                                     <FaStar size='25' />
                                 </div>
                                 <div className="p-4 text-right">
@@ -319,10 +305,8 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                        <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 18.375V5.625zM21 9.375A.375.375 0 0020.625 9h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zM10.875 18.75a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5zM3.375 15h7.5a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375zm0-3.75h7.5a.375.375 0 00.375-.375v-1.5A.375.375 0 0010.875 9h-7.5A.375.375 0 003 9.375v1.5c0 .207.168.375.375.375z" clip-rule="evenodd"></path>
-                                    </svg>
+                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-green-600 to-green-400 text-white shadow-green-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
+                                    <FaMotorcycle size='25' />
                                 </div>
                                 <div className="p-4 text-right">
                                     <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tersedia</p>
@@ -335,14 +319,26 @@ export default function Dashboard() {
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                        <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 18.375V5.625zM21 9.375A.375.375 0 0020.625 9h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zM10.875 18.75a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5zM3.375 15h7.5a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375zm0-3.75h7.5a.375.375 0 00.375-.375v-1.5A.375.375 0 0010.875 9h-7.5A.375.375 0 003 9.375v1.5c0 .207.168.375.375.375z" clip-rule="evenodd"></path>
-                                    </svg>
+                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-red-600 to-red-400 text-white shadow-red-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
+                                    <FaMotorcycle size='25' />
                                 </div>
                                 <div className="p-4 text-right">
                                     <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tidak Tersedia</p>
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{unavailableMotor.length}</h4>
+                                </div>
+                                <div className="border-t border-blue-gray-50 p-4">
+                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                        <strong className="text-green-500">+35%</strong>&nbsp;dari hari ini
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
+                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-green-600 to-green-400 text-white shadow-green-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
+                                    <LiaHandHoldingUsdSolid size='25' />
+                                </div>
+                                <div className="p-4 text-right">
+                                    <p className="block antialiased text-sm leading-normal font-medium">Total Hasil <br /> Keuntungan</p>
+                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{formatToRupiah(totalKeuntungan)}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
                                     <p className="block antialiased text-sm leading-relaxed font-normal">
