@@ -73,3 +73,25 @@ input::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+/* styles/globals.css */
+.swiper-button-next-custom,
+.swiper-button-prev-custom {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.swiper-button-next-custom {
+    right: 10px;
+}
+
+.swiper-button-prev-custom {
+    left: 10px;
+}
+

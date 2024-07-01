@@ -47,7 +47,6 @@ const MotorList = () => {
   const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
   const [motors, setMotors] = useState([]);
   const [image, setImage] = useState('');
-  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
     const fetchMotors = async () => {

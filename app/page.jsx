@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import NavbarAfter from '@/components/main/NavbarAfter';
 import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
-
+import SwiperComponent from '@/components/ui/swiper';
 
 export default function Home() {
 
@@ -42,15 +42,9 @@ export default function Home() {
 
                 <div className="flex flex-col md:flex-row items-center mt-10 space-y-4 md:space-y-0">
                     <div className="relative flex items-center md:items-start">
-                    </div>
-                </div>
-
-                <div className="mt-4">
-                    <div className="flex items-center justify-center space-x-2 bg-white p-2 rounded shadow-lg">
-                        <img src="/images/motor/dummy.png" alt="Nama Motor" className="rounded" style={{ width: '50px', height: '50px' }} />
-                        <div>
-                            <h3 className="font-semibold text-black">Nama Motor</h3>
-                            <p className="text-[#FF4D30]">50K</p>
+                        {/* swiper */}
+                        <div className="w-full max-w-4xl mt-8">
+                            <SwiperComponent />
                         </div>
                     </div>
                 </div>
@@ -58,17 +52,17 @@ export default function Home() {
                 <div className="flex flex-col items-center bg-white min-h-screen mt-[130px]">
                     <div className="bg-white w-full flex flex-col items-center p-6 md:flex-row md:justify-between md:p-12">
                         <div className="md:w-1/2 flex justify-center">
-                            <img src="/images/motor/vespa.png" alt="Motorbike" className="w-full md:w-3/4" />
+                            <img src="/images/motor/dummy.png" alt="Motorbike" className="w-full md:w-3/4" />
                         </div>
                         <div className="text-center md:text-left md:w-1/2 mt-6 md:mt-0">
                             <h1 className="text-3xl font-bold mb-4 text-[#FF4D30]">Puaskan Petualangan Anda!</h1>
                             <p className="text-xl mb-4 text-[#FF4D30]">Diskon Gila di Sewa Motor Kudus!</p>
                             <p className="text-lg">Tersedia Berbagai Jenis Motor untuk Memenuhi Kebutuhan Petualangan Anda!</p>
                             <div className="flex justify-center md:justify-start mt-6 space-x-4">
-                                <img src="/images/motor/vespa.png" alt="Motorbike 1" className="w-16" />
-                                <img src="/images/motor/vespa.png" alt="Motorbike 2" className="w-16" />
-                                <img src="/images/motor/vespa.png" alt="Motorbike 3" className="w-16" />
-                                <img src="/images/motor/vespa.png" alt="Motorbike 4" className="w-16" />
+                                <img src="/images/motor/dummy.png" alt="Motorbike 1" className="w-16" />
+                                <img src="/images/motor/dummy.png" alt="Motorbike 2" className="w-16" />
+                                <img src="/images/motor/dummy.png" alt="Motorbike 3" className="w-16" />
+                                <img src="/images/motor/dummy.png" alt="Motorbike 4" className="w-16" />
                             </div>
                         </div>
                     </div>
@@ -103,7 +97,7 @@ export default function Home() {
                         </div>
                     </div>
 
-                    
+
                     <div className="bg-white p-4 rounded-lg">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-black">
                             {Array(3)
@@ -165,38 +159,38 @@ export default function Home() {
 
                 <div className="p-4 mt-12 bg-white shadow-lg w-full">
                     <h2 className="text-3xl font-bold mb-6 text-center">Galeri</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
-                            <div className="row-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-pixabay-163789.jpg" alt="Gallery Image 1" className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <div className="col-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-jamphotography-2626665.jpg" alt="Gallery Image 2" className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <div className="col-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-giorgio-de-angelis-482403-1413412.jpg" alt="Gallery Image 3" className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <div className="col-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-nicholas-dias-1119542-2116475.jpg" alt="Gallery Image 4" className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <div className="col-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-pragyanbezbo-1715193.jpg" alt="Gallery Image 5" className="w-full h-full object-cover" />
-                                </div>
-                            </div>
-                            <div className="col-span-1">
-                                <div className="w-full h-full">
-                                    <img src="/images/gallery/pexels-pixabay-104842.jpg" alt="Gallery Image 6" className="w-full h-full object-cover" />
-                                </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
+                        <div className="row-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-pixabay-163789.jpg" alt="Gallery Image 1" className="w-full h-full object-cover" />
                             </div>
                         </div>
+                        <div className="col-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-jamphotography-2626665.jpg" alt="Gallery Image 2" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div className="col-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-giorgio-de-angelis-482403-1413412.jpg" alt="Gallery Image 3" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div className="col-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-nicholas-dias-1119542-2116475.jpg" alt="Gallery Image 4" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div className="col-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-pragyanbezbo-1715193.jpg" alt="Gallery Image 5" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                        <div className="col-span-1">
+                            <div className="w-full h-full">
+                                <img src="/images/gallery/pexels-pixabay-104842.jpg" alt="Gallery Image 6" className="w-full h-full object-cover" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <Footer />
