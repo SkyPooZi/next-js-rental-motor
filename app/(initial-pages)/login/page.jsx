@@ -1,16 +1,31 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+
 const LoginPage = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Check if token exists in local storage
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/');
+    }
+  }, []);
+
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
+  };
+  const handleRememberMeChange = (e) => {
+    setRememberMe(e.target.checked);
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,6 +54,15 @@ const LoginPage = () => {
       console.log('User data:', user);
       const token = data.access_token;
       console.log('Token:', token);
+
+      if (rememberMe) {
+        Cookies.set('token', token, { expires: 7 });
+      } else {
+        Cookies.set('token', token);
+      }
+
+      // localStorage.setItem('token', token);
+
       if (user && user.email === email) {
         console.log('User role:', user.peran);
         if (user.peran === 'admin') {
@@ -81,7 +105,13 @@ const LoginPage = () => {
               className="bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full md:w-80 lg:w-96 h-10 md:h-12 shadow"
             />
             <div className="flex items-center w-full mt-2 md:mt-4 text-black bg-white">
-              <input type="checkbox" id="ingat-saya" className="mr-2" />
+              <input
+                type="checkbox"
+                id="ingat-saya"
+                checked={rememberMe}
+                onChange={handleRememberMeChange}
+                className="mr-2"
+              />
               <label htmlFor="ingat-saya">Ingat Saya</label>
               <span className="flex-grow"></span>
               <a href="/forgot-email" className="hover:underline">Lupa Kata Sandi?</a>
