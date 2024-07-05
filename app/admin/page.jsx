@@ -35,6 +35,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [totalKeuntungan, setTotalKeuntungan] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
+    const [presentasiPenambahan, setPresentasiPenambahan] = useState(0);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -183,6 +184,40 @@ export default function Dashboard() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const fetchFilteredHistory = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered?filter=4_minggu`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    }
+                });
+
+                const responseData = await response.json();
+                console.log('Filtered History Data:', responseData);
+
+                const currentWeekHistory = responseData.history;
+
+                // Mendapatkan history minggu sebelumnya dari penyimpanan lokal atau database
+                const previousWeekHistory = await fetchSewa(); // Implementasi asinkron ini sesuai dengan penyimpanan yang Anda gunakan
+
+                // Hitung total sewa
+                const totalSewa = currentWeekHistory.length;
+                setTotalSewa(totalSewa);
+
+                // Hitung presentasi penambahan
+                const penambahan = currentWeekHistory.length - previousWeekHistory.length;
+                const presentasiPenambahan = previousWeekHistory.length > 0 ? (penambahan / previousWeekHistory.length) * 100 : 0;
+                setPresentasiPenambahan(presentasiPenambahan);
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+
+        fetchFilteredHistory();
+    }, []);
+
     const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
@@ -271,7 +306,7 @@ export default function Dashboard() {
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
                                     <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+10%</strong>&nbsp;dari minggu lalu
+                                        <strong className="text-green-500">{presentasiPenambahan.toFixed(2)}%</strong>&nbsp;dari minggu lalu
                                     </p>
                                 </div>
                             </div>
