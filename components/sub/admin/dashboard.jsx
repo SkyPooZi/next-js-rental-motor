@@ -35,7 +35,6 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [totalKeuntungan, setTotalKeuntungan] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
