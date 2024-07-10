@@ -1,31 +1,20 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
+// import { useRouter } from 'next/navigation';
 
-import { FaRegCircle, FaRegDotCircle } from 'react-icons/fa';
 import { PiScroll } from "react-icons/pi";
 import { MdCancel, MdOutlineTimer } from "react-icons/md";
 import { FaCircleCheck } from "react-icons/fa6";
-import { CalendarIcon } from "@radix-ui/react-icons";
 import { AiOutlineDollarCircle } from "react-icons/ai";
 import { IoLocationSharp, IoMapSharp } from "react-icons/io5";
+import { MdDone, MdClear } from 'react-icons/md';
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import {
-    Card,
     Checkbox,
-    CardHeader,
-    Typography,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Textarea,
@@ -38,7 +27,6 @@ import { format, differenceInDays } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
-import { MdDone } from "react-icons/md";
 import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
@@ -63,7 +51,7 @@ export default function page() {
     const [penerimaan_motor, setPenerimaanMotor] = useState('');
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
-    const [hubungan_dengan_kontak_daruat, setHubunganDenganKontakDarurat] = useState('');
+    const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
     const [diskon_id, setDiskonId] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [total_harga, setTotalHarga] = useState('');
@@ -71,6 +59,8 @@ export default function page() {
     const [status_history, setStatusHistory] = useState('');
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('');
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
     const [checkedValue, setCheckedValue] = useState('');
@@ -81,7 +71,8 @@ export default function page() {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [HTMLResponse, setHTMLResponse] = useState('');
+    const [htmlResponse, setHTMLResponse] = useState('');
+    // const router = useRouter();
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
@@ -112,31 +103,13 @@ export default function page() {
         }
     };
 
-    const handleCheckboxChange = (event) => {
-        const { value, checked } = event.target;
-        if (checked) {
-            setPenyewa(value);
-        } else {
-            setPenyewa('');
-        }
-    };
-
-    const handleCheckboxChangePayment = (event) => {
-        const { value, checked } = event.target;
-        if (checked) {
-            setMetodePembayaran(value);
-        } else {
-            setMetodePembayaran('');
-        }
-    }
-
     useEffect(() => {
         const fetchMotor = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
                     },
                 });
 
@@ -162,7 +135,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
                     }
                 });
                 if (response.status === 204) {
@@ -181,38 +154,168 @@ export default function page() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', 'SB-Mid-client-HI3OlPGRztCXzEB-');
+        script.async = false;
+        script.onload = () => {
+            console.log('Midtrans Snap script loaded');
+        };
+        document.head.appendChild(script);
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append('nama_lengkap', nama_lengkap);
-        formData.append('email', email);
-        formData.append('no_telp', no_telp);
-        formData.append('akun_sosmed', akun_sosmed);
-        formData.append('alamat', alamat);
-        formData.append('penyewa', penyewa);
-        formData.append('motor_id', motor_id);
-        formData.append('tanggal_mulai', tanggal_mulai);
-        formData.append('tanggal_selesai', tanggal_selesai);
-        formData.append('keperluan_menyewa', keperluan_menyewa);
-        formData.append('penerimaan_motor', penerimaan_motor);
-        formData.append('nama_kontak_darurat', nama_kontak_darurat);
-        formData.append('nomor_kontak_darurat', nomor_kontak_darurat);
-        formData.append('hubungan_dengan_kontak_darurat', hubungan_dengan_kontak_daruat);
-        formData.append('diskon_id', diskon_id);
-        formData.append('metode_pembayaran', metode_pembayaran);
-        formData.append('total_pembayaran', total_pembayaran);
-        formData.append('status_history', 'Menunggu Pembayaran');
+        if (metode_pembayaran === 'Tunai') {
+            await submitForm('Booking berhasil');
+        } else {
+            setLoading(true);
 
-        setLoading(true);
+            try {
+                const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                    },
+                    body: JSON.stringify({
+                        nama_lengkap,
+                        email,
+                        no_telp,
+                        akun_sosmed,
+                        alamat,
+                        penyewa,
+                        motor_id,
+                        tanggal_mulai,
+                        tanggal_selesai,
+                        keperluan_menyewa,
+                        penerimaan_motor,
+                        nama_kontak_darurat,
+                        nomor_kontak_darurat,
+                        hubungan_dengan_kontak_darurat,
+                        diskon_id,
+                        metode_pembayaran,
+                        total_pembayaran,
+                        status_history: 'Menunggu Pembayaran',
+                    }),
+                });
 
+                if (!historyResponse.ok) {
+                    throw new Error('Failed to create history');
+                }
+
+                const historyData = await historyResponse.json();
+                const order_id = historyData.history.id;
+                console.log('History Data:', historyData);
+
+                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${order_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                    },
+                });
+
+                if (!paymentResponse.ok) {
+                    throw new Error('Failed to get payment details');
+                }
+
+                const paymentData = await paymentResponse.json();
+                const snapToken = paymentData.snapToken;
+                console.log(`Snap Token: ${snapToken}, Order ID: ${order_id}`);
+
+                if (!snapToken || !order_id) {
+                    throw new Error('Snap Token or Order ID missing in the response');
+                }
+
+                window.snap.pay(snapToken, {
+                    onSuccess: async function (result) {
+                        showNotificationWithTimeout('Pembayaran berhasil!', 'success');
+                        console.log('Payment Success:', result);
+                        await updateHistoryStatus(historyData.history.id, 'Dipesan');
+
+                        try {
+                            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${order_id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                                },
+                                body: JSON.stringify({
+                                    status_history: 'Dipesan',
+                                }),
+                            });
+
+                            if (!updateResponse.ok) {
+                                throw new Error('Failed to update invoice status');
+                            }
+
+                            const updateData = await updateResponse.json();
+                            console.log('Invoice status update response:', updateData);
+
+                        } catch (error) {
+                            console.error('Error updating invoice status:', error);
+                        }
+                    },
+                    onPending: async function (result) {
+                        showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
+                        console.log(result);
+
+                        await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
+                    },
+                    onError: async function (result) {
+                        showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
+                        console.log(result);
+
+                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                    },
+                    onClose: async function () {
+                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'error');
+
+                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                    }
+                });
+
+            } catch (error) {
+                showNotificationWithTimeout('Terjadi kesalahan saat mengirim data.', 'error');
+                console.error('Error:', error);
+                setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    const submitForm = async (successMessage) => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
                 },
-                body: formData,
+                body: JSON.stringify({
+                    nama_lengkap,
+                    email,
+                    no_telp,
+                    akun_sosmed,
+                    alamat,
+                    penyewa,
+                    motor_id,
+                    tanggal_mulai,
+                    tanggal_selesai,
+                    keperluan_menyewa,
+                    penerimaan_motor,
+                    nama_kontak_darurat,
+                    nomor_kontak_darurat,
+                    hubungan_dengan_kontak_darurat,
+                    diskon_id,
+                    metode_pembayaran,
+                    total_pembayaran,
+                    status_history: 'Dipesan',
+                }),
             });
 
             if (!response.ok) {
@@ -223,40 +326,50 @@ export default function page() {
             console.log('Success', data);
             setResponse(data);
 
-            if (response.status === 404) {
-                throw new Error(response.message); // Display the error message to the user
-            }
+            showNotificationWithTimeout(successMessage, 'success');
 
-            const id_payment = data.id;
-
-            const endpointURL = `${process.env.NEXT_PUBLIC_API_URL}/api/payment/8`;
-
-            const htmlResponse = await fetch(endpointURL, {
-                headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
-                },
-            });
-
-            if (!htmlResponse.ok) {
-                throw new Error('Failed to fetch payment details');
-            }
-
-            // Parse the HTML content from the response
-            const htmlData = await htmlResponse.text();
-            console.log('HTML Response:', htmlData);
-
-            // Set the HTML response data as needed
-            setHTMLResponse(htmlData);
-            setShowNotification(true);
-
-            setTimeout(() => {
-                setShowNotification(false);
-            }, 3000);
+            // Redirect or handle success logic
+            router.push(`localhost:3000/payment-success?order_id=${data.id}`);
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {
             setLoading(false);
         }
+    };
+
+    const updateHistoryStatus = async (id, status) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                },
+                body: JSON.stringify({
+                    status_history: status,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update history status');
+            }
+
+            const data = await response.json();
+            console.log('History status update:', data);
+        } catch (error) {
+            console.error('Error updating history status:', error);
+        }
+    };
+
+    const showNotificationWithTimeout = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
+
+        // Hide notification after timeout
+        setTimeout(() => {
+            setShowNotification(false);
+        }, timeout);
     };
 
     useEffect(() => {
@@ -345,7 +458,6 @@ export default function page() {
     return (
         <>
             <Navbar />
-            <div dangerouslySetInnerHTML={{ __html: HTMLResponse }} />
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <div className='text-[#666666] mb-5'>
                     <span className='font-semibold text-black md:text-xl text-base flex'>
@@ -785,7 +897,7 @@ export default function page() {
                                             </span>
                                             <Input
                                                 label="Masukkan hubungan kontak darurat"
-                                                value={hubungan_dengan_kontak_daruat}
+                                                value={hubungan_dengan_kontak_darurat}
                                                 onChange={(e) => setHubunganDenganKontakDarurat(e.target.value)}
                                                 required
                                             />
@@ -942,12 +1054,11 @@ export default function page() {
                     </div>
                 </form>
                 {showNotification && (
-                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
-                        <span>Data berhasil dikirim</span>
-                        <MdDone className="ml-2 text-white" />
+                    <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${notificationType === 'success' ? 'bg-green-500' : notificationType === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50`}>
+                        <span>{notificationMessage}</span>
+                        {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                     </div>
-                )}
-            </div>
+                )}        </div>
             <Footer />
         </>
     );
