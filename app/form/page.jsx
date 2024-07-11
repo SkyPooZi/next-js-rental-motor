@@ -109,7 +109,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     },
                 });
 
@@ -135,7 +135,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     }
                 });
                 if (response.status === 204) {
@@ -157,7 +157,7 @@ export default function page() {
     useEffect(() => {
         const script = document.createElement('script');
         script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
-        script.setAttribute('data-client-key', 'SB-Mid-client-HI3OlPGRztCXzEB-');
+        script.setAttribute('data-client-key', `${process.env.MIDTRANS_CLIENT_KEY}`);
         script.async = false;
         script.onload = () => {
             console.log('Midtrans Snap script loaded');
@@ -178,7 +178,7 @@ export default function page() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     },
                     body: JSON.stringify({
                         nama_lengkap,
@@ -214,7 +214,7 @@ export default function page() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     },
                 });
 
@@ -241,7 +241,7 @@ export default function page() {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                                 },
                                 body: JSON.stringify({
                                     status_history: 'Dipesan',
@@ -294,7 +294,7 @@ export default function page() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                 },
                 body: JSON.stringify({
                     nama_lengkap,
@@ -343,7 +343,7 @@ export default function page() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 73|9YWiKgKGKIe7raZS3uQVAZhDPW3Hffnraq1M3keI22752356`
+                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                 },
                 body: JSON.stringify({
                     status_history: status,
