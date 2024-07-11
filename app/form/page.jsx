@@ -23,7 +23,7 @@ import {
     PopoverHandler,
     PopoverContent,
 } from "@material-tailwind/react";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, addDays, startOfToday } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
@@ -34,7 +34,6 @@ import Navbar from '@/components/main/Navbar';
 
 export default function page() {
     const [rentalPrice, setRentalPrice] = useState(0);
-    const [history, setHitory] = useState(null);
     const [motors, setMotors] = useState([]);
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
@@ -56,14 +55,12 @@ export default function page() {
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [total_harga, setTotalHarga] = useState('');
     const [total_pembayaran, setTotalPembayaran] = useState('');
-    const [status_history, setStatusHistory] = useState('');
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
-    const [checkedValue, setCheckedValue] = useState('');
     const [clickedDiantar, setClickedDiantar] = useState(false);
     const [clickedAmbil, setClickedAmbil] = useState(false);
     const [clickedPenyewaDiriSendiri, setClickedPenyewaDiriSendiri] = useState(false);
@@ -71,7 +68,9 @@ export default function page() {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [htmlResponse, setHTMLResponse] = useState('');
+    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
+    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [image, setImage] = useState('');
     // const router = useRouter();
 
     const handleSelectChangeDiskon = (selectedValue) => {
@@ -82,7 +81,7 @@ export default function page() {
                 const potonganHargaPercentage = selectedDiskon.potongan_harga;
                 const totalPriceWithoutDiscount = rentalPrice * durasi;
                 const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
-                const totalPembayaran = totalPriceWithoutDiscount - discountAmount;
+                const totalPembayaran = Math.round(totalPriceWithoutDiscount - discountAmount); // Round to nearest integer
                 setTotalPembayaran(totalPembayaran);
                 setTotalHarga(rentalPrice * durasi - selectedDiskon.potongan_harga);
             }
@@ -90,9 +89,7 @@ export default function page() {
     }
 
     const handleSelectChangeNamaMotor = (selectedValue) => {
-        // Make sure selectedValue is not undefined or null
         if (selectedValue) {
-            // Find the selected motor by nama_motor
             const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
             if (selectedMotor) {
                 setMotorId(selectedMotor.id);
@@ -120,7 +117,7 @@ export default function page() {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                    setMotors(data.listMotor || []);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -376,7 +373,12 @@ export default function page() {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = new Date(tanggal_mulai);
             const endDate = new Date(tanggal_selesai);
-            const duration = differenceInDays(endDate, startDate);
+            let duration = differenceInDays(endDate, startDate);
+
+            if (duration === 0) {
+                duration = 1;
+            }
+
             setDurasi(duration);
         } else {
             setDurasi('');
@@ -385,7 +387,16 @@ export default function page() {
 
     const handleDateStart = (date) => {
         if (date) {
-            setTanggalMulai(format(date, 'yyyy-MM-dd'));
+            const formattedDate = format(date, 'yyyy-MM-dd');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+
+            const minEndDate = addDays(date, 0);
+            const disableBeforeMinEndDate = { before: minEndDate };
+            const today = startOfToday();
+            const disableBeforeToday = { before: today };
+
+            setDisabledDaysSelesai([disableBeforeToday, disableBeforeMinEndDate, ...disabledDaysMulai]);
         } else {
             setTanggalMulai('');
         }
@@ -397,7 +408,39 @@ export default function page() {
         } else {
             setTanggalSelesai('');
         }
-    }
+    };
+
+    useEffect(() => {
+        const fetchBookedDates = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                    },
+                });
+                const data = await response.json();
+
+                const disabledRanges = data.history.map((item) => {
+                    const startDate = new Date(item.tanggal_mulai);
+                    const endDate = new Date(item.tanggal_selesai);
+                    const range = { from: startDate, to: addDays(endDate, 1) };
+                    return range;
+                });
+
+                const today = startOfToday();
+
+                const disableBeforeToday = { before: today };
+
+                setDisabledDaysMulai([disableBeforeToday, ...disabledRanges]);
+                setDisabledDaysSelesai([disableBeforeToday, ...disabledRanges]);
+            } catch (error) {
+                console.error('Error fetching booked dates:', error);
+            }
+        };
+
+        fetchBookedDates();
+    }, []);
 
     const handleClickPenyewaDiriSendiri = () => {
         setClickedPenyewaDiriSendiri(true);
@@ -449,11 +492,11 @@ export default function page() {
 
     const openTermsModal = () => {
         setIsTermsModalOpen(true);
-    }
+    };
 
     const closeTermsModal = () => {
         setIsTermsModalOpen(false);
-    }
+    };
 
     return (
         <>
@@ -643,8 +686,11 @@ export default function page() {
                                                             onChange={(value) => handleSelectChangeNamaMotor(value)}
                                                         >
                                                             {motors.map((motor) => (
-                                                                <Option key={motor.id} value={motor.nama_motor}>
-                                                                    {motor.nama_motor}
+                                                                <Option key={motor.id} value={motor.nama_motor} disabled={motor.status_motor !== 'Tersedia'} className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}>
+                                                                    <div className="flex items-center">
+                                                                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} className="w-10 h-10 rounded-full mr-2" />
+                                                                    <span>{motor.nama_motor}</span>
+                                                                    </div>
                                                                 </Option>
                                                             ))}
                                                         </Select>
@@ -662,7 +708,7 @@ export default function page() {
                                                 <PopoverHandler>
                                                     <Input
                                                         required
-                                                        label="Select a Date"
+                                                        label="Pilih Tanggal Mulai"
                                                         onChange={() => null}
                                                         value={tanggal_mulai ? format(new Date(tanggal_mulai), "yyyy-MM-dd") : ""}
                                                     />
@@ -673,6 +719,7 @@ export default function page() {
                                                         selected={tanggal_mulai ? new Date(tanggal_mulai) : undefined}
                                                         onSelect={handleDateStart}
                                                         showOutsideDays
+                                                        disabled={disabledDaysMulai}
                                                         className="border-0"
                                                         classNames={{
                                                             caption: "flex justify-center py-2 mb-4 relative items-center",
@@ -717,7 +764,7 @@ export default function page() {
                                                 <PopoverHandler>
                                                     <Input
                                                         required
-                                                        label="Select a Date"
+                                                        label="Pilih Tanggal Selesai"
                                                         onChange={() => null}
                                                         value={tanggal_selesai ? format(new Date(tanggal_selesai), "yyyy-MM-dd") : ""}
                                                     />
@@ -728,6 +775,7 @@ export default function page() {
                                                         selected={tanggal_selesai ? new Date(tanggal_selesai) : undefined}
                                                         onSelect={handleDateEnd}
                                                         showOutsideDays
+                                                        disabled={disabledDaysSelesai}
                                                         className="border-0"
                                                         classNames={{
                                                             caption: "flex justify-center py-2 mb-4 relative items-center",
@@ -959,7 +1007,7 @@ export default function page() {
                                                         >
                                                             {diskons.map((id_diskon) => (
                                                                 <Option key={id_diskon.id} value={id_diskon.id}>
-                                                                    {id_diskon.nama_diskon}
+                                                                    {id_diskon.nama_diskon} - Potongan: {id_diskon.potongan_harga}%
                                                                 </Option>
                                                             ))}
                                                         </Select>
