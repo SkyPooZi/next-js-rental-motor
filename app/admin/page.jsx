@@ -71,7 +71,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     }
                 });
                 const responseData = await response.json();
@@ -80,15 +80,14 @@ export default function Dashboard() {
                 const { history } = responseData;
                 console.log('History Data:', history);
 
-                setSewa(history);
+                const filteredHistory = history.filter(item => item.status_history !== 'Menunggu Pembayaran' && item.status_history !== 'Dibatalkan');
+                setSewa(filteredHistory);
 
                 const totalKeuntungan = history.reduce((sum, item) => sum + item.total_pembayaran, 0);
                 console.log('Total Pembayaran:', totalKeuntungan);
 
                 setTotalKeuntungan(totalKeuntungan);
-
-                const totalSewa = history.length;
-                setTotalSewa(totalSewa);
+                setTotalSewa(filteredHistory.length);
             } catch (error) {
                 console.error('Fetch error:', error);
             }
