@@ -72,7 +72,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     },
                 });
 
@@ -100,7 +100,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     }
                 });
                 if (response.status === 204) {
@@ -127,7 +127,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
                     }
                 });
 
