@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const Motor = ({ motor }) => {
   const router = useRouter();
@@ -34,7 +35,7 @@ const Motor = ({ motor }) => {
           <span className="font-bold text-black">Weekly: </span>
           <span className='font-bold text-black'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
         </div>
-        <div className="flex flex-col items-center mb-2"> {/* Column layout for all screen sizes */}
+        <div className="flex flex-col items-center mb-2">
           <button onClick={handleFormRedirect} className="bg-[#FF4D30] hover:bg-red-800 text-white py-2 px-4 sm:px-6 rounded mb-2">Booking Now!</button>
           <a href="/detail" className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</a>
         </div>
@@ -46,15 +47,22 @@ const Motor = ({ motor }) => {
 const MotorList = () => {
   const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
   const [motors, setMotors] = useState([]);
-  const [image, setImage] = useState('');
+  const [filteredMotors, setFilteredMotors] = useState([]);
 
   useEffect(() => {
     const fetchMotors = async () => {
+      const token = Cookies.get('token');
+
+      if (!token) {
+        console.error('Token not found');
+        return;
+      }
+
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+        const response = await fetch('http://127.0.0.1:8000/api/list-motor/all', {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+            'Authorization': `Bearer ${token}`
           },
         });
 
@@ -69,10 +77,10 @@ const MotorList = () => {
         // Ensure the response is in JSON format
         const data = await response.json();
         console.log('JSON response:', data);
-        setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.listMotor.gambar_motor}`);
 
         if (data.status === 200) {
           setMotors(data.listMotor);
+          setFilteredMotors(data.listMotor); // Initialize with all motors
         } else {
           console.error('Unexpected response status:', data.status);
         }
@@ -84,6 +92,24 @@ const MotorList = () => {
     fetchMotors();
   }, []);
 
+  useEffect(() => {
+    let filtered = motors;
+
+    if (selectedFilter !== 'All') {
+      filtered = motors.filter(motor => {
+        if (selectedFilter === 'Matic') {
+          return motor.tipe_motor.includes('Matic');
+        }
+        if (selectedFilter === 'Sport') {
+          return motor.tipe_motor === 'Sport';
+        }
+        return true;
+      });
+    }
+
+    setFilteredMotors(filtered);
+  }, [selectedFilter, motors]);
+
   return (
     <>
       <Navbar />
@@ -91,8 +117,8 @@ const MotorList = () => {
         <div className="w-full max-w-6xl mb-5">
           <div className="flex justify-between items-center">
             <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold text-black">Pilihan Motor</h1>
-            <div className="flex gap-1 sm:gap-3"> {/* Adjusting gap for smaller screens */}
-              {['Rekomendasi', 'Matic', 'Manual'].map(filter => (
+            <div className="flex gap-1 sm:gap-3">
+              {['All', 'Matic', 'Sport'].map(filter => (
                 <button
                   key={filter}
                   className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 ${selectedFilter === filter ? 'border-[#FF4D30]' : 'border-transparent'}`}
@@ -106,7 +132,7 @@ const MotorList = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
-          {motors.map((motor, index) => (
+          {filteredMotors.map((motor, index) => (
             <Motor key={index} motor={motor} />
           ))}
         </div>

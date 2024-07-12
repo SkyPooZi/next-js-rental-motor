@@ -6,6 +6,7 @@ import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import SwiperComponent from '@/components/ui/swiper';
+import Cookies from 'js-cookie';
 
 export default function Home() {
 
@@ -17,6 +18,13 @@ export default function Home() {
 
     const handleFormRedirect = () => {
         router.push('/form');
+    };
+
+    const handleLogout = () => {
+        // Remove the token from cookies
+        Cookies.remove('token');
+        // Redirect to the login page
+        router.push('/login');
     };
 
     return (
@@ -32,6 +40,9 @@ export default function Home() {
                         Sewa Motor dengan Mudah,<br />
                         Rasakan Kemudahan Tanpa Batas!
                     </p>
+                    <button onClick={handleLogout} className="text-black bg-blue-gray-300">
+                        Logout
+                    </button>
                     <div className="flex justify-center items-center mt-6">
                         <button className="px-6 py-2 bg-[#FF4D30] text-white font-semibold rounded hover:bg-red-800 flex items-center" onClick={handleCatalogRedirect}>
                             <img src="/images/icon-calendar.png" alt="Kalender" className="mr-2" />
