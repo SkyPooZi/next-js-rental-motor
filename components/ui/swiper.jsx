@@ -6,6 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
+import Cookies from 'js-cookie';
 
 const SwiperComponent = () => {
     const [motorcycles, setMotorcycles] = useState([]);
@@ -13,14 +14,14 @@ const SwiperComponent = () => {
 
     useEffect(() => {
         const fetchMotorcycles = async () => {
-            const token = localStorage.getItem('token');
-            const url = `${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`;
+            const token = Cookies.get('token');
+            const url = `http://127.0.0.1:8000/api/list-motor/all`;
 
             try {
                 const response = await fetch(url, {
                     headers: {
                         'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 

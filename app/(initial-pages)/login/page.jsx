@@ -10,13 +10,17 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
+  // useEffect(() => {
+  //   // Check if token exists in local storage
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     router.push('/');
+  //   }
+  // }, []);
+
   useEffect(() => {
-    // Check if token exists in local storage
-    const token = localStorage.getItem('token');
-    if (token) {
-      router.push('/');
-    }
-  }, []);
+
+  })
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -54,14 +58,11 @@ const LoginPage = () => {
       console.log('User data:', user);
       const token = data.access_token;
       console.log('Token:', token);
+      const id = data.user.id;
+      console.log("user id :", id);
 
-      if (rememberMe) {
-        Cookies.set('token', token, { expires: 7 });
-      } else {
-        Cookies.set('token', token);
-      }
-
-      // localStorage.setItem('token', token);
+      Cookies.set('token', token);
+      Cookies.set('id', id);
 
       if (user && user.email === email) {
         console.log('User role:', user.peran);
