@@ -2,7 +2,8 @@
 
 import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 import { PiScroll } from "react-icons/pi";
 import { MdCancel, MdOutlineTimer } from "react-icons/md";
@@ -68,7 +69,7 @@ export default function page() {
     const [durasi, setDurasi] = useState('');
     const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
-    // const router = useRouter();
+    const router = useRouter();
 
     useEffect(() => {
         setTotalPembayaran(hargaRental * durasi);
@@ -103,11 +104,12 @@ export default function page() {
 
     useEffect(() => {
         const fetchMotor = async () => {
+            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -129,11 +131,12 @@ export default function page() {
 
     useEffect(() => {
         const fetchData = async () => {
+            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 if (response.status === 204) {
@@ -142,7 +145,7 @@ export default function page() {
                     setError(`Failed to fetch data: ${response.statusText}`);
                 } else {
                     const data = await response.json();
-                    console.log('Fetched motor:', data);
+                    console.log('Fetched discount:', data);
                     setDiskons(data.diskon || []);
                 }
             } catch (error) {
@@ -165,6 +168,7 @@ export default function page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const token = Cookies.get('token');
 
         if (metode_pembayaran === 'Tunai') {
             await submitForm('Booking berhasil');
@@ -176,7 +180,7 @@ export default function page() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
                         nama_lengkap,
@@ -212,7 +216,7 @@ export default function page() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -239,7 +243,7 @@ export default function page() {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
-                                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                                    'Authorization': `Bearer ${token}`
                                 },
                                 body: JSON.stringify({
                                     status_history: 'Dipesan',
@@ -287,12 +291,13 @@ export default function page() {
     };
 
     const submitForm = async (successMessage) => {
+        const token = Cookies.get('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     nama_lengkap,
@@ -326,8 +331,7 @@ export default function page() {
 
             showNotificationWithTimeout(successMessage, 'success');
 
-            // Redirect or handle success logic
-            router.push(`localhost:3000/payment-success?order_id=${data.id}`);
+            router.push(`/payment-success?order_id=${data.id}`);
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {
@@ -336,12 +340,13 @@ export default function page() {
     };
 
     const updateHistoryStatus = async (id, status) => {
+        const token = Cookies.get('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     status_history: status,
@@ -413,11 +418,12 @@ export default function page() {
 
     useEffect(() => {
         const fetchBookedDates = async () => {
+            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
                 const data = await response.json();
@@ -1005,9 +1011,8 @@ export default function page() {
                                                         <Select
                                                             label={`Pilih diskon`}
                                                             onChange={handleSelectChangeDiskon}
-                                                            value=''
+                                                            value={diskons[0].id}
                                                         >
-                                                            <Option value=''>Tidak ada</Option>
                                                             {diskons.map((diskon) => (
                                                                 <Option key={diskon.id} value={diskon.id}>
                                                                     {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
