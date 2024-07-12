@@ -33,7 +33,7 @@ import Footer from '@/components/main/Footer';
 import Navbar from '@/components/main/Navbar';
 
 export default function page() {
-    const [rentalPrice, setRentalPrice] = useState(0);
+    const [hargaRental, setHargaRental] = useState(0);
     const [motors, setMotors] = useState([]);
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
@@ -53,8 +53,6 @@ export default function page() {
     const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
     const [diskon_id, setDiskonId] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
-    const [total_harga, setTotalHarga] = useState('');
-    const [total_pembayaran, setTotalPembayaran] = useState('');
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
@@ -70,8 +68,11 @@ export default function page() {
     const [durasi, setDurasi] = useState('');
     const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
-    const [image, setImage] = useState('');
     // const router = useRouter();
+
+    useEffect(() => {
+        setTotalPembayaran(hargaRental * durasi);
+    }, [hargaRental, durasi]);
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
@@ -79,23 +80,23 @@ export default function page() {
             if (selectedDiskon) {
                 setDiskonId(selectedDiskon.id);
                 const potonganHargaPercentage = selectedDiskon.potongan_harga;
-                const totalPriceWithoutDiscount = rentalPrice * durasi;
+                const totalPriceWithoutDiscount = hargaRental * durasi;
                 const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
                 const totalPembayaran = Math.round(totalPriceWithoutDiscount - discountAmount); // Round to nearest integer
                 setTotalPembayaran(totalPembayaran);
-                setTotalHarga(rentalPrice * durasi - selectedDiskon.potongan_harga);
             }
         };
     }
+
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
 
     const handleSelectChangeNamaMotor = (selectedValue) => {
         if (selectedValue) {
             const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
             if (selectedMotor) {
                 setMotorId(selectedMotor.id);
-                // Update rental price based on the selected motor's price
-                setRentalPrice(selectedMotor.harga_motor_per_1_hari);
-                setNamaMotor(selectedMotor.nama_motor)
+                setHargaRental(selectedMotor.harga_motor_per_1_hari);
+                setNamaMotor(selectedMotor.nama_motor);
             }
         }
     };
@@ -106,7 +107,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     },
                 });
 
@@ -132,7 +133,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     }
                 });
                 if (response.status === 204) {
@@ -142,7 +143,7 @@ export default function page() {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setDiskons(data.diskon || []); // Ensure data.listMotor is an array or default to empty array
+                    setDiskons(data.diskon || []);
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -175,7 +176,7 @@ export default function page() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     },
                     body: JSON.stringify({
                         nama_lengkap,
@@ -211,7 +212,7 @@ export default function page() {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     },
                 });
 
@@ -291,7 +292,7 @@ export default function page() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                 },
                 body: JSON.stringify({
                     nama_lengkap,
@@ -340,7 +341,7 @@ export default function page() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                 },
                 body: JSON.stringify({
                     status_history: status,
@@ -391,7 +392,7 @@ export default function page() {
             setTanggalMulai(formattedDate);
             setTanggalSelesai('');
 
-            const minEndDate = addDays(date, 0);
+            const minEndDate = addDays(date, 1);
             const disableBeforeMinEndDate = { before: minEndDate };
             const today = startOfToday();
             const disableBeforeToday = { before: today };
@@ -416,7 +417,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|E10dpmchQiCqgGxITQaPCNDQVYLEQrm0LrgpNlwA7eba5706`
+                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
                     },
                 });
                 const data = await response.json();
@@ -688,8 +689,8 @@ export default function page() {
                                                             {motors.map((motor) => (
                                                                 <Option key={motor.id} value={motor.nama_motor} disabled={motor.status_motor !== 'Tersedia'} className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}>
                                                                     <div className="flex items-center">
-                                                                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} className="w-10 h-10 rounded-full mr-2" />
-                                                                    <span>{motor.nama_motor}</span>
+                                                                        <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} className="w-10 h-10 rounded-full mr-2" />
+                                                                        <span>{motor.nama_motor}</span>
                                                                     </div>
                                                                 </Option>
                                                             ))}
@@ -978,7 +979,7 @@ export default function page() {
                                             </Label>
                                             <Label>
                                                 <span className='font-medium text-sm'>
-                                                    Rp. {rentalPrice.toLocaleString()} (x{durasi})
+                                                    Rp. {hargaRental.toLocaleString()} (x{durasi})
                                                 </span>
                                             </Label>
                                         </div>
@@ -990,7 +991,7 @@ export default function page() {
                                             </Label>
                                             <Label>
                                                 <span className='font-medium text-sm'>
-                                                    Rp. {(rentalPrice * durasi).toLocaleString()}
+                                                    Rp. {(hargaRental * durasi).toLocaleString()}
                                                 </span>
                                             </Label>
                                         </div>
@@ -1004,10 +1005,12 @@ export default function page() {
                                                         <Select
                                                             label={`Pilih diskon`}
                                                             onChange={handleSelectChangeDiskon}
+                                                            value=''
                                                         >
-                                                            {diskons.map((id_diskon) => (
-                                                                <Option key={id_diskon.id} value={id_diskon.id}>
-                                                                    {id_diskon.nama_diskon} - Potongan: {id_diskon.potongan_harga}%
+                                                            <Option value=''>Tidak ada</Option>
+                                                            {diskons.map((diskon) => (
+                                                                <Option key={diskon.id} value={diskon.id}>
+                                                                    {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
                                                                 </Option>
                                                             ))}
                                                         </Select>
@@ -1072,7 +1075,7 @@ export default function page() {
                         <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
                             <MdOutlineTimer size='22px' color='#149CF3' />
                             <span className='text-[#149CF3] text-sm font-medium'>
-                                Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
+                                Gunakan diskon di halaman pembayaran untuk harga yang lebih murah
                             </span>
                         </div>
                     </div>
