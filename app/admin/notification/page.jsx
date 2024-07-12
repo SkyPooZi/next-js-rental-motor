@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+
 import {
     Card,
     CardHeader,
@@ -31,6 +33,7 @@ export default function Notification() {
     const [activeComponent, setActiveComponent] = useState("notification");
     const [loadData, setLoadData] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -38,14 +41,16 @@ export default function Notification() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 const data = await response.json();
-                const filteredHistories = data.history.filter(item => item.status_history === 'Menunggu Pembayaran');
+                const filteredHistories = data.history.filter(item =>
+                    item.status_history === 'Menunggu Pembayaran' && item.metode_pembayaran === 'Tunai'
+                );
                 setHistory(filteredHistories);
             } catch (error) {
                 console.error('Fetch Data Error:', error);
@@ -71,7 +76,7 @@ export default function Notification() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -112,7 +117,7 @@ export default function Notification() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });

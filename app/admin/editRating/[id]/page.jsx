@@ -1,35 +1,18 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/router';
-import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
-    Select,
-    Option,
     Textarea,
-    Popover,
-    PopoverHandler,
-    PopoverContent,
     Spinner
 } from "@material-tailwind/react";
-import { format } from "date-fns";
-import { DayPicker } from "react-day-picker";
-import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { MdDone } from "react-icons/md";
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa';
 
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
@@ -55,6 +38,7 @@ const Page = ({ params: { id } }) => {
     const [hover, setHover] = useState(null);
     const [loadData, setLoadData] = useState(true);
     const totalStars = 5;
+    const token = Cookies.get("token");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,7 +46,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -105,7 +89,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -120,7 +104,6 @@ const Page = ({ params: { id } }) => {
 
                 setReview((prevReview) => ({
                     ...prevReview,
-                    // Update only the fields that have been modified
                     ...(nama_pengguna && { nama_pengguna: data.review.nama_pengguna }),
                     ...(penilaian && { penilaian: data.review.penilaian }),
                     ...(komentar && { komentar: data.review.komentar }),

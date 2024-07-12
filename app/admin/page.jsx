@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 import { MdHistory } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
@@ -36,6 +37,7 @@ export default function Dashboard() {
     const [totalKeuntungan, setTotalKeuntungan] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
     const [presentasiPenambahan, setPresentasiPenambahan] = useState(0);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,7 +45,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 const responseData = await response.json();
@@ -71,7 +73,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 const responseData = await response.json();
@@ -101,7 +103,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 const responseData = await response.json();
@@ -127,7 +129,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -154,7 +156,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 const responseData = await response.json();
@@ -189,7 +191,7 @@ export default function Dashboard() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered?filter=4_minggu`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -290,9 +292,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalMotor}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">+1%</strong>&nbsp;dari minggu lalu
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -304,9 +306,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalSewa}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">{presentasiPenambahan.toFixed(2)}%</strong>&nbsp;dari minggu lalu
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -318,9 +320,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalUlasan}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">+35%</strong>&nbsp;dari minggu lalu
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -332,9 +334,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug text-blue-gray-900">{totalUser}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">+12%</strong>&nbsp;dari minggu lalu
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -346,9 +348,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{availableMotor.length}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-red-500">-5%</strong>&nbsp;dari hari ini
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -360,9 +362,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{unavailableMotor.length}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">+35%</strong>&nbsp;dari hari ini
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
@@ -374,9 +376,9 @@ export default function Dashboard() {
                                     <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{formatToRupiah(totalKeuntungan)}</h4>
                                 </div>
                                 <div className="border-t border-blue-gray-50 p-4">
-                                    <p className="block antialiased text-sm leading-relaxed font-normal">
+                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
                                         <strong className="text-green-500">+35%</strong>&nbsp;dari hari ini
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                         </div>

@@ -3,6 +3,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 import { MdDone } from "react-icons/md";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
@@ -37,13 +38,14 @@ export function MotorListTable() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
+    const token = Cookies.get("token");
 
     const fetchData = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 }
             });
             const data = await response.json();
@@ -96,22 +98,20 @@ export function MotorListTable() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/delete/${motorId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
             if (response.ok) {
-                // Trigger a new fetch request to update the data
-                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                fetchData();
                 setMotor((prevMotor) => prevMotor.filter(m => m.id !== motorId));
                 console.log(`Motor with id ${motorId} deleted successfully.`);
-                setError(''); // Clear any previous errors
+                setError('');
                 setShowNotification(true); // Show notification
-                // Optionally, hide notification after a certain duration
                 setTimeout(() => {
                     setShowNotification(false);
-                }, 3000); // 3000 milliseconds (3 seconds)
+                }, 3000);
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to delete the motor:', errorMessage);
@@ -154,12 +154,12 @@ export function MotorListTable() {
                                         }}
                                     />
                                 </div>
-                                <a href="/admin/addMotor">
+                                <Link href="/admin/addMotor">
                                     <Button
                                         className="flex items-center gap-3 capitalize text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]" size="sm">
                                         Tambah Motor Baru
                                     </Button>
-                                </a>
+                                </Link>
                             </div>
                         </div>
                     </CardHeader>

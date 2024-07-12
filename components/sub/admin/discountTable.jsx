@@ -3,11 +3,11 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 import { MdDone } from "react-icons/md";
-import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
-    ArrowDownTrayIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -16,17 +16,12 @@ import {
     Typography,
     Button,
     CardBody,
-    Chip,
     CardFooter,
-    Avatar,
     IconButton,
     Tooltip,
     Input,
-    Breadcrumbs,
     Spinner
 } from "@material-tailwind/react";
-
-import NavbarAdmin from "@/components/sub/admin/navbar";
 
 const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
 
@@ -41,13 +36,14 @@ export function DiscountTable() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
+    const token = Cookies.get('token');
 
     const fetchData = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 }
             });
             const responseText = await response.text();
@@ -103,22 +99,20 @@ export function DiscountTable() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/delete/${discountId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
             if (response.ok) {
-                // Trigger a new fetch request to update the data
-                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                fetchData();
                 setDiskon((prevDiskon) => prevDiskon.filter(m => m.id !== discountId));
                 console.log(`discount with id ${discountId} deleted successfully.`);
-                setError(''); // Clear any previous errors
-                setShowNotification(true); // Show notification
-                // Optionally, hide notification after a certain duration
+                setError('');
+                setShowNotification(true);
                 setTimeout(() => {
                     setShowNotification(false);
-                }, 3000); // 3000 milliseconds (3 seconds)
+                }, 3000);
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to delete the discount:', errorMessage);
@@ -128,14 +122,6 @@ export function DiscountTable() {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
         }
-    };
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-    };
-
-    const handleShowPupup = () => {
-        setShowPopup(true);
     };
 
     return (

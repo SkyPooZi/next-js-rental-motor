@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 import {
     Card,
@@ -32,6 +33,7 @@ const Page = ({ params: { id } }) => {
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,7 +41,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 

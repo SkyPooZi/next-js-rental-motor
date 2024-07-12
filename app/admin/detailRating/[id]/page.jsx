@@ -1,24 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/router';
-import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import { useState, useEffect } from 'react';
+import Cookies from 'js-cookie';
 
 import {
     Card,
     CardHeader,
-    Typography,
-    Button,
-    Checkbox,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
-    Select,
-    Option,
     Textarea,
     Spinner
 } from "@material-tailwind/react";
@@ -38,6 +26,7 @@ const Page = ({ params: { id } }) => {
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState(null);
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get("token");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -45,7 +34,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
