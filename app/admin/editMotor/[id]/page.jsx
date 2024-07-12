@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 import Image from "next/image";
 
 import {
@@ -47,6 +48,7 @@ const Page = ({ params: { id } }) => {
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get("token");
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -82,7 +84,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -93,7 +95,7 @@ const Page = ({ params: { id } }) => {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                    setMotors(data.listMotor || []);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -110,7 +112,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -153,7 +155,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -168,7 +170,6 @@ const Page = ({ params: { id } }) => {
 
                 setMotor((prevMotor) => ({
                     ...prevMotor,
-                    // Update only the fields that have been modified
                     ...(nama_motor && { nama_motor: data.listMotor.nama_motor }),
                     ...(tipe_motor && { tipe_motor: data.listMotor.tipe_motor }),
                     ...(merk_motor && { merk_motor: data.listMotor.merk_motor }),

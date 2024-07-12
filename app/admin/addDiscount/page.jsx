@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useRef } from "react";
+import Cookies from "js-cookie";
+
 import {
     Card,
     CardHeader,
@@ -37,6 +39,7 @@ export default function AddDiscount() {
     const [showNotification, setShowNotification] = useState(false);
     const [response, setResponse] = useState(null);
     const [activeComponent, setActiveComponent] = useState("addDiscount");
+    const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -75,7 +78,7 @@ export default function AddDiscount() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/create`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData,
             });

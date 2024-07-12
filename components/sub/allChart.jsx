@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import Cookies from 'js-cookie';
+
 import {
     Card,
     CardBody,
@@ -6,7 +8,6 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import Chart from "react-apexcharts";
-import { format } from 'date-fns'; // If you're using date-fns for date formatting
 
 import {
     DropdownMenu,
@@ -23,6 +24,8 @@ import { Button } from "@/components/ui/button";
 const AllChart = () => {
     const [history, setHistory] = useState([]);
     const [activeComponent, setActiveComponent] = useState('chartDay');
+    const [totalHistory, setTotalHistory] = useState(0);
+    const token = Cookies.get('token');
     const [chartData, setChartData] = useState({
         type: 'line',
         height: 240,
@@ -110,8 +113,6 @@ const AllChart = () => {
         },
     });
 
-    const [totalHistory, setTotalHistory] = useState(0);
-
     const fetchData = async (filter) => {
         try {
             let url = `${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered?filter=${filter}`;
@@ -119,7 +120,7 @@ const AllChart = () => {
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -321,7 +322,7 @@ const AllChart = () => {
     };
 
     useEffect(() => {
-        fetchData('7_hari'); // Default fetch for 7 days
+        fetchData('7_hari');
     }, []);
 
     const handleButtonClick = (buttonType) => {
@@ -344,8 +345,6 @@ const AllChart = () => {
                 break;
         }
     }
-
-    const [position, setPosition] = React.useState("bottom");
 
     return (
         <Card>

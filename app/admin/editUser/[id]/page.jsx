@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 
 import {
     Card,
@@ -40,6 +41,7 @@ const Page = ({ params: { id } }) => {
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -67,7 +69,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -108,7 +110,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });

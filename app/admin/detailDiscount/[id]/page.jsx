@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 
 import {
     Card,
@@ -32,6 +33,7 @@ const Page = ({ params: { id } }) => {
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -39,7 +41,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 

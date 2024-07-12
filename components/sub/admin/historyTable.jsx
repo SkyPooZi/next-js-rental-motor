@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 
-import { PencilIcon, PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import {
-    ArrowDownTrayIcon,
     MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -15,17 +15,14 @@ import {
     CardBody,
     Chip,
     CardFooter,
-    Avatar,
     IconButton,
     Tooltip,
     Input,
-    Breadcrumbs,
     Spinner
 } from "@material-tailwind/react";
 
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { addDays, format } from "date-fns"
-import { DateRange } from "react-day-picker"
+import { format } from "date-fns"
 import { MdDone } from "react-icons/md";
 
 import {
@@ -63,6 +60,7 @@ export function HistoryTable({ onSelectRange }) {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
+    const token = Cookies.get("token");
 
     const fetchData = async () => {
         try {
@@ -77,7 +75,7 @@ export function HistoryTable({ onSelectRange }) {
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer 2|rkK6kLDRbFH91y0nNEZbHxU4QQ5hBlbkXyDDbT7B95119924`
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -154,22 +152,20 @@ export function HistoryTable({ onSelectRange }) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
             if (response.ok) {
-                // Trigger a new fetch request to update the data
-                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                fetchData();
                 setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyId));
                 console.log(`history with id ${historyId} deleted successfully.`);
-                setError(''); // Clear any previous errors
+                setError('');
                 setShowNotification(true); // Show notification
-                // Optionally, hide notification after a certain duration
                 setTimeout(() => {
                     setShowNotification(false);
-                }, 3000); // 3000 milliseconds (3 seconds)
+                }, 3000);
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to delete the history:', errorMessage);
