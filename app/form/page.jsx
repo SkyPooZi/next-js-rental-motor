@@ -54,6 +54,7 @@ export default function page() {
     const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
     const [diskon_id, setDiskonId] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
+    const [point, setPoint] = useState(0);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
@@ -69,6 +70,8 @@ export default function page() {
     const [durasi, setDurasi] = useState('');
     const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const token = Cookies.get('token');
+    const id = Cookies.get('id');
     const router = useRouter();
 
     useEffect(() => {
@@ -104,7 +107,6 @@ export default function page() {
 
     useEffect(() => {
         const fetchMotor = async () => {
-            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     method: 'GET',
@@ -131,7 +133,6 @@ export default function page() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
@@ -156,6 +157,30 @@ export default function page() {
     }, []);
 
     useEffect(() => {
+        const fetchPoint = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    setPoint(data.user.point);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchPoint();
+    }, []);
+
+    useEffect(() => {
         const script = document.createElement('script');
         script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
         script.setAttribute('data-client-key', `${process.env.MIDTRANS_CLIENT_KEY}`);
@@ -168,7 +193,6 @@ export default function page() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const token = Cookies.get('token');
 
         if (metode_pembayaran === 'Tunai') {
             await submitForm('Booking berhasil');
@@ -291,7 +315,6 @@ export default function page() {
     };
 
     const submitForm = async (successMessage) => {
-        const token = Cookies.get('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
@@ -340,7 +363,6 @@ export default function page() {
     };
 
     const updateHistoryStatus = async (id, status) => {
-        const token = Cookies.get('token');
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
@@ -418,7 +440,6 @@ export default function page() {
 
     useEffect(() => {
         const fetchBookedDates = async () => {
-            const token = Cookies.get('token');
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
@@ -1039,7 +1060,7 @@ export default function page() {
                                                 <AiOutlineDollarCircle color='#FF4D30' size='23px' />
                                                 <Label>
                                                     <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        Gunakan Points
+                                                        {point} Gunakan Points
                                                     </span>
                                                 </Label>
                                             </div>
