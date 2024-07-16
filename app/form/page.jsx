@@ -55,6 +55,7 @@ export default function page() {
     const [diskon_id, setDiskonId] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [point, setPoint] = useState(0);
+    const [usePoint, setUsePoint] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState('');
@@ -75,35 +76,53 @@ export default function page() {
     const router = useRouter();
 
     useEffect(() => {
-        setTotalPembayaran(hargaRental * durasi);
-    }, [hargaRental, durasi]);
+        calculateTotalPembayaran();
+    }, [hargaRental, durasi, usePoint, diskon_id]);
+
+    const calculateTotalPembayaran = () => {
+        let totalPriceWithoutDiscount = hargaRental * durasi;
+
+        if (diskon_id) {
+            const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
+            if (selectedDiskon) {
+                const potonganHargaPercentage = selectedDiskon.potongan_harga;
+                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                totalPriceWithoutDiscount -= discountAmount;
+            }
+        }
+
+        if (usePoint) {
+            totalPriceWithoutDiscount -= point;
+        }
+
+        setTotalPembayaran(Math.round(totalPriceWithoutDiscount));
+        return Math.round(totalPriceWithoutDiscount);
+    };
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
-            const selectedDiskon = diskons.find((diskon) => diskon.id === selectedValue);
-            if (selectedDiskon) {
-                setDiskonId(selectedDiskon.id);
-                const potonganHargaPercentage = selectedDiskon.potongan_harga;
-                const totalPriceWithoutDiscount = hargaRental * durasi;
-                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
-                const totalPembayaran = Math.round(totalPriceWithoutDiscount - discountAmount); // Round to nearest integer
-                setTotalPembayaran(totalPembayaran);
-            }
-        };
-    }
-
-    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
-
-    const handleSelectChangeNamaMotor = (selectedValue) => {
-        if (selectedValue) {
-            const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
-            if (selectedMotor) {
-                setMotorId(selectedMotor.id);
-                setHargaRental(selectedMotor.harga_motor_per_1_hari);
-                setNamaMotor(selectedMotor.nama_motor);
-            }
+            setDiskonId(selectedValue);
         }
     };
+
+    const handleCheckboxChange = (e) => {
+        const isChecked = e.target.checked;
+
+        const updatedTotal = calculateTotalPembayaran(isChecked);
+        if (updatedTotal === 0) {
+            setUsePoint(false);
+            showNotificationWithTimeout('Silahkan pilih motor terlebih dahulu', 'error');
+            scrollToTarget();
+        } else {
+            setUsePoint(isChecked);
+        }
+    };
+
+    const scrollToTarget = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
 
     useEffect(() => {
         const fetchMotor = async () => {
@@ -284,6 +303,28 @@ export default function page() {
                         } catch (error) {
                             console.error('Error updating invoice status:', error);
                         }
+
+                        if (usePoint) {
+                            const pointsToUse = Math.min(point, total_pembayaran);
+                            try {
+                                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ point: point - pointsToUse }),
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to update points');
+                                }
+
+                                console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
+                            } catch (error) {
+                                console.error('Error updating points:', error);
+                            }
+                        }
                     },
                     onPending: async function (result) {
                         showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
@@ -391,22 +432,52 @@ export default function page() {
         setNotificationType(type);
         setShowNotification(true);
 
-        // Hide notification after timeout
         setTimeout(() => {
             setShowNotification(false);
         }, timeout);
     };
 
     useEffect(() => {
+        const fetchBookedDates = async () => {
+            if (!motor_id) return;
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+                const data = await response.json();
+
+                const disabledRanges = data.history
+                    .filter(item => item.motor_id === motor_id)
+                    .map(item => {
+                        const startDate = new Date(item.tanggal_mulai);
+                        const endDate = new Date(item.tanggal_selesai);
+                        const range = { from: startDate, to: addDays(endDate, 1) };
+                        return range;
+                    });
+                console.log('Disabled Ranges:', disabledRanges);
+
+                const today = startOfToday();
+
+                const disableBeforeToday = { before: today };
+
+                setDisabledDaysMulai([disableBeforeToday, ...disabledRanges]);
+                setDisabledDaysSelesai([disableBeforeToday, ...disabledRanges]);
+            } catch (error) {
+                console.error('Error fetching booked dates:', error);
+            }
+        };
+
+        fetchBookedDates();
+    }, [motor_id]);
+
+    useEffect(() => {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = new Date(tanggal_mulai);
             const endDate = new Date(tanggal_selesai);
-            let duration = differenceInDays(endDate, startDate);
-
-            if (duration === 0) {
-                duration = 1;
-            }
-
+            const duration = differenceInDays(endDate, startDate);
             setDurasi(duration);
         } else {
             setDurasi('');
@@ -438,37 +509,18 @@ export default function page() {
         }
     };
 
-    useEffect(() => {
-        const fetchBookedDates = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-                const data = await response.json();
-
-                const disabledRanges = data.history.map((item) => {
-                    const startDate = new Date(item.tanggal_mulai);
-                    const endDate = new Date(item.tanggal_selesai);
-                    const range = { from: startDate, to: addDays(endDate, 1) };
-                    return range;
-                });
-
-                const today = startOfToday();
-
-                const disableBeforeToday = { before: today };
-
-                setDisabledDaysMulai([disableBeforeToday, ...disabledRanges]);
-                setDisabledDaysSelesai([disableBeforeToday, ...disabledRanges]);
-            } catch (error) {
-                console.error('Error fetching booked dates:', error);
+    const handleSelectChangeNamaMotor = (selectedValue) => {
+        if (selectedValue) {
+            const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
+            if (selectedMotor) {
+                setMotorId(selectedMotor.id);
+                setHargaRental(selectedMotor.harga_motor_per_1_hari);
+                setNamaMotor(selectedMotor.nama_motor);
+                setTanggalMulai('');
+                setTanggalSelesai('');
             }
-        };
-
-        fetchBookedDates();
-    }, []);
+        }
+    };
 
     const handleClickPenyewaDiriSendiri = () => {
         setClickedPenyewaDiriSendiri(true);
@@ -1055,6 +1107,8 @@ export default function page() {
                                             <Checkbox
                                                 id="points"
                                                 color='orange'
+                                                checked={usePoint}
+                                                onChange={handleCheckboxChange}
                                             />
                                             <div className='flex flex-row gap-1 items-center'>
                                                 <AiOutlineDollarCircle color='#FF4D30' size='23px' />
@@ -1094,6 +1148,9 @@ export default function page() {
                                                 Cashless
                                             </div>
                                         </div>
+                                        {clickedPaymentTunai && (
+                                            <span className='text-[#FF4D33]'>Booking dengan pembayaran tunai hanya bisa dilakukan hari ini!</span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
