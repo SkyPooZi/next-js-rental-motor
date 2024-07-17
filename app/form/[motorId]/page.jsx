@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -33,8 +34,11 @@ import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
 import Navbar from '@/components/main/Navbar';
 
-export default function page() {
+export default function page({ params: { motorId } }) {
+    const [detailId, setDetailMotorId] = useState(motorId);
+    const router = useRouter();
     const [hargaRental, setHargaRental] = useState(0);
+    const [gambarMotor, setGambarMotor] = useState('');
     const [motors, setMotors] = useState([]);
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
@@ -73,7 +77,6 @@ export default function page() {
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
-    const router = useRouter();
 
     useEffect(() => {
         calculateTotalPembayaran();
@@ -123,6 +126,33 @@ export default function page() {
     };
 
     const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
+
+    useEffect(() => {
+        if (!detailId) return;
+        const fetchDetailMotor = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${detailId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    console.log('Fetched motor:', data);
+                    setGambarMotor(data.listMotor);
+                }
+            } catch (err) {
+                setError(`An error occurred: ${err.message}`);
+            }
+        };
+        fetchDetailMotor();
+    }, [detailId]);
 
     useEffect(() => {
         const fetchMotor = async () => {
@@ -513,6 +543,7 @@ export default function page() {
         if (selectedValue) {
             const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
             if (selectedMotor) {
+                setDetailMotorId(selectedMotor.id);
                 setMotorId(selectedMotor.id);
                 setHargaRental(selectedMotor.harga_motor_per_1_hari);
                 setNamaMotor(selectedMotor.nama_motor);
@@ -593,7 +624,17 @@ export default function page() {
                 <form method="post" action="post" onSubmit={handleSubmit}>
                     <div className='flex lg:flex-row flex-col gap-5'>
                         <div className='flex lg:hidden flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
-                            <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
+                            <div className="w-[259px] h-[183px] relative">
+                                {gambarMotor && (
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
+                                        alt={gambarMotor.nama_motor}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="absolute inset-0"
+                                    />
+                                )}
+                            </div>
                             <div className='flex flex-col gap-5 '>
                                 <div className='flex flex-row gap-2 items-center '>
                                     <PiScroll className='' size='25' color='black' />
@@ -710,7 +751,17 @@ export default function page() {
                             </div>
                         </div>
                         <div className='hidden lg:flex flex-col rounded-xl px-5 py-5 items-center gap-3 bg-white'>
-                            <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
+                            <div className="w-[200px] h-[150px] relative">
+                                {gambarMotor && (
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
+                                        alt={gambarMotor.nama_motor}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="absolute inset-0"
+                                    />
+                                )}
+                            </div>
                             <div className='flex flex-col gap-5 '>
                                 <div className='flex flex-row gap-2 items-center '>
                                     <PiScroll className='' size='25' color='black' />
@@ -768,7 +819,8 @@ export default function page() {
                                                             {motors.map((motor) => (
                                                                 <Option key={motor.id} value={motor.nama_motor} disabled={motor.status_motor !== 'Tersedia'} className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}>
                                                                     <div className="flex items-center">
-                                                                        <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} className="w-10 h-10 rounded-full mr-2" />
+                                                                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} width={40}
+                                                                            height={40} className="w-10 h-10 rounded-full mr-2" />
                                                                         <span>{motor.nama_motor}</span>
                                                                     </div>
                                                                 </Option>
@@ -966,11 +1018,11 @@ export default function page() {
                                             <Label>
                                                 <div className='flex flex-row gap-1 items-center mt-2'>
                                                     <IoLocationSharp size='25' color='red' />
-                                                    <a href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
+                                                    <Link href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
                                                         <span className='font-semibold text-[#0194F3] text-sm hover:underline'>
                                                             Click Disini
                                                         </span>
-                                                    </a>
+                                                    </Link>
                                                 </div>
                                             </Label>
                                         </div>
