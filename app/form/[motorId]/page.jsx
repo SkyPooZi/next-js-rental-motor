@@ -29,6 +29,7 @@ import { format, differenceInDays, addDays, startOfToday } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
+import InvoicePopup from '@/components/sub/invoice';
 import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
@@ -75,6 +76,7 @@ export default function page({ params: { motorId } }) {
     const [durasi, setDurasi] = useState('');
     const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [showInvoice, setShowInvoice] = useState(false);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -300,6 +302,7 @@ export default function page({ params: { motorId } }) {
                 const paymentData = await paymentResponse.json();
                 const snapToken = paymentData.snapToken;
                 console.log(`Snap Token: ${snapToken}, Order ID: ${order_id}`);
+                Cookies.set('order_id', order_id);
 
                 if (!snapToken || !order_id) {
                     throw new Error('Snap Token or Order ID missing in the response');
@@ -355,6 +358,7 @@ export default function page({ params: { motorId } }) {
                                 console.error('Error updating points:', error);
                             }
                         }
+                        setShowInvoice(true);
                     },
                     onPending: async function (result) {
                         showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
@@ -425,7 +429,7 @@ export default function page({ params: { motorId } }) {
 
             showNotificationWithTimeout(successMessage, 'success');
 
-            router.push(`/payment-success?order_id=${data.id}`);
+            // router.push(`/payment-success?order_id=${data.id}`);
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {
@@ -1239,12 +1243,16 @@ export default function page({ params: { motorId } }) {
                         </div>
                     </div>
                 </form>
+                {showInvoice && (
+                    <InvoicePopup onClose={() => setShowInvoice(false)} />
+                )}
                 {showNotification && (
                     <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${notificationType === 'success' ? 'bg-green-500' : notificationType === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50`}>
                         <span>{notificationMessage}</span>
                         {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                     </div>
-                )}        </div>
+                )}
+            </div>
             <Footer />
         </>
     );
