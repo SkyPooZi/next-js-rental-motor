@@ -1,6 +1,7 @@
 'use client';
 
 import { React, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 import { IoReorderThree, IoReorderThreeOutline, IoHome } from "react-icons/io5";
@@ -25,6 +26,7 @@ import User from "@/components/sub/admin/user";
 import Discount from "@/components/sub/admin/discount";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
+import { redirect } from "next/dist/server/api-utils";
 
 export default function Admin() {
     const [activeComponent, setActiveComponent] = useState("dashboard");

@@ -14,6 +14,10 @@ const Motor = ({ motor }) => {
     router.push('/form');
   };
 
+  const handleDetailRedirect = (id) => {
+    router.push(`/detail/${id}`);
+  };
+
   return (
     <div className="border border-gray-300 rounded-lg p-4 shadow-md flex flex-col items-center">
       <div className="flex justify-center mb-4">
@@ -37,7 +41,7 @@ const Motor = ({ motor }) => {
         </div>
         <div className="flex flex-col items-center mb-2">
           <button onClick={handleFormRedirect} className="bg-[#FF4D30] hover:bg-red-800 text-white py-2 px-4 sm:px-6 rounded mb-2">Booking Now!</button>
-          <a href="/detail" className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</a>
+          <button onClick={() => handleDetailRedirect(motor.id)} className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>
         </div>
       </div>
     </div>
@@ -59,28 +63,26 @@ const MotorList = () => {
       }
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/list-motor/all', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
         });
-
-        // Log the raw response
         console.log('Raw response:', response);
 
-        // Check if the response is not ok and throw an error
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        // Ensure the response is in JSON format
         const data = await response.json();
         console.log('JSON response:', data);
-
+        const id = data.listMotor;
+        console.log('Motor data:', id);
+        
         if (data.status === 200) {
           setMotors(data.listMotor);
-          setFilteredMotors(data.listMotor); // Initialize with all motors
+          setFilteredMotors(data.listMotor);
         } else {
           console.error('Unexpected response status:', data.status);
         }
