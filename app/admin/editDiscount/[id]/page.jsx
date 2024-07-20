@@ -1,24 +1,13 @@
 'use client';
 
-import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import Cookies from 'js-cookie';
 
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
-    Select,
-    Option,
-    Textarea,
     Popover,
     PopoverHandler,
     PopoverContent,
@@ -53,6 +42,7 @@ const Page = ({ params: { id } }) => {
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
+    const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -76,7 +66,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -115,7 +105,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -130,7 +120,6 @@ const Page = ({ params: { id } }) => {
 
                 setDiskon((prevDiskon) => ({
                     ...prevDiskon,
-                    // Update only the fields that have been modified
                     ...(nama_diskon && { nama_diskon: data.diskon.nama_diskon }),
                     ...(potongan_harga && { potongan_harga: data.diskon.potongan_harga }),
                     ...(tanggal_mulai && { tanggal_mulai: data.diskon.tanggal_mulai }),
@@ -170,9 +159,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}

@@ -1,358 +1,409 @@
 'use client';
 
-import { React, useState } from "react";
-import Image from "next/image";
-
-import { IoReorderThree, IoReorderThreeOutline } from "react-icons/io5";
-import { LiaHandHoldingUsdSolid } from "react-icons/lia";
-import { CiDiscount1 } from "react-icons/ci";
-import { MdHistory } from "react-icons/md";
-import { FaStar } from "react-icons/fa";
+import React, { useState, useRef } from "react";
+import Cookies from "js-cookie";
 
 import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet"
+    Card,
+    CardHeader,
+    Typography,
+    Button,
+    Input,
+    Select,
+    Option,
+    Textarea
+} from "@material-tailwind/react";
+import { MdDone } from 'react-icons/md';
 
+import NavbarAdmin from "@/components/sub/admin/navbar";
+import Sidebar from '@/components/main/sidebar';
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
-import Discount from "@/components/sub/admin/discount";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
-import AddMotor from "@/components/sub/admin/addMotor";
+import Discount from "@/components/sub/admin/discount";
 
-export default function Admin() {
+export default function AddMotor() {
+    const [file, setFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+    const [nama_motor, setMotorName] = useState('');
+    const [tipe_motor, setMotorType] = useState('');
+    const [merk_motor, setMotorMerk] = useState('');
+    const [stok_motor, setMotorStock] = useState('');
+    const [harga_motor_per_1_hari, setMotorPricePerDay] = useState('');
+    const [harga_motor_per_1_minggu, setMotorPricePerWeek] = useState('');
+    const [fasilitas_motor, setMotorFacilities] = useState('');
+    const [status_motor, setMotorStatus] = useState('');
+    const [response, setResponse] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [showNotification, setShowNotification] = useState(false);
+    const fileInputRef = useRef(null);
     const [activeComponent, setActiveComponent] = useState("addMotor");
+    const token = Cookies.get("token");
 
-    const renderComponent = () => {
-        switch (activeComponent) {
-            case "addMotor":
-                return <AddMotor />;
-            case "dashboard":
-                return <Dashboard />;
-            case "list":
-                return <MotorList />;
-            case "user":
-                return <User />;
-            case "discount":
-                return <Discount />;
-            case "history":
-                return <History />;
-            case "rating":
-                return <Rating />;
-            default:
-                return null;
+    const handleImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
-    const handleButtonClick = (component) => {
+    const handleButtonClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleSelectChange = (value) => {
+        setMotorStatus(value);
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        if (!file) {
+            console.error('No file selected');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('gambar_motor', file);
+        formData.append('nama_motor', nama_motor);
+        formData.append('tipe_motor', tipe_motor);
+        formData.append('merk_motor', merk_motor);
+        formData.append('stok_motor', stok_motor);
+        formData.append('harga_motor_per_1_hari', harga_motor_per_1_hari);
+        formData.append('harga_motor_per_1_minggu', harga_motor_per_1_minggu);
+        formData.append('fasilitas_motor', fasilitas_motor);
+        formData.append('status_motor', status_motor);
+
+        setLoading(true);
+
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/create`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network Error');
+            }
+
+            const data = await response.json();
+            console.log('Success', data);
+            setResponse(data);
+            setShowNotification(true);
+
+            setFile(null);
+            setImagePreview(null);
+            setMotorName('');
+            setMotorType('');
+            setMotorMerk('');
+            setMotorStock('');
+            setMotorPricePerDay('');
+            setMotorPricePerWeek('');
+            setMotorFacilities('');
+            setMotorStatus('');
+
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000);
+        } catch (error) {
+            setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
 
     return (
-        <div className="min-h-screen bg-gray-50/50">
-            <aside className="bg-gradient-to-br from-gray-800 to-gray-900 -translate-x-80 fixed inset-0 z-50 my-4 ml-4 h-[calc(100vh-32px)] w-72 rounded-xl transition-transform duration-300 xl:translate-x-0">
-                <div className="relative border-b border-white/20">
-                    <a className="flex items-center gap-4 py-6 px-8" href="#/">
-                        <Image src="/images/logo.png" alt="logo" width={50} height={50} />
-                        <h6 className="block antialiased tracking-normal font-medium font-sans text-base leading-relaxed text-white">Dashboard Rental Motor Kudus</h6>
-                    </a>
-                    <button className="middle none font-sans font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-8 max-w-[32px] h-8 max-h-[32px] rounded-lg text-xs text-white hover:bg-white/10 active:bg-white/30 absolute right-0 top-0 grid rounded-br-none rounded-tl-none xl:hidden" type="button">
-                        <span className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true" className="h-5 w-5 text-white">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </span>
-                    </button>
-                </div>
-                <div className="m-4">
-                    <ul className="mb-4 flex flex-col gap-5">
-                        <li>
-                            <button onClick={() => handleButtonClick('dashboard')} className="w-full">
-                                <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white flex items-center gap-4 px-4 capitalize ${activeComponent === 'dashboard' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                        <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"></path>
-                                        <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"></path>
-                                    </svg>
-                                    <a aria-current="page" className="active">
-                                        <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">dashboard</p>
-                                    </a>
+        <>
+            <div>
+                {activeComponent === "dashboard" && <Dashboard />}
+                {activeComponent === "list" && <MotorList />}
+                {activeComponent === "user" && <User />}
+                {activeComponent === "discount" && <Discount />}
+                {activeComponent === "history" && <History />}
+                {activeComponent === "rating" && <Rating />}
+            </div>
+            {activeComponent === 'dashboard' ? (
+                null
+            ) : activeComponent === 'list' ? (
+                null
+            ) : activeComponent === 'user' ? (
+                null
+            ) : activeComponent === 'discount' ? (
+                null
+            ) : activeComponent === 'history' ? (
+                null
+            ) : activeComponent === 'rating' ? (
+                null
+            ) :
+                <div className="p-4 xl:ml-80">
+                    <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
+                        <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">
+                            <div className="capitalize">
+                                <nav aria-label="breadcrumb" className="w-max">
+                                    <ol className="hidden md:flex flex-col md:flex-row items-start w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
+                                        <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
+                                            <a href="#">
+                                                <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">dashboard</p>
+                                            </a>
+                                            <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
+                                        </li>
+                                        <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
+                                            <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Daftar Motor</p>
+                                            <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
+                                        </li>
+                                        <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
+                                            <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Tambah Motor Baru
+                                            </p>
+                                        </li>
+                                    </ol>
+                                </nav>
+                                <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Tambah Motor Baru</h6>
+                            </div>
+                            <div className="flex">
+                                <div className="md:order-1 sm:order-2 order-2">
+                                    <NavbarAdmin />
                                 </div>
-                            </button>
-                        </li>
-                        <li>
-                            <details className="group [&_summary::-webkit-details-marker]:hidden">
-                                <summary
-                                    className="middle none font-sans justify-between font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize"
-                                >
-                                    <div className="flex gap-3">
-                                        <IoReorderThree size='22' />
-                                        <span className="text-sm font-medium">
-                                            Master
-                                        </span>
-                                    </div>
-                                    <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                    </span>
-                                </summary>
-                                <ul className="mt-2 space-y-1 px-4">
-                                    <li>
-                                        <button onClick={() => handleButtonClick('list')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'list' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                                    <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 18.375V5.625zM21 9.375A.375.375 0 0020.625 9h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zM10.875 18.75a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5zM3.375 15h7.5a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375zm0-3.75h7.5a.375.375 0 00.375-.375v-1.5A.375.375 0 0010.875 9h-7.5A.375.375 0 003 9.375v1.5c0 .207.168.375.375.375z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">daftar motor</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button onClick={() => handleButtonClick('user')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'user' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                                    <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" clip-rule="evenodd"></path>
-                                                </svg>
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">pengguna</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </details>
-                        </li>
-                        <li>
-                            <details className="group [&_summary::-webkit-details-marker]:hidden">
-                                <summary
-                                    className="middle none font-sans justify-between font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize"
-                                >
-                                    <div className="flex gap-3">
-                                        <LiaHandHoldingUsdSolid size='22' />
-                                        <span className="text-sm font-medium">
-                                            Transaksi
-                                        </span>
-                                    </div>
-                                    <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5"
-                                            viewBox="0 0 20 20"
-                                            fill="currentColor"
-                                        >
-                                            <path
-                                                fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd"
-                                            />
-                                        </svg>
-                                    </span>
-                                </summary>
-                                <ul className="mt-2 space-y-1 px-4">
-                                    <li>
-                                        <button onClick={() => handleButtonClick('discount')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'discount' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <CiDiscount1 size='22' />
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Diskon</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button onClick={() => handleButtonClick('history')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'history' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <MdHistory size='22' />
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Riwayat</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button onClick={() => handleButtonClick('rating')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'rating' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <FaStar size='22' />
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Ulasan</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </details>
-                        </li>
-                    </ul>
-                </div>
-            </aside>
-            <button className="relative middle none font-medium text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none w-10 max-w-[40px] h-10 max-h-[40px] rounded-lg text-xs text-gray-500 hover:bg-blue-gray-500/10 active:bg-blue-gray-500/30 grid xl:hidden" type="button">
-                <span className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2">
-                    <Sheet>
-                        <div className='block xl:hidden'>
-                            <SheetTrigger>
-                                <div className='border border-white p-2 rounded-md'>
-                                    <IoReorderThreeOutline size='25' />
+                                <div className="order-1">
+                                    <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
                                 </div>
-                            </SheetTrigger>
-                            <SheetContent>
-                                <SheetHeader>
-                                    <SheetTitle>
-                                        <div className='flex flex-col w-full h-full pt-36 gap-8 items-center justify-center text-xs sm:text-sm sm:max-w-[500px]'>
-                                            <ul className="mb-4 flex flex-col gap-5">
-                                                <li>
-                                                    <button onClick={() => handleButtonClick('dashboard')} className="w-full">
-                                                        <div className={`middle w-[180px] none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg flex items-center gap-4 px-4 capitalize ${activeComponent === 'dashboard' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                                                <path d="M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z"></path>
-                                                                <path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75V21a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.43z"></path>
-                                                            </svg>
-                                                            <a aria-current="page" className="active">
-                                                                <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">dashboard</p>
-                                                            </a>
-                                                        </div>
-                                                    </button>
-                                                </li>
-                                                <li>
-                                                    <details className="group [&_summary::-webkit-details-marker]:hidden">
-                                                        <summary
-                                                            className="middle w-full none font-sans justify-between font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize"
-                                                        >
-                                                            <div className="flex gap-3">
-                                                                <IoReorderThree size='22' />
-                                                                <span className="text-sm font-medium">
-                                                                    Master
-                                                                </span>
-                                                            </div>
-                                                            <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    className="h-5 w-5"
-                                                                    viewBox="0 0 20 20"
-                                                                    fill="currentColor"
-                                                                >
-                                                                    <path
-                                                                        fill-rule="evenodd"
-                                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                        clip-rule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </span>
-                                                        </summary>
-                                                        <ul className="mt-2 space-y-1 px-4">
-                                                            <li>
-                                                                <button onClick={() => handleButtonClick('list')} className="w-full">
-                                                                    <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'list' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                                                            <path fill-rule="evenodd" d="M1.5 5.625c0-1.036.84-1.875 1.875-1.875h17.25c1.035 0 1.875.84 1.875 1.875v12.75c0 1.035-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 011.5 18.375V5.625zM21 9.375A.375.375 0 0020.625 9h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zm0 3.75a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5a.375.375 0 00.375-.375v-1.5zM10.875 18.75a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375h7.5zM3.375 15h7.5a.375.375 0 00.375-.375v-1.5a.375.375 0 00-.375-.375h-7.5a.375.375 0 00-.375.375v1.5c0 .207.168.375.375.375zm0-3.75h7.5a.375.375 0 00.375-.375v-1.5A.375.375 0 0010.875 9h-7.5A.375.375 0 003 9.375v1.5c0 .207.168.375.375.375z" clip-rule="evenodd"></path>
-                                                                        </svg>
-                                                                        <a aria-current="page" className="active">
-                                                                            <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">daftar motor</p>
-                                                                        </a>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button onClick={() => handleButtonClick('user')} className="w-full">
-                                                                    <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'user' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className="w-5 h-5 text-inherit">
-                                                                            <path fill-rule="evenodd" d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" clip-rule="evenodd"></path>
-                                                                        </svg>
-                                                                        <a aria-current="page" className="active">
-                                                                            <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">pengguna</p>
-                                                                        </a>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </details>
-                                                </li>
-                                                <li>
-                                                    <details className="group [&_summary::-webkit-details-marker]:hidden">
-                                                        <summary
-                                                            className="middle w-full none font-sans justify-between font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize"
-                                                        >
-                                                            <div className="flex gap-3">
-                                                                <LiaHandHoldingUsdSolid size='22' />
-                                                                <span className="text-sm font-medium">
-                                                                    Transaksi
-                                                                </span>
-                                                            </div>
-                                                            <span className="shrink-0 transition duration-300 group-open:-rotate-180">
-                                                                <svg
-                                                                    xmlns="http://www.w3.org/2000/svg"
-                                                                    className="h-5 w-5"
-                                                                    viewBox="0 0 20 20"
-                                                                    fill="currentColor"
-                                                                >
-                                                                    <path
-                                                                        fill-rule="evenodd"
-                                                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                                        clip-rule="evenodd"
-                                                                    />
-                                                                </svg>
-                                                            </span>
-                                                        </summary>
-                                                        <ul className="mt-2 space-y-1 px-4">
-                                                            <li>
-                                                                <button onClick={() => handleButtonClick('discount')} className="w-full">
-                                                                    <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'discount' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                                        <CiDiscount1 size='22' />
-                                                                        <a aria-current="page" className="active">
-                                                                            <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Diskon</p>
-                                                                        </a>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button onClick={() => handleButtonClick('history')} className="w-full">
-                                                                    <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'history' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                                        <MdHistory size='22' />
-                                                                        <a aria-current="page" className="active">
-                                                                            <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Riwayat</p>
-                                                                        </a>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                            <li>
-                                                                <button onClick={() => handleButtonClick('rating')} className="w-full">
-                                                                    <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'rating' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                                        <FaStar size='22' />
-                                                                        <a aria-current="page" className="active">
-                                                                            <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Ulasan</p>
-                                                                        </a>
-                                                                    </div>
-                                                                </button>
-                                                            </li>
-                                                        </ul>
-                                                    </details>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </SheetTitle>
-                                </SheetHeader>
-                            </SheetContent>
+                            </div>
                         </div>
-                    </Sheet>
-                </span>
-            </button>
-            {renderComponent()}
-        </div>
+                    </nav>
+                    <div className="mt-12">
+                        <form method="post" action="post" onSubmit={handleSubmit}>
+                            <Card className="w-full h-full">
+                                <CardHeader floated={false} shadow={false} className="rounded-none">
+                                    <div className="mb-4 flex flex-col justify-between gap-4">
+                                        <span className="text-black font-medium">
+                                            Tambah Motor Baru
+                                        </span>
+                                        <div className="border-t border-[#969696] w-full"></div>
+                                        <span className="text-black">
+                                            Foto <span className="text-[#FF4D33] font-semibold">*</span>
+                                        </span>
+                                        <div className="mr-4">
+                                            <img
+                                                src={imagePreview || 'https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg='}
+                                                alt="Image Preview"
+                                                className="max-w-32 h-auto rounded-md"
+                                            />
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="file"
+                                                id="picture"
+                                                accept="image/*"
+                                                onChange={handleImageChange}
+                                                ref={fileInputRef}
+                                                className="hidden"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleButtonClick}
+                                                className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                            >
+                                                Pilih Foto
+                                            </button>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Nama Motor <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan nama motor"
+                                                    value={nama_motor}
+                                                    onChange={(e) => setMotorName(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Tipe <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan tipe motor"
+                                                    value={tipe_motor}
+                                                    onChange={(e) => setMotorType(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Merk <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan merk motor"
+                                                    value={merk_motor}
+                                                    onChange={(e) => setMotorMerk(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Stok <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan stok motor" type="number"
+                                                    value={stok_motor}
+                                                    onChange={(e) => setMotorStock(e.target.value)}
+                                                    required
+                                                />
+                                                <Typography
+                                                    variant="small"
+                                                    color="gray"
+                                                    className="flex items-center gap-1 font-normal"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="currentColor"
+                                                        className="-mt-px h-4 w-4"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    Gunakan angka untuk memasang stok
+                                                </Typography>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Harga Motor Per 1 Hari <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan harga motor" type="number"
+                                                    value={harga_motor_per_1_hari}
+                                                    onChange={(e) => setMotorPricePerDay(e.target.value)}
+                                                    required
+                                                />
+                                                <Typography
+                                                    variant="small"
+                                                    color="gray"
+                                                    className="flex items-center gap-1 font-normal"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="currentColor"
+                                                        className="-mt-px h-4 w-4"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    Gunakan angka untuk memasang harga
+                                                </Typography>
+                                            </div>
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Harga Motor Per 1 Minggu <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Input
+                                                    label="Masukkan harga motor" type="number"
+                                                    value={harga_motor_per_1_minggu}
+                                                    onChange={(e) => setMotorPricePerWeek(e.target.value)}
+                                                    required
+                                                />
+                                                <Typography
+                                                    variant="small"
+                                                    color="gray"
+                                                    className="flex items-center gap-1 font-normal"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="currentColor"
+                                                        className="-mt-px h-4 w-4"
+                                                    >
+                                                        <path
+                                                            fillRule="evenodd"
+                                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                                            clipRule="evenodd"
+                                                        />
+                                                    </svg>
+                                                    Gunakan angka untuk memasang harga
+                                                </Typography>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row gap-4">
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Fasilitas <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Textarea
+                                                    label="Masukkan fasilitas tambahan"
+                                                    value={fasilitas_motor}
+                                                    onChange={(e) => setMotorFacilities(e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="w-full flex flex-col gap-2">
+                                                <span className="text-black">
+                                                    Status <span className="text-[#FF4D33] font-semibold">*</span>
+                                                </span>
+                                                <Select
+                                                    label="Masukkan status motor"
+                                                    value={status_motor}
+                                                    name="motorStatus"
+                                                    onChange={handleSelectChange}
+                                                >
+                                                    <Option className="text-white rounded-md w-full bg-green-400" value="Tesedia">
+                                                        Tersedia
+                                                    </Option>
+                                                    <Option className="text-white my-2 rounded-md w-full bg-orange-400" value="Tertunda">
+                                                        Tertunda
+                                                    </Option>
+                                                    <Option className="text-white rounded-md w-full bg-red-400" value="Tidak Tersedia">
+                                                        Tidak Tersedia
+                                                    </Option>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <Button
+                                                type="submit"
+                                                className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                disabled={loading}
+                                            >
+                                                {loading ? 'Loading...' : 'Tambah Motor Baru'}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                            </Card>
+                        </form>
+                        {showNotification && (
+                            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                <span>Data berhasil dikirim</span>
+                                <MdDone className="ml-2 text-white" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            }
+        </>
     );
 }

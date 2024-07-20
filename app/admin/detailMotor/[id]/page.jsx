@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
+import Cookies from 'js-cookie';
 import Image from "next/image";
 
 import {
@@ -36,6 +37,7 @@ const Page = ({ params: { id } }) => {
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [loadData, setLoadData] = useState(true);
     const [image, setImage] = useState(null);
+    const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -43,7 +45,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -72,9 +74,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -124,12 +123,15 @@ const Page = ({ params: { id } }) => {
                                 <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
                             </div>
                         </div>
-                    </nav>
-                    {loadData && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
-                            <Spinner color="blue" size="xl" />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
                         </div>
-                    )}
+                    </nav>
                     <div className="mt-12">
                         {error ? (
                             <p>Error: {error}</p>

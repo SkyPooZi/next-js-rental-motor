@@ -3,6 +3,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 import { MdDone } from "react-icons/md";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
@@ -21,7 +22,6 @@ import {
     Spinner
 } from "@material-tailwind/react";
 
-
 const TABLE_HEAD = ["No", "Nama Pengguna", "Email", "Peran", ""];
 
 export function UserListTable() {
@@ -35,13 +35,14 @@ export function UserListTable() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
     const itemsPerPage = 5;
+    const token = Cookies.get('token');
 
     const fetchData = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 }
             });
             const responseText = await response.text();
@@ -96,22 +97,20 @@ export function UserListTable() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/delete/${userId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
             if (response.ok) {
-                // Trigger a new fetch request to update the data
-                fetchData(); // Assuming fetchData is defined to fetch the motor data
+                fetchData();
                 setUser((prevUser) => prevUser.filter(m => m.id !== userId));
                 console.log(`user with id ${userId} deleted successfully.`);
-                setError(''); // Clear any previous errors
-                setShowNotification(true); // Show notification
-                // Optionally, hide notification after a certain duration
+                setError('');
+                setShowNotification(true);
                 setTimeout(() => {
                     setShowNotification(false);
-                }, 3000); // 3000 milliseconds (3 seconds)
+                }, 3000);
             } else {
                 const errorMessage = await response.text();
                 console.error('Failed to delete the user:', errorMessage);

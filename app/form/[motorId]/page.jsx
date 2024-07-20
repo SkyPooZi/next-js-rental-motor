@@ -1,31 +1,22 @@
 'use client';
 
-import Link from 'next/link';
 import Image from 'next/image';
+import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
-import { FaRegCircle, FaRegDotCircle } from 'react-icons/fa';
 import { PiScroll } from "react-icons/pi";
 import { MdCancel, MdOutlineTimer } from "react-icons/md";
 import { FaCircleCheck } from "react-icons/fa6";
-import { CalendarIcon } from "@radix-ui/react-icons";
 import { AiOutlineDollarCircle } from "react-icons/ai";
 import { IoLocationSharp, IoMapSharp } from "react-icons/io5";
+import { MdDone, MdClear } from 'react-icons/md';
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import {
-    Card,
     Checkbox,
-    CardHeader,
-    Typography,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
     Select,
     Textarea,
@@ -34,19 +25,21 @@ import {
     PopoverHandler,
     PopoverContent,
 } from "@material-tailwind/react";
-import { format, differenceInDays } from "date-fns";
+import { format, differenceInDays, addDays, startOfToday } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
-import { MdDone } from "react-icons/md";
+import InvoicePopup from '@/components/sub/invoice';
 import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
 import Navbar from '@/components/main/Navbar';
 
-export default function page() {
-    const [rentalPrice, setRentalPrice] = useState(0);
-    const [history, setHitory] = useState(null);
+export default function page({ params: { motorId } }) {
+    const [detailId, setDetailMotorId] = useState(motorId);
+    const router = useRouter();
+    const [hargaRental, setHargaRental] = useState(0);
+    const [gambarMotor, setGambarMotor] = useState('');
     const [motors, setMotors] = useState([]);
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
@@ -63,17 +56,17 @@ export default function page() {
     const [penerimaan_motor, setPenerimaanMotor] = useState('');
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
-    const [hubungan_dengan_kontak_daruat, setHubunganDenganKontakDarurat] = useState('');
+    const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
     const [diskon_id, setDiskonId] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
-    const [total_harga, setTotalHarga] = useState('');
-    const [total_pembayaran, setTotalPembayaran] = useState('');
-    const [status_history, setStatusHistory] = useState('');
+    const [point, setPoint] = useState(0);
+    const [usePoint, setUsePoint] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('');
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
-    const [checkedValue, setCheckedValue] = useState('');
     const [clickedDiantar, setClickedDiantar] = useState(false);
     const [clickedAmbil, setClickedAmbil] = useState(false);
     const [clickedPenyewaDiriSendiri, setClickedPenyewaDiriSendiri] = useState(false);
@@ -81,62 +74,69 @@ export default function page() {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [HTMLResponse, setHTMLResponse] = useState('');
+    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
+    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [showInvoice, setShowInvoice] = useState(false);
+    const token = Cookies.get('token');
+    const id = Cookies.get('id');
+
+    useEffect(() => {
+        calculateTotalPembayaran();
+    }, [hargaRental, durasi, usePoint, diskon_id]);
+
+    const calculateTotalPembayaran = () => {
+        let totalPriceWithoutDiscount = hargaRental * durasi;
+
+        if (diskon_id) {
+            const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
+            if (selectedDiskon) {
+                const potonganHargaPercentage = selectedDiskon.potongan_harga;
+                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                totalPriceWithoutDiscount -= discountAmount;
+            }
+        }
+
+        if (usePoint) {
+            totalPriceWithoutDiscount -= point;
+        }
+
+        setTotalPembayaran(Math.round(totalPriceWithoutDiscount));
+        return Math.round(totalPriceWithoutDiscount);
+    };
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
-            const selectedDiskon = diskons.find((diskon) => diskon.id === selectedValue);
-            if (selectedDiskon) {
-                setDiskonId(selectedDiskon.id);
-                const potonganHargaPercentage = selectedDiskon.potongan_harga;
-                const totalPriceWithoutDiscount = rentalPrice * durasi;
-                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
-                const totalPembayaran = totalPriceWithoutDiscount - discountAmount;
-                setTotalPembayaran(totalPembayaran);
-                setTotalHarga(rentalPrice * durasi - selectedDiskon.potongan_harga);
-            }
-        };
-    }
-
-    const handleSelectChangeNamaMotor = (selectedValue) => {
-        // Make sure selectedValue is not undefined or null
-        if (selectedValue) {
-            // Find the selected motor by nama_motor
-            const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
-            if (selectedMotor) {
-                setMotorId(selectedMotor.id);
-                // Update rental price based on the selected motor's price
-                setRentalPrice(selectedMotor.harga_motor_per_1_hari);
-                setNamaMotor(selectedMotor.nama_motor)
-            }
+            setDiskonId(selectedValue);
         }
     };
 
-    const handleCheckboxChange = (event) => {
-        const { value, checked } = event.target;
-        if (checked) {
-            setPenyewa(value);
+    const handleCheckboxChange = (e) => {
+        const isChecked = e.target.checked;
+
+        const updatedTotal = calculateTotalPembayaran(isChecked);
+        if (updatedTotal === 0) {
+            setUsePoint(false);
+            showNotificationWithTimeout('Silahkan pilih motor terlebih dahulu', 'error');
+            scrollToTarget();
         } else {
-            setPenyewa('');
+            setUsePoint(isChecked);
         }
     };
 
-    const handleCheckboxChangePayment = (event) => {
-        const { value, checked } = event.target;
-        if (checked) {
-            setMetodePembayaran(value);
-        } else {
-            setMetodePembayaran('');
-        }
-    }
+    const scrollToTarget = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
 
     useEffect(() => {
-        const fetchMotor = async () => {
+        if (!detailId) return;
+        const fetchDetailMotor = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${detailId}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -147,7 +147,33 @@ export default function page() {
                 } else {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
-                    setMotors(data.listMotor || []); // Ensure data.listMotor is an array or default to empty array
+                    setGambarMotor(data.listMotor);
+                }
+            } catch (err) {
+                setError(`An error occurred: ${err.message}`);
+            }
+        };
+        fetchDetailMotor();
+    }, [detailId]);
+
+    useEffect(() => {
+        const fetchMotor = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    console.log('Fetched motor:', data);
+                    setMotors(data.listMotor || []);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -162,7 +188,7 @@ export default function page() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
                 if (response.status === 204) {
@@ -171,8 +197,8 @@ export default function page() {
                     setError(`Failed to fetch data: ${response.statusText}`);
                 } else {
                     const data = await response.json();
-                    console.log('Fetched motor:', data);
-                    setDiskons(data.diskon || []); // Ensure data.listMotor is an array or default to empty array
+                    console.log('Fetched discount:', data);
+                    setDiskons(data.diskon || []);
                 }
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -181,38 +207,216 @@ export default function page() {
         fetchData();
     }, []);
 
+    useEffect(() => {
+        const fetchPoint = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                if (response.status === 204) {
+                    setError('No content available');
+                } else if (!response.ok) {
+                    setError(`Failed to fetch data: ${response.statusText}`);
+                } else {
+                    const data = await response.json();
+                    setPoint(data.user.point);
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+            }
+        };
+        fetchPoint();
+    }, []);
+
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', `${process.env.MIDTRANS_CLIENT_KEY}`);
+        script.async = false;
+        script.onload = () => {
+            console.log('Midtrans Snap script loaded');
+        };
+        document.head.appendChild(script);
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const formData = new FormData();
-        formData.append('nama_lengkap', nama_lengkap);
-        formData.append('email', email);
-        formData.append('no_telp', no_telp);
-        formData.append('akun_sosmed', akun_sosmed);
-        formData.append('alamat', alamat);
-        formData.append('penyewa', penyewa);
-        formData.append('motor_id', motor_id);
-        formData.append('tanggal_mulai', tanggal_mulai);
-        formData.append('tanggal_selesai', tanggal_selesai);
-        formData.append('keperluan_menyewa', keperluan_menyewa);
-        formData.append('penerimaan_motor', penerimaan_motor);
-        formData.append('nama_kontak_darurat', nama_kontak_darurat);
-        formData.append('nomor_kontak_darurat', nomor_kontak_darurat);
-        formData.append('hubungan_dengan_kontak_darurat', hubungan_dengan_kontak_daruat);
-        formData.append('diskon_id', diskon_id);
-        formData.append('metode_pembayaran', metode_pembayaran);
-        formData.append('total_pembayaran', total_pembayaran);
-        formData.append('status_history', 'Menunggu Pembayaran');
+        if (metode_pembayaran === 'Tunai') {
+            await submitForm('Booking berhasil');
+        } else {
+            setLoading(true);
 
-        setLoading(true);
+            try {
+                const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        nama_lengkap,
+                        email,
+                        no_telp,
+                        akun_sosmed,
+                        alamat,
+                        penyewa,
+                        motor_id,
+                        tanggal_mulai,
+                        tanggal_selesai,
+                        keperluan_menyewa,
+                        penerimaan_motor,
+                        nama_kontak_darurat,
+                        nomor_kontak_darurat,
+                        hubungan_dengan_kontak_darurat,
+                        diskon_id,
+                        metode_pembayaran,
+                        total_pembayaran,
+                        status_history: 'Menunggu Pembayaran',
+                    }),
+                });
 
+                if (!historyResponse.ok) {
+                    throw new Error('Failed to create history');
+                }
+
+                const historyData = await historyResponse.json();
+                const order_id = historyData.history.id;
+                console.log('History Data:', historyData);
+
+                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${order_id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                if (!paymentResponse.ok) {
+                    throw new Error('Failed to get payment details');
+                }
+
+                const paymentData = await paymentResponse.json();
+                const snapToken = paymentData.snapToken;
+                console.log(`Snap Token: ${snapToken}, Order ID: ${order_id}`);
+                Cookies.set('order_id', order_id);
+
+                if (!snapToken || !order_id) {
+                    throw new Error('Snap Token or Order ID missing in the response');
+                }
+
+                window.snap.pay(snapToken, {
+                    onSuccess: async function (result) {
+                        showNotificationWithTimeout('Pembayaran berhasil!', 'success');
+                        console.log('Payment Success:', result);
+                        await updateHistoryStatus(historyData.history.id, 'Dipesan');
+
+                        try {
+                            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${order_id}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    status_history: 'Dipesan',
+                                }),
+                            });
+
+                            if (!updateResponse.ok) {
+                                throw new Error('Failed to update invoice status');
+                            }
+
+                            const updateData = await updateResponse.json();
+                            console.log('Invoice status update response:', updateData);
+
+                        } catch (error) {
+                            console.error('Error updating invoice status:', error);
+                        }
+
+                        if (usePoint) {
+                            const pointsToUse = Math.min(point, total_pembayaran);
+                            try {
+                                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${token}`
+                                    },
+                                    body: JSON.stringify({ point: point - pointsToUse }),
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to update points');
+                                }
+
+                                console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
+                            } catch (error) {
+                                console.error('Error updating points:', error);
+                            }
+                        }
+                        setShowInvoice(true);
+                    },
+                    onPending: async function (result) {
+                        showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
+                        console.log(result);
+
+                        await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
+                    },
+                    onError: async function (result) {
+                        showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
+                        console.log(result);
+
+                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                    },
+                    onClose: async function () {
+                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'error');
+
+                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                    }
+                });
+
+            } catch (error) {
+                showNotificationWithTimeout('Terjadi kesalahan saat mengirim data.', 'error');
+                console.error('Error:', error);
+                setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    const submitForm = async (successMessage) => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: formData,
+                body: JSON.stringify({
+                    nama_lengkap,
+                    email,
+                    no_telp,
+                    akun_sosmed,
+                    alamat,
+                    penyewa,
+                    motor_id,
+                    tanggal_mulai,
+                    tanggal_selesai,
+                    keperluan_menyewa,
+                    penerimaan_motor,
+                    nama_kontak_darurat,
+                    nomor_kontak_darurat,
+                    hubungan_dengan_kontak_darurat,
+                    diskon_id,
+                    metode_pembayaran,
+                    total_pembayaran,
+                    status_history: 'Dipesan',
+                }),
             });
 
             if (!response.ok) {
@@ -223,41 +427,85 @@ export default function page() {
             console.log('Success', data);
             setResponse(data);
 
-            if (response.status === 404) {
-                throw new Error(response.message); // Display the error message to the user
-            }
+            showNotificationWithTimeout(successMessage, 'success');
 
-            const id_payment = data.id;
-
-            const endpointURL = `${process.env.NEXT_PUBLIC_API_URL}/api/payment/8`;
-
-            const htmlResponse = await fetch(endpointURL, {
-                headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
-                },
-            });
-
-            if (!htmlResponse.ok) {
-                throw new Error('Failed to fetch payment details');
-            }
-
-            // Parse the HTML content from the response
-            const htmlData = await htmlResponse.text();
-            console.log('HTML Response:', htmlData);
-
-            // Set the HTML response data as needed
-            setHTMLResponse(htmlData);
-            setShowNotification(true);
-
-            setTimeout(() => {
-                setShowNotification(false);
-            }, 3000);
+            // router.push(`/payment-success?order_id=${data.id}`);
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {
             setLoading(false);
         }
     };
+
+    const updateHistoryStatus = async (id, status) => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status_history: status,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update history status');
+            }
+
+            const data = await response.json();
+            console.log('History status update:', data);
+        } catch (error) {
+            console.error('Error updating history status:', error);
+        }
+    };
+
+    const showNotificationWithTimeout = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
+
+        setTimeout(() => {
+            setShowNotification(false);
+        }, timeout);
+    };
+
+    useEffect(() => {
+        const fetchBookedDates = async () => {
+            if (!motor_id) return;
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+                const data = await response.json();
+
+                const disabledRanges = data.history
+                    .filter(item => item.motor_id === motor_id)
+                    .map(item => {
+                        const startDate = new Date(item.tanggal_mulai);
+                        const endDate = new Date(item.tanggal_selesai);
+                        const range = { from: startDate, to: addDays(endDate, 1) };
+                        return range;
+                    });
+                console.log('Disabled Ranges:', disabledRanges);
+
+                const today = startOfToday();
+
+                const disableBeforeToday = { before: today };
+
+                setDisabledDaysMulai([disableBeforeToday, ...disabledRanges]);
+                setDisabledDaysSelesai([disableBeforeToday, ...disabledRanges]);
+            } catch (error) {
+                console.error('Error fetching booked dates:', error);
+            }
+        };
+
+        fetchBookedDates();
+    }, [motor_id]);
 
     useEffect(() => {
         if (tanggal_mulai && tanggal_selesai) {
@@ -272,7 +520,16 @@ export default function page() {
 
     const handleDateStart = (date) => {
         if (date) {
-            setTanggalMulai(format(date, 'yyyy-MM-dd'));
+            const formattedDate = format(date, 'yyyy-MM-dd');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+
+            const minEndDate = addDays(date, 1);
+            const disableBeforeMinEndDate = { before: minEndDate };
+            const today = startOfToday();
+            const disableBeforeToday = { before: today };
+
+            setDisabledDaysSelesai([disableBeforeToday, disableBeforeMinEndDate, ...disabledDaysMulai]);
         } else {
             setTanggalMulai('');
         }
@@ -284,7 +541,21 @@ export default function page() {
         } else {
             setTanggalSelesai('');
         }
-    }
+    };
+
+    const handleSelectChangeNamaMotor = (selectedValue) => {
+        if (selectedValue) {
+            const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
+            if (selectedMotor) {
+                setDetailMotorId(selectedMotor.id);
+                setMotorId(selectedMotor.id);
+                setHargaRental(selectedMotor.harga_motor_per_1_hari);
+                setNamaMotor(selectedMotor.nama_motor);
+                setTanggalMulai('');
+                setTanggalSelesai('');
+            }
+        }
+    };
 
     const handleClickPenyewaDiriSendiri = () => {
         setClickedPenyewaDiriSendiri(true);
@@ -336,16 +607,15 @@ export default function page() {
 
     const openTermsModal = () => {
         setIsTermsModalOpen(true);
-    }
+    };
 
     const closeTermsModal = () => {
         setIsTermsModalOpen(false);
-    }
+    };
 
     return (
         <>
             <Navbar />
-            <div dangerouslySetInnerHTML={{ __html: HTMLResponse }} />
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <div className='text-[#666666] mb-5'>
                     <span className='font-semibold text-black md:text-xl text-base flex'>
@@ -358,7 +628,17 @@ export default function page() {
                 <form method="post" action="post" onSubmit={handleSubmit}>
                     <div className='flex lg:flex-row flex-col gap-5'>
                         <div className='flex lg:hidden flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
-                            <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
+                            <div className="w-[259px] h-[183px] relative">
+                                {gambarMotor && (
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
+                                        alt={gambarMotor.nama_motor}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="absolute inset-0"
+                                    />
+                                )}
+                            </div>
                             <div className='flex flex-col gap-5 '>
                                 <div className='flex flex-row gap-2 items-center '>
                                     <PiScroll className='' size='25' color='black' />
@@ -475,7 +755,17 @@ export default function page() {
                             </div>
                         </div>
                         <div className='hidden lg:flex flex-col rounded-xl px-5 py-5 items-center gap-3 bg-white'>
-                            <Image src='/images/motor/dummy.png' alt='motor' width={259} height={183} />
+                            <div className="w-[200px] h-[150px] relative">
+                                {gambarMotor && (
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
+                                        alt={gambarMotor.nama_motor}
+                                        layout="fill"
+                                        objectFit="cover"
+                                        className="absolute inset-0"
+                                    />
+                                )}
+                            </div>
                             <div className='flex flex-col gap-5 '>
                                 <div className='flex flex-row gap-2 items-center '>
                                     <PiScroll className='' size='25' color='black' />
@@ -531,8 +821,12 @@ export default function page() {
                                                             onChange={(value) => handleSelectChangeNamaMotor(value)}
                                                         >
                                                             {motors.map((motor) => (
-                                                                <Option key={motor.id} value={motor.nama_motor}>
-                                                                    {motor.nama_motor}
+                                                                <Option key={motor.id} value={motor.nama_motor} disabled={motor.status_motor !== 'Tersedia'} className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}>
+                                                                    <div className="flex items-center">
+                                                                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} width={40}
+                                                                            height={40} className="w-10 h-10 rounded-full mr-2" />
+                                                                        <span>{motor.nama_motor}</span>
+                                                                    </div>
                                                                 </Option>
                                                             ))}
                                                         </Select>
@@ -550,7 +844,7 @@ export default function page() {
                                                 <PopoverHandler>
                                                     <Input
                                                         required
-                                                        label="Select a Date"
+                                                        label="Pilih Tanggal Mulai"
                                                         onChange={() => null}
                                                         value={tanggal_mulai ? format(new Date(tanggal_mulai), "yyyy-MM-dd") : ""}
                                                     />
@@ -561,6 +855,7 @@ export default function page() {
                                                         selected={tanggal_mulai ? new Date(tanggal_mulai) : undefined}
                                                         onSelect={handleDateStart}
                                                         showOutsideDays
+                                                        disabled={disabledDaysMulai}
                                                         className="border-0"
                                                         classNames={{
                                                             caption: "flex justify-center py-2 mb-4 relative items-center",
@@ -605,7 +900,7 @@ export default function page() {
                                                 <PopoverHandler>
                                                     <Input
                                                         required
-                                                        label="Select a Date"
+                                                        label="Pilih Tanggal Selesai"
                                                         onChange={() => null}
                                                         value={tanggal_selesai ? format(new Date(tanggal_selesai), "yyyy-MM-dd") : ""}
                                                     />
@@ -616,6 +911,7 @@ export default function page() {
                                                         selected={tanggal_selesai ? new Date(tanggal_selesai) : undefined}
                                                         onSelect={handleDateEnd}
                                                         showOutsideDays
+                                                        disabled={disabledDaysSelesai}
                                                         className="border-0"
                                                         classNames={{
                                                             caption: "flex justify-center py-2 mb-4 relative items-center",
@@ -726,11 +1022,11 @@ export default function page() {
                                             <Label>
                                                 <div className='flex flex-row gap-1 items-center mt-2'>
                                                     <IoLocationSharp size='25' color='red' />
-                                                    <a href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
+                                                    <Link href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
                                                         <span className='font-semibold text-[#0194F3] text-sm hover:underline'>
                                                             Click Disini
                                                         </span>
-                                                    </a>
+                                                    </Link>
                                                 </div>
                                             </Label>
                                         </div>
@@ -785,7 +1081,7 @@ export default function page() {
                                             </span>
                                             <Input
                                                 label="Masukkan hubungan kontak darurat"
-                                                value={hubungan_dengan_kontak_daruat}
+                                                value={hubungan_dengan_kontak_darurat}
                                                 onChange={(e) => setHubunganDenganKontakDarurat(e.target.value)}
                                                 required
                                             />
@@ -818,7 +1114,7 @@ export default function page() {
                                             </Label>
                                             <Label>
                                                 <span className='font-medium text-sm'>
-                                                    Rp. {rentalPrice.toLocaleString()} (x{durasi})
+                                                    Rp. {hargaRental.toLocaleString()} (x{durasi})
                                                 </span>
                                             </Label>
                                         </div>
@@ -830,7 +1126,7 @@ export default function page() {
                                             </Label>
                                             <Label>
                                                 <span className='font-medium text-sm'>
-                                                    Rp. {(rentalPrice * durasi).toLocaleString()}
+                                                    Rp. {(hargaRental * durasi).toLocaleString()}
                                                 </span>
                                             </Label>
                                         </div>
@@ -844,10 +1140,11 @@ export default function page() {
                                                         <Select
                                                             label={`Pilih diskon`}
                                                             onChange={handleSelectChangeDiskon}
+                                                            value={diskons[0].id}
                                                         >
-                                                            {diskons.map((id_diskon) => (
-                                                                <Option key={id_diskon.id} value={id_diskon.id}>
-                                                                    {id_diskon.nama_diskon}
+                                                            {diskons.map((diskon) => (
+                                                                <Option key={diskon.id} value={diskon.id}>
+                                                                    {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
                                                                 </Option>
                                                             ))}
                                                         </Select>
@@ -866,12 +1163,14 @@ export default function page() {
                                             <Checkbox
                                                 id="points"
                                                 color='orange'
+                                                checked={usePoint}
+                                                onChange={handleCheckboxChange}
                                             />
                                             <div className='flex flex-row gap-1 items-center'>
                                                 <AiOutlineDollarCircle color='#FF4D30' size='23px' />
                                                 <Label>
                                                     <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        Gunakan Points
+                                                        {point} Gunakan Points
                                                     </span>
                                                 </Label>
                                             </div>
@@ -905,6 +1204,9 @@ export default function page() {
                                                 Cashless
                                             </div>
                                         </div>
+                                        {clickedPaymentTunai && (
+                                            <span className='text-[#FF4D33]'>Booking dengan pembayaran tunai hanya bisa dilakukan hari ini!</span>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -912,7 +1214,7 @@ export default function page() {
                         <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
                             <MdOutlineTimer size='22px' color='#149CF3' />
                             <span className='text-[#149CF3] text-sm font-medium'>
-                                Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
+                                Gunakan diskon di halaman pembayaran untuk harga yang lebih murah
                             </span>
                         </div>
                     </div>
@@ -941,10 +1243,13 @@ export default function page() {
                         </div>
                     </div>
                 </form>
+                {showInvoice && (
+                    <InvoicePopup onClose={() => setShowInvoice(false)} />
+                )}
                 {showNotification && (
-                    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
-                        <span>Data berhasil dikirim</span>
-                        <MdDone className="ml-2 text-white" />
+                    <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${notificationType === 'success' ? 'bg-green-500' : notificationType === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50`}>
+                        <span>{notificationMessage}</span>
+                        {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                     </div>
                 )}
             </div>

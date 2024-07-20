@@ -1,27 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/router';
 import { useState, useEffect, useRef } from 'react';
-import Image from "next/image";
+import Cookies from 'js-cookie';
 
 import {
     Card,
     CardHeader,
-    Typography,
     Button,
-    CardBody,
-    Chip,
-    CardFooter,
-    Avatar,
-    IconButton,
-    Tooltip,
     Input,
-    Select,
-    Option,
     Textarea
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
-import { MdError } from 'react-icons/md';
 
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
@@ -57,9 +46,9 @@ const Page = ({ params: { id } }) => {
     const [otpPopupVisible, setOtpPopupVisible] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
     const [loadingOtp, setLoadingOtp] = useState(false);
-    const [userId, setUserId] = useState(''); // Assuming you have the user ID
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
+    const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -87,7 +76,7 @@ const Page = ({ params: { id } }) => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                        'Authorization': `Bearer ${token}`
                     },
                 });
 
@@ -125,7 +114,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -140,7 +129,6 @@ const Page = ({ params: { id } }) => {
 
                 setUser((prevUser) => ({
                     ...prevUser,
-                    // Update only the fields that have been modified
                     ...(nama_pengguna && { nama_pengguna: data.user.nama_pengguna }),
                     ...(nama_lengkap && { nama_lengkap: data.user.nama_lengkap }),
                     ...(nomor_hp && { nomor_hp: data.user.nomor_hp }),
@@ -169,7 +157,7 @@ const Page = ({ params: { id } }) => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ email }),
             });
@@ -198,7 +186,7 @@ const Page = ({ params: { id } }) => {
             return;
         }
 
-        if (otp !== serverOtp.toString()) { // Check if the entered OTP matches the server OTP
+        if (otp !== serverOtp.toString()) {
             setErrorOtp('Invalid OTP. Please try again.');
             return;
         }
@@ -206,12 +194,11 @@ const Page = ({ params: { id } }) => {
         setLoadingOtp(true);
 
         try {
-            // Update the user's email using the edit endpoint
             const editResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/account/${id}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ email }),
             });
@@ -232,7 +219,7 @@ const Page = ({ params: { id } }) => {
                     setShowNotification(false);
                 }, 3000);
 
-                setOtpPopupVisible(false); // Close OTP popup
+                setOtpPopupVisible(false);
             }
         } catch (err) {
             setErrorOtp(`An error occurred: ${err.message}`);
@@ -259,7 +246,7 @@ const Page = ({ params: { id } }) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/account/${id}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: formData
             });
@@ -293,7 +280,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -334,7 +320,14 @@ const Page = ({ params: { id } }) => {
                             </nav>
                             <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Profile</h6>
                         </div>
-                        <NavbarAdmin />
+                        <div className="flex">
+                            <div className="md:order-1 sm:order-2 order-2">
+                                <NavbarAdmin />
+                            </div>
+                            <div className="order-1">
+                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            </div>
+                        </div>
                     </div>
                 </nav>
                 <div className="mt-12">
