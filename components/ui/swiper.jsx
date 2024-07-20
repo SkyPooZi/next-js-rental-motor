@@ -15,7 +15,7 @@ const SwiperComponent = () => {
     useEffect(() => {
         const fetchMotorcycles = async () => {
             const token = Cookies.get('token');
-            const url = `http://127.0.0.1:8000/api/list-motor/all`;
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`;
 
             try {
                 const response = await fetch(url, {
