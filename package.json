@@ -38,9 +38,9 @@
     "date-fns": "^3.6.0",
     "framer-motion": "^11.1.7",
     "input-otp": "^1.2.4",
+    "jose": "^5.6.3",
     "jspdf": "^2.5.1",
     "jspdf-autotable": "^3.8.2",
-    "jose": "^5.6.3",
     "mysql2": "^3.9.7",
     "next": "13.5.6",
     "next-auth": "^4.24.7",
@@ -64,8 +64,9 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@types/raf": "^3.4.3",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3"
+    "tailwindcss": "^3.4.7"
   }
 }
