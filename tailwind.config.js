@@ -19,6 +19,40 @@ module.exports = withMT({
       },
     },
     extend: {
+      margin: {
+        'view-pc': '9.625rem',
+        'section': '3.125rem',
+      },
+      colors: {
+        'primary': '#EB6957',
+        'secondary': '#315F74',
+      },
+      textColor: {
+        'black': '#333132',
+        'white': '#FFFFFF',
+        'highlight': '#EB6957',
+      },
+      fontSize: {
+        'fz-large': '2rem',
+        'fz-medium': '1.2rem',
+        'fz-small': '1rem',
+      },
+      fontWeight: {
+        'extra-bold': '800',
+        'bold': '700',
+        'semi-bold': '600',
+        'medium': '500',
+        'regular': '400',
+      },
+      fontFamily: {
+        'manrope': ['Manrope', 'sans-serif'],
+      },
+      borderRadius: {
+        'br-100': '6.25rem',
+        'br-50': '3.125rem',
+        'br-20': '1.25rem', 
+        'br-10': '0.625rem',
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

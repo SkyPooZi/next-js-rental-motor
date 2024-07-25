@@ -17,34 +17,28 @@ export default function About() {
     return (
         <>
             <Navbar />
-            <div className="flex flex-col justify-between bg-[#F6F7F9]">
-                <div className="container mx-auto flex flex-col lg:flex-row lg:items-center bg-transparent mt-12">
+            <div className="flex flex-col items-center bg-[#F6F7F9]">
+                <div className="container flex flex-col lg:flex-row lg:items-center bg-transparent mx-view-pc">
                     <div className="lg:w-1/2 pr-20">
-                        <h1 className="text-black mb-4 text-4xl font-extrabold">Tentang Kami</h1>
-                        <p className="text-black">
-                            <span className="block">Selamat datang di layanan sewa motor terpercaya di Kudus! </span>
-                            <span className="block">Kami adalah solusi transportasi andalan Anda, menyediakan</span>
-                            <span className="block">akses mudah dan nyaman ke berbagai destinasi di sekitar Kudus. Dengan komitmen kami untuk memberikan layanan terbaik, kami bangga menjadi mitra perjalanan pilihan bagi masyarakat lokal dan wisatawan. </span>
-                        </p>
-
-                        <div className="container mt-10 mb-8"></div>
-                        <h1 className="text-black mb-4 text-4xl font-extrabold">Layanan Kami</h1>
-                        <p className="text-black">
-                            <span className="block">Kami menyediakan berbagai pilihan motor berkualitas tinggi untuk memenuhi kebutuhan perjalanan Anda. Dengan tarif  </span>
-                            <span className="block">yang kompetitif dan proses penyewaan yang sederhana, kami memastikan pengalaman menyewa motor Anda</span>
-                            <span className="block">menjadi lancar dan menyenangkan. Kami juga menawarkan berbagai paket sewa harian, mingguan, dan bulanan yang dapat disesuaikan dengan kebutuhan Anda.</span>
-                        </p>
+                        <div className="container">
+                            <h1 className="text-black text-xl font-bold mb-4">Tentang Kami</h1>
+                            <p className="text-black text-base font-medium text-justify">Selamat datang di layanan sewa motor terpercaya di Kudus! Kami adalah solusi transportasi andalan Anda, menyediakan akses mudah dan nyaman ke berbagai destinasi di sekitar Kudus. Dengan komitmen kami untuk memberikan layanan terbaik, kami bangga menjadi mitra perjalanan pilihan bagi masyarakat lokal dan wisatawan.</p>
+                        </div>
+                        <div className="container mt-5">
+                            <h1 className="text-black text-xl font-bold mb-4">Layanan Kami</h1>
+                            <p className="text-black text-base font-medium text-justify">Kami menyediakan berbagai pilihan motor berkualitas tinggi untuk memenuhi kebutuhan perjalanan Anda. Dengan tarif yang kompetitif dan proses penyewaan yang sederhana, kami memastikan pengalaman menyewa motor anda menjadi lancar dan menyenangkan. Kami juga menawarkan berbagai paket sewa harian, mingguan, dan bulanan yang dapat disesuaikan dengan kebutuhan anda.</p>
+                        </div>
                     </div>
 
-                    <div className='lg:w-1/2 flex flex-col rounded-xl mb-12 items-start'>
-                        <Image src='/images/motor/Vespa.png' alt='motor' width={500} height={350} />
+                    <div className='flex flex-col rounded-xl items-center'>
+                        <Image src='/images/motor/Vespa.png' alt='motor' width={450} height={300} />
                     </div>
                 </div>
             </div>
 
-            <div className="bg-[#F6F7F9] flex justify-center items-center pt-12" style={{ minHeight: "30vh" }}>
-                <div className='container mx-auto px-4 text-black'>
-                    <p className="text-3xl font-bold text-center ">Keunggulan Kami</p>
+            <div className="bg-[#F6F7F9] flex justify-center items-center pt-12">
+                <div className='container mx-auto px-4'>
+                    <p className="text-black text-3xl font-bold text-center ">Keunggulan Kami</p>
                 </div>
             </div>
 
