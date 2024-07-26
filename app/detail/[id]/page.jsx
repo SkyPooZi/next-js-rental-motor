@@ -1,14 +1,15 @@
-// app/detail/[id]/page.jsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Cookies from 'js-cookie';
+import ReviewCard from '../../../components/sub/reviewCard';
 
 const Detail = () => {
     const router = useRouter();
-    const { id } = useParams(); // Use useParams to get the id
-    const [motor, setMotor] = useState([]); // Initialize motor as null
+    const { id } = useParams();
+    const [motor, setMotor] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -22,7 +23,6 @@ const Detail = () => {
                     },
                 });
                 const data = await response.json();
-
                 if (data.status === 200) {
                     setMotor(data.listMotor);
                 } else {
@@ -33,9 +33,35 @@ const Detail = () => {
             }
         };
 
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch('https://rental-motor.ruscarestudent.com/api/review/all', {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                if (data.status === 200) {
+                    setReviews(data.review);
+                } else {
+                    console.error('Unexpected response status:', data.status);
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+            }
+        };
+
         fetchMotor();
+        fetchReviews();
     }, [id]);
 
+    if (!motor) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <p>Loading...</p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col justify-center items-center min-h-screen bg-white">
@@ -49,10 +75,10 @@ const Detail = () => {
                             className="w-96 h-auto object-cover rounded-lg mt-20"
                         />
                         <div className="flex justify-between sm:w-full lg:w-1/2 mt-10">
-                            <div className="mx-3 md:mx-0 md:mr-20 md:text-left lg:text-right">
+                            <div className="mx-3 md:mx-0 md:mr-20 md:text-left lg:text-right text-black">
                                 <p>Daily: <span className="font-bold text-black">{motor.harga_motor_per_1_hari?.toLocaleString('id-ID')}</span></p>
                             </div>
-                            <div className="mx-3 md:mx-0 md:mr-0 lg:mx-0 md:text-left lg:text-right">
+                            <div className="mx-3 md:mx-0 md:mr-0 lg:mx-0 md:text-left lg:text-right text-black">
                                 <p className="text-right md:text-left lg:text-right">Weekly: <span className="font-bold text-black">{motor.harga_motor_per_1_minggu?.toLocaleString('id-ID')}</span></p>
                             </div>
                         </div>
@@ -82,33 +108,10 @@ const Detail = () => {
             </div>
 
             <div className="p-8 mt-8 w-3/4">
-                <h2 className="text-2xl font-bold mb-6 text-center">Ulasan</h2>
+                <h2 className="text-2xl font-bold text-black mb-6 text-center">Ulasan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {Array(3).fill().map((_, index) => (
-                        <div key={index} className="max-w-sm rounded overflow-hidden shadow-lg p-4 bg-white">
-                            <div className="flex items-center mb-4">
-                                <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                                <div className="ml-4 text-black">
-                                    <div className="font-bold text-xl">Adam Aji Langit</div>
-                                    <div className="flex">
-                                        <span className="text-yellow-500">&#9733;</span>
-                                        <span className="text-yellow-500">&#9733;</span>
-                                        <span className="text-yellow-500">&#9733;</span>
-                                        <span className="text-yellow-500">&#9733;</span>
-                                        <span className="text-gray-300">&#9733;</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="mb-4">
-                                <div className="flex space-x-2">
-                                    <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                    <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                </div>
-                            </div>
-                            <p className="text-gray-700 text-base">
-                                Aliqua id fugiat nostrud irure ex duis ea quis id quis ad et. Sunt qui esse pariatur duis deserunt mollit dolore cillum minim tempor enim. Elit aute irure tempor cupidatat incididunt sint.
-                            </p>
-                        </div>
+                    {reviews.map(review => (
+                        <ReviewCard key={review.id} review={review} />
                     ))}
                 </div>
             </div>
