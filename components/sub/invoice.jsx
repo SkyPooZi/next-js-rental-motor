@@ -7,18 +7,17 @@ import 'jspdf-autotable';
 import { AiOutlineClose } from 'react-icons/ai';
 import { AiOutlineFilePdf } from 'react-icons/ai';
 
-const InvoicePopup = ({ onClose }) => {
+const InvoicePopup = ({ onClose, orderId }) => {
     const [invoiceData, setInvoiceData] = useState(null);
     const [discountedTotal, setDiscountedTotal] = useState(0);
     const [discountAmount, setDiscountAmount] = useState(0);
     const [hari, setHari] = useState(0);
     const token = Cookies.get('token');
-    const order_id = Cookies.get('order_id');
 
     useEffect(() => {
         const fetchInvoice = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/detail/${order_id}`, {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/detail/${orderId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -35,7 +34,7 @@ const InvoicePopup = ({ onClose }) => {
         };
 
         fetchInvoice();
-    }, [order_id]);
+    }, [orderId]);
 
     const {
         midtrans
