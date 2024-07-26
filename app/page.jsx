@@ -1,14 +1,61 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import NavbarAfter from '@/components/main/NavbarAfter';
 import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import SwiperComponent from '@/components/ui/swiper';
 import Cookies from 'js-cookie';
+import Image from 'next/image';  
+
+
+const Motor = ({ motor }) => {
+    const router = useRouter();
+
+    const handleFormRedirect = () => {
+        router.push('/form');
+    };
+
+    const handleDetailRedirect = (id) => {
+        router.push(`/detail/${id}`);
+    };
+
+    return (
+        <div className="border border-gray-300 rounded-lg p-4 shadow-md flex flex-col items-center">
+            <div className="flex justify-center mb-4">
+                <Image
+                    src={`https://rental-motor.ruscarestudent.com/storage/${motor.gambar_motor}`}
+                    alt={motor.nama_motor}
+                    width={1000}
+                    height={1000}
+                    className="rounded-lg"
+                />
+            </div>
+            <div className="text-center">
+                <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-2 text-black">{motor.nama_motor}</h3>
+                <div className="mb-2">
+                    <span className="font-bold text-black">Daily: </span>
+                    <span className="font-bold text-black">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="mb-4">
+                    <span className="font-bold text-black">Weekly: </span>
+                    <span className='font-bold text-black'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
+                </div>
+                <div className="flex flex-col items-center mb-2">
+                    <button onClick={handleFormRedirect} className="bg-[#FF4D30] hover:bg-red-800 text-white py-2 px-4 sm:px-6 rounded mb-2">Booking Now!</button>
+                    <button onClick={() => handleDetailRedirect(motor.id)} className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Home() {
+    const token = Cookies.get('token');
+    const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
+    const [motors, setMotors] = useState([]);
+    const [filteredMotors, setFilteredMotors] = useState([]);
 
     const router = useRouter();
 
@@ -20,17 +67,72 @@ export default function Home() {
         router.push('/form');
     };
 
-    const handleLogout = () => {
-        // Remove the token from cookies
-        Cookies.remove('token');
-        // Redirect to the login page
-        router.push('/login');
-    };
+
+    const navbar = () => {
+        if (token == null) {
+            return <NavbarAfter />
+        } else {
+            return <Navbar />
+        }
+    }
+
+    useEffect(() => {
+        const fetchMotors = async () => {
+            const token = Cookies.get('token');
+
+            if (!token) {
+                console.error('Token not found');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    setMotors(data.listMotor);
+                    setFilteredMotors(data.listMotor);
+                } else {
+                    console.error('Unexpected response status:', data.status);
+                }
+            } catch (error) {
+                console.error('Error fetching motor data:', error);
+            }
+        };
+
+        fetchMotors();
+    }, []);
+
+    useEffect(() => {
+        let filtered = motors;
+
+        if (selectedFilter !== 'All') {
+            filtered = motors.filter(motor => {
+                if (selectedFilter === 'Matic') {
+                    return motor.tipe_motor.includes('Matic');
+                }
+                if (selectedFilter === 'Sport') {
+                    return motor.tipe_motor === 'Sport';
+                }
+                return true;
+            });
+        }
+
+        setFilteredMotors(filtered);
+    }, [selectedFilter, motors]);
 
     return (
         <>
-
-            <Navbar />
+            {navbar()}
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F7F9]">
                 <div className="text-center mt-12">
                     <h1 className="text-3xl md:text-5xl font-bold text-black">
@@ -40,9 +142,6 @@ export default function Home() {
                         Sewa Motor dengan Mudah,<br />
                         Rasakan Kemudahan Tanpa Batas!
                     </p>
-                    <button onClick={handleLogout} className="text-black bg-blue-gray-300">
-                        Logout
-                    </button>
                     <div className="flex justify-center items-center mt-6">
                         <button className="px-6 py-2 bg-[#FF4D30] text-white font-semibold rounded hover:bg-red-800 flex items-center" onClick={handleCatalogRedirect}>
                             <img src="/images/icon-calendar.png" alt="Kalender" className="mr-2" />
@@ -60,7 +159,7 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center bg-white min-h-screen mt-[130px]">
+                <div className="flex flex-col items-center bg-white mt-[100px] mb-[100px]">
                     <div className="bg-white w-full flex flex-col items-center p-6 md:flex-row md:justify-between md:p-12">
                         <div className="md:w-1/2 flex justify-center">
                             <img src="/images/motor/dummy.png" alt="Motorbike" className="w-full md:w-3/4" />
@@ -79,7 +178,7 @@ export default function Home() {
                     </div>
                 </div>
 
-                <div className="flex flex-col items-center justify-center bg-[#FF4D30] text-white py-8 w-full -mt-16">
+                <div className="flex flex-col items-center justify-center bg-[#FF4D30] text-white py-8 w-full">
                     <p className="text-lg text-center mt-2">Rencanakan perjalanan Anda sekarang</p>
                     <h1 className="text-3xl font-bold text-center">Penyewaan Cepat & Mudah</h1>
                     <div className="flex justify-center items-center mt-8 w-full">
@@ -99,38 +198,28 @@ export default function Home() {
                 </div>
 
                 <div className="p-8 mt-[130px]">
-                    <div className="flex justify-between items-center flex-col md:flex-row mb-6">
-                        <h2 className="text-2xl md:text-3xl font-bold text-center md:text-left text-black">Pilihan Motor</h2>
-                        <div className="flex space-x-4 mt-4 md:mt-0">
-                            <a href="#" className="text-[#FF4D30] border-b-2 border-[#FF4D30]">Rekomendasi</a>
-                            <a href="#" className="text-gray-600">Matic</a>
-                            <a href="#" className="text-gray-600">Manual</a>
+                    <div className="flex flex-col items-center p-5 min-h-screen w-full overflow-x-hidden">
+                        <div className="w-full max-w-6xl mb-5">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold text-black">Pilihan Motor</h1>
+                                <div className="flex gap-1 sm:gap-3 ">
+                                    {['All', 'Matic', 'Sport'].map(filter => (
+                                        <button
+                                            key={filter}
+                                            className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 ${selectedFilter === filter ? 'border-[#FF4D30]' : 'border-transparent'}`}
+                                            onClick={() => setSelectedFilter(filter)}
+                                        >
+                                            <span className="text-sm sm:text-base lg:text-lg text-black">{filter}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-
-                    <div className="bg-white p-4 rounded-lg">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-black">
-                            {Array(3)
-                                .fill()
-                                .map((_, index) => (
-                                    <div key={index} className="bg-white rounded-lg shadow p-4">
-                                        <img
-                                            src="/images/motor/dummy.png"
-                                            alt="Motor"
-                                            className="w-full h-48 object-cover rounded-t-lg"
-                                        />
-                                        <h3 className="text-center font-bold my-2 mt-4 md:mt-10">Nama Motor</h3>
-                                        <div className="flex justify-around my-2 mt-4">
-                                            <p>Daily: <br />50K</p>
-                                            <p>Weekly: <br />320K</p>
-                                        </div>
-                                        <div className="text-center mt-4">
-                                            <button onClick={handleFormRedirect} className="bg-white text-[#FF4D30] border border-[#FF4D30] px-8 py-2 font-bold hover:bg-[#FF4D30] hover:text-white transition mt-10">Booking Now!</button>
-                                            <p onClick={handleCatalogRedirect} className="text-[#FF4D30] mt-2">Lihat detail</p>
-                                        </div>
-                                    </div>
-                                ))}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl bg-white">
+                            {filteredMotors.map((motor, index) => (
+                                <Motor key={index} motor={motor} />
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -203,7 +292,7 @@ export default function Home() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
             <Footer />
         </>
     );

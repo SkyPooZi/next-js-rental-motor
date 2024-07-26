@@ -1,8 +1,7 @@
 'use client';
-
-import React from "react";
-import { useState, useEffect } from 'react';
+import { React, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import Image from "next/image";
 
 import { MdHistory } from "react-icons/md";
 import { FaStar } from "react-icons/fa";
@@ -20,6 +19,7 @@ import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
+import { redirect } from "next/dist/server/api-utils";
 import Discount from "@/components/sub/admin/discount";
 
 export default function Dashboard() {

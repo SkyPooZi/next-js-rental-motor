@@ -58,18 +58,20 @@ const LoginPage = () => {
       console.log('User data:', user);
       const token = data.access_token;
       console.log('Token:', token);
-      const id = data.user.id;
+      const id = user.id;
       console.log("user id :", id);
+      const role = user.peran;
+      console.log('Peran :', role)
 
       Cookies.set('token', token);
       Cookies.set('id', id);
+      Cookies.set('role', role);
 
       if (user && user.email === email) {
-        console.log('User role:', user.peran);
-        if (user.peran === 'admin') {
-          router.push('/admin');
-        } else {
+        if (role !== 'admin') {
           router.push('/');
+        } else {
+          router.push('/admin');
         }
       } else {
         setError('Invalid email or password');

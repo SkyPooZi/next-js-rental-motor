@@ -1,14 +1,26 @@
-// middleware.js
 import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   const token = request.cookies.get('token');
+  const role = request.cookies.get('role');
 
-  if(token == null){
+  if (token == null) {
     return NextResponse.redirect(new URL("/login", request.url));
+  }
+
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+  }
+
+  if (request.nextUrl.pathname.startsWith('/settings')) {
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 }
 
 export const config = {
-  matcher: ['/admin', '/catalog', '/form', '/'], // List all paths that need protection
+  matcher: ['/admin', '/settings', '/form'],
 };
