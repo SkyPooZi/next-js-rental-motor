@@ -7,8 +7,8 @@ import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import SwiperComponent from '@/components/ui/swiper';
 import Cookies from 'js-cookie';
-import Image from 'next/image';  
-
+import Image from 'next/image';
+import ReviewCard from '@/components/sub/ReviewCard';  // Import ReviewCard
 
 const Motor = ({ motor }) => {
     const router = useRouter();
@@ -56,6 +56,7 @@ export default function Home() {
     const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
     const [motors, setMotors] = useState([]);
     const [filteredMotors, setFilteredMotors] = useState([]);
+    const [reviews, setReviews] = useState([]);
 
     const router = useRouter();
 
@@ -66,7 +67,6 @@ export default function Home() {
     const handleFormRedirect = () => {
         router.push('/form');
     };
-
 
     const navbar = () => {
         if (token == null) {
@@ -129,6 +129,24 @@ export default function Home() {
 
         setFilteredMotors(filtered);
     }, [selectedFilter, motors]);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch('https://rental-motor.ruscarestudent.com/api/review/all');
+                const data = await response.json();
+                if (data.status === 200) {
+                    setReviews(data.review);
+                } else {
+                    console.error('Unexpected response status:', data.status);
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+            }
+        };
+
+        fetchReviews();
+    }, []);
 
     return (
         <>
@@ -224,35 +242,11 @@ export default function Home() {
                     </div>
                 </div>
 
-
                 <div className="p-8 mt-[130px]">
                     <h2 className="text-2xl font-bold mb-6 text-center text-black">Ulasan</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Array(3).fill().map((_, index) => (
-                            <div key={index} className="max-w-sm rounded overflow-hidden shadow-lg p-4 bg-white">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                                    <div className="ml-4">
-                                        <div className="font-bold text-xl text-black">Adam Aji Langit</div>
-                                        <div className="flex">
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-gray-300">&#9733;</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <div className="flex space-x-2">
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                    </div>
-                                </div>
-                                <p className="text-gray-700 text-base">
-                                    Aliqua id fugiat nostrud irure ex duis ea quis id quis ad et. Sunt qui esse pariatur duis deserunt mollit dolore cillum minim tempor enim. Elit aute irure tempor cupidatat incididunt sint.
-                                </p>
-                            </div>
+                        {reviews.map((review, index) => (
+                            <ReviewCard key={index} review={review} />
                         ))}
                     </div>
                 </div>
