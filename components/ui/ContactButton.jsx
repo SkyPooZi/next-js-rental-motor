@@ -1,22 +1,20 @@
 'use client';
-import * as React from "react"
-
+import * as React from "react";
+import ReactWhatsapp from 'react-whatsapp';
 
 const ContactButton = () => {
-    const handleWhatsAppClick = () => {
-      const phoneNumber = '087724120732'; // Replace with your phone number
-      const whatsappUrl = `https://wa.me/${phoneNumber}`;
-      window.open(whatsappUrl, '_blank');
-    };
-  
+    const phoneNumber = '+62 877-2412-0732';
+    const message = 'Halo, saya ingin bertanya mengenai website Rental Motor Kudus';
+
     return (
-      <button 
-        className="bg-white text-[#FF4D30] py-2 px-4 rounded-full"
-        onClick={handleWhatsAppClick}
-      >
-        Hubungi Untuk Tanya Tanya
-      </button>
+        <ReactWhatsapp 
+            number={phoneNumber}
+            message={message}
+            className="bg-white text-[#FF4D30] py-2 px-4 rounded-full"
+        >
+            Hubungi Untuk Tanya Tanya
+        </ReactWhatsapp>
     );
-  };
-  
-  export default ContactButton;
+};
+
+export default ContactButton;
