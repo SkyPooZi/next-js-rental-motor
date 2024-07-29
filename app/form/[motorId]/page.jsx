@@ -24,6 +24,7 @@ import {
     Popover,
     PopoverHandler,
     PopoverContent,
+    Radio,
 } from "@material-tailwind/react";
 import { format, differenceInDays, addDays, startOfToday } from "date-fns";
 import { DayPicker } from "react-day-picker";
@@ -34,6 +35,7 @@ import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
 import Navbar from '@/components/main/Navbar';
+
 
 export default function page({ params: { motorId } }) {
     const [detailId, setDetailMotorId] = useState(motorId);
@@ -734,14 +736,14 @@ export default function page({ params: { motorId } }) {
                                     </div>
                                     <div className="flex flex-col md:flex-row gap-5">
                                         <div className={`flex flex-row items-center cursor-pointer`}>
-                                            <Checkbox
+                                            <Radio
                                                 checked={clickedPenyewaDiriSendiri}
                                                 onChange={handleClickPenyewaDiriSendiri}
                                             />
                                             Diri Sendiri
                                         </div>
                                         <div className={`flex flex-row items-center cursor-pointer`}>
-                                            <Checkbox
+                                            <Radio
                                                 checked={clickedPenyewaOrangLain}
                                                 onChange={handleClickPenyewaOrangLain}
                                             />
@@ -994,18 +996,33 @@ export default function page({ params: { motorId } }) {
                                     </div>
                                     <div className='flex flex-row gap-5'>
                                         <div className={`flex flex-row items-center cursor-pointer ${clickedAmbil ? 'clicked' : ''}`} onClick={handleClickAmbil}>
-                                            <Checkbox
+                                            <Radio
                                                 checked={clickedAmbil}
                                                 onChange={handleClickAmbil}
                                             />
                                             Diambil
                                         </div>
+                                        {clickedAmbil && (
+                                            <div className="mt-2">
+                                                <iframe
+                                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.872378039436!2d110.89978167475574!3d-6.785381493211696!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e70db4255192741%3A0x6e1d151b0d52676c!2sSewa%20Motor%20Kudus!5e0!3m2!1sid!2sid!4v1722223502208!5m2!1sid!2sid"
+                                                    width="1200"
+                                                    height="500"
+                                                    allowFullScreen=""
+                                                    loading="eager"
+                                                    referrerPolicy="no-referrer-when-downgrade"
+                                                ></iframe>
+                                            </div>
+                                        )}
                                         <div className={`flex flex-row items-center cursor-pointer ${clickedDiantar ? 'clicked' : ''}`} onClick={handleClickDiantar}>
-                                            <Checkbox
+                                            <Radio
                                                 checked={clickedDiantar}
                                                 onChange={handleClickDiantar}
                                             />
                                             Diantar
+                                            {clickedDiantar && (
+                                                <span className="ml-2">biaya per km</span>
+                                            )}
                                         </div>
                                     </div>
                                     <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
@@ -1130,6 +1147,57 @@ export default function page({ params: { motorId } }) {
                                                 </span>
                                             </Label>
                                         </div>
+                                        {diskonApplied > 0 && (
+                                            <div className='flex flex-row justify-between'>
+                                                <Label>
+                                                    <span className='font-medium text-sm text-[#FF4D30]'>
+                                                        Diskon ({diskonName})
+                                                    </span>
+                                                </Label>
+                                                <Label>
+                                                    <span className='font-medium text-sm text-[#FF4D30]'>
+                                                        -Rp. {diskonAmount.toLocaleString()}
+                                                    </span>
+                                                </Label>
+                                            </div>
+                                        )}
+                                        {usePoint && (
+                                            <div className='flex flex-row justify-between'>
+                                                <Label>
+                                                    <span className='font-medium text-sm text-[#FF4D30]'>
+                                                        Poin ({point} digunakan)
+                                                    </span>
+                                                </Label>
+                                                <Label>
+                                                    <span className='font-medium text-sm text-[#FF4D30]'>
+                                                        -Rp. {pointsAmount.toLocaleString()}
+                                                    </span>
+                                                </Label>
+                                            </div>
+                                        )}
+                                        <div className='flex flex-row gap-2 mt-2 items-center'>
+                                            <Radio
+                                                id="points"
+                                                color='orange'
+                                                checked={usePoint}
+                                                onChange={handleCheckboxChange}
+                                            />
+                                            <div className='flex flex-row gap-1 items-center'>
+                                                <AiOutlineDollarCircle color='#FF4D30' size='23px' />
+                                                <Label>
+                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
+                                                        {point} Gunakan Points
+                                                    </span>
+                                                </Label>
+                                            </div>
+                                        </div>
+                                        <div className='flex flex-row justify-end mt-2'>
+                                            <Label>
+                                                <span className='font-medium md:text-base text-xs'>
+                                                    Rp. {total_pembayaran.toLocaleString()}
+                                                </span>
+                                            </Label>
+                                        </div>
                                         <div className='flex flex-row justify-end'>
                                             <div className='w-full max-w-[368px] flex flex-col gap-2'>
                                                 <span className="text-black">
@@ -1152,30 +1220,9 @@ export default function page({ params: { motorId } }) {
                                                 )}
                                             </div>
                                         </div>
-                                        <div className='flex flex-row justify-end mt-2'>
-                                            <Label>
-                                                <span className='font-medium md:text-base text-xs'>
-                                                    Rp. {total_pembayaran.toLocaleString()}
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className='flex flex-row gap-2 mt-2 items-center'>
-                                            <Checkbox
-                                                id="points"
-                                                color='orange'
-                                                checked={usePoint}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <div className='flex flex-row gap-1 items-center'>
-                                                <AiOutlineDollarCircle color='#FF4D30' size='23px' />
-                                                <Label>
-                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        {point} Gunakan Points
-                                                    </span>
-                                                </Label>
-                                            </div>
-                                        </div>
+
                                         <div className="border-t border-[#757575] mt-2"></div>
+
                                         <div className='flex flex-row justify-between'>
                                             <Label>
                                                 <span className='font-medium text-base'>
@@ -1190,14 +1237,14 @@ export default function page({ params: { motorId } }) {
                                         </div>
                                         <div className='flex flex-row gap-12 mt-2 '>
                                             <div className={`flex flex-row items-center cursor-pointer`}>
-                                                <Checkbox
+                                                <Radio
                                                     checked={clickedPaymentTunai}
                                                     onChange={handleClickPaymentTunai}
                                                 />
                                                 Tunai
                                             </div>
                                             <div className={`flex flex-row items-center cursor-pointer`}>
-                                                <Checkbox
+                                                <Radio
                                                     checked={clickedPaymentCashless}
                                                     onChange={handleClickPaymentCashless}
                                                 />
@@ -1205,7 +1252,11 @@ export default function page({ params: { motorId } }) {
                                             </div>
                                         </div>
                                         {clickedPaymentTunai && (
-                                            <span className='text-[#FF4D33]'>Booking dengan pembayaran tunai hanya bisa dilakukan hari ini!</span>
+                                            <div>
+                                                <span className='text-[#FF4D33]'>Booking dengan pembayaran tunai hanya bisa dilakukan hari ini!</span>
+                                                <br />
+                                                <span className='text-[#FF4D33]'>Tidak bisa reschedule jika Tunai</span>
+                                            </div>
                                         )}
                                     </div>
                                 </div>
@@ -1218,6 +1269,7 @@ export default function page({ params: { motorId } }) {
                             </span>
                         </div>
                     </div>
+
                     <div className='flex flex-col w-full'>
                         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                             <div className='flex flex-col gap-8'>
