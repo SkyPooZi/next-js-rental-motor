@@ -24,13 +24,13 @@ module.exports = withMT({
         'section': '3.125rem',
       },
       colors: {
-        'primary': '#EB6957',
+        'primary': '#FF4D30',
         'secondary': '#315F74',
       },
       textColor: {
         'black': '#333132',
         'white': '#FFFFFF',
-        'highlight': '#EB6957',
+        'highlight': '#FF4D30',
       },
       fontSize: {
         'fz-large': '2rem',
@@ -45,10 +45,7 @@ module.exports = withMT({
         'regular': '400',
       },
       fontFamily: {
-        'manrope': ['Manrope', 'sans-serif'],
-        'uni-sans': ['Uni Sans', 'sans-serif'],
-        'poppins': ['Poppins', 'sans-serif'],
-        'dosis': ['Dosis', 'sans-serif'],
+        'poppins': ['Poppins', 'Montserrat', 'Manrope'],
       },
       borderRadius: {
         'br-100': '6.25rem',
