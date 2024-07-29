@@ -8,15 +8,19 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (role === 'user' && request.nextUrl.pathname.startsWith('/admin')) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
-  if(role === 'admin' && request.nextUrl.pathname.startsWith('/')){
-    return NextResponse.redirect(new URL("/admin", request.url));
+  if (request.nextUrl.pathname.startsWith('/settings')) {
+    if (role !== 'admin') {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 }
 
 export const config = {
-  matcher: ['/admin', '/catalog', '/form', '/', '/about', '/detail'],
+  matcher: ['/admin', '/settings', '/form'],
 };

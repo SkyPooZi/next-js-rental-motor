@@ -1,64 +1,94 @@
 "use client";
 
-import { React, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Cookies from "js-cookie";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 import SeeRatingModal from "@/components/sub/seeRatingModal";
+import { fetchDoneRentAfter } from "@/utils/services/fetchDoneRentAfter";
 
 export default function DoneRentAfter() {
+    const [doneRentAfterDetails, setDoneRentAfterDetails] = useState([]);
+    const [historyId, setHistoryId] = useState(null);
+    const [selectedDetail, setSelectedDetail] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const token = Cookies.get('token');
 
-    const openModal = () => {
+    useEffect(() => {
+        const getDoneRentDetails = async () => {
+            try {
+                const data = await fetchDoneRentAfter(token);
+
+                if (data) {
+                    setDoneRentAfterDetails(data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment details:', error);
+            }
+        };
+
+        getDoneRentDetails();
+    }, [token]);
+
+    const openModal = (detail) => {
+        setHistoryId(detail.id);
+        setSelectedDetail(detail);
         setIsModalOpen(true);
     };
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setSelectedDetail(null);
     };
 
-    return (
-        <div className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
-            <div className="flex flex-row gap-3 justify-between">
-                <div className="flex flex-row gap-2">
-                    <Image src='/images/motor/dummy.png' alt='motor' width={70} height={0} />
-                    <div className="flex flex-col gap-1">
+    return doneRentAfterDetails.length > 0 ? (
+        doneRentAfterDetails.map((detail) => (
+            <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                <div className="flex flex-col md:flex-row gap-3 justify-between">
+                    <div className="flex flex-row gap-2">
+                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
+                        <div className="flex flex-col gap-1">
+                            <Label>
+                                <span className="text-base">
+                                    {detail.list_motor.nama_motor || 'Motor'}
+                                </span>
+                            </Label>
+                            <Label>
+                                <span className="text-base">
+                                    {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                </span>
+                            </Label>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1 items-end">
                         <Label>
-                            <span className="text-base">
-                                Motor
-                            </span>
-                        </Label>
-                        <Label>
-                            <span className="text-base">
-                                08-03-2024 - 09-03-2024
+                            <span className="font-bold">
+                                Selesai
                             </span>
                         </Label>
                     </div>
                 </div>
-                <div className="flex flex-col gap-1 items-end">
-                    <Label>
-                        <span className="font-bold">
-                            SELESAI
-                        </span>
-                    </Label>
+                <div className="border-t border-[#FF4D30] mt-2"></div>
+                <div className="w-full flex flex-row gap-2 justify-end">
+                    <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
+                        <Button>
+                            <Label>
+                                <span className="cursor-pointer">
+                                    Tampilkan Ulasan
+                                </span>
+                            </Label>
+                        </Button>
+                    </a>
+                    {selectedDetail && (
+                        <SeeRatingModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} detail={selectedDetail} />
+                    )}
                 </div>
             </div>
-            <div className="border-t border-[#FF4D30] mt-2"></div>
-            <div className="border-t border-[#FF4D30] mt-2"></div>
-            <div className="w-full flex flex-row gap-2 justify-end">
-                <a className="hover:underline cursor-pointer " onClick={openModal}>
-                    <Button>
-                        <Label>
-                            <span className="cursor-pointer">
-                                Tampilkan Ulasan
-                            </span>
-                        </Label>
-                    </Button>
-                </a>
-                <SeeRatingModal isOpen={isModalOpen} onClose={closeModal} />
-            </div>
-        </div>
+        ))
+    ) : (
+        null
     );
 }

@@ -8,14 +8,14 @@ import { AiOutlineHistory, AiOutlineDollarCircle } from "react-icons/ai";
 import { RiLogoutCircleLine } from "react-icons/ri";
 import { FiInfo } from "react-icons/fi";
 
+import { Label } from "@/components/ui/label";
+import { DefaultSpeedDial } from "@/components/ui/defaultSpeedDial";
 import Profile from "@/components/sub/profile";
 import Point from "@/components/sub/point";
 import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
-import { Label } from "@/components/ui/label";
-import NavbarAfter from "@/components/main/NavbarAfter";
-import Footer from "@/components/main/Footer";
 import Navbar from "@/components/main/Navbar";
+import Footer from "@/components/main/Footer";
 
 export default function Settings() {
 
@@ -43,9 +43,11 @@ export default function Settings() {
     return (
         <>
             <Navbar />
-            <div className="h-full w-full px-24 py-16 bg-[#F6F7F9]">
-                <div className="flex flex-row gap-8">
-                    <div className="w-full max-w-[240px] h-fit flex flex-col gap-2 py-5 px-2 rounded-md bg-white">
+            <div className="h-full w-full px-2 py-10 md:px-24 md:py-16 bg-[#F6F7F9]">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
+                    <div className="w-full hidden max-w-[240px] h-fit lg:flex flex-col gap-2 py-5 px-2 rounded-md bg-white">
+                        <span className="text-lg">Settings</span>
+                        <div className="border-t border-[#FF4D30] mt-2"></div>
                         <button onClick={() => handleButtonClick('profile')}>
                             <div className={`flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md hover:bg-[#FF4D30] hover:text-white hover:duration-500 ${activeComponent === 'profile' ? 'bg-[#FF4D30] text-white' : ''}`}>
                                 <CgProfile size='25' />
@@ -79,7 +81,7 @@ export default function Settings() {
                             </div>
                         </button>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
-                        <a href="/login">
+                        <Link href="/login">
                             <button>
                                 <div className='flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md text-[#FF4D30] hover:bg-[#FF4D30] hover:text-white hover:duration-500'>
                                     <RiLogoutCircleLine size="25" />
@@ -90,7 +92,10 @@ export default function Settings() {
                                     </Label>
                                 </div>
                             </button>
-                        </a>
+                        </Link>
+                    </div>
+                    <div className="flex lg:hidden fixed bottom-5 right-2 z-40">
+                        <DefaultSpeedDial activeComponent={activeComponent} handleButtonClick={handleButtonClick} />
                     </div>
                     {renderComponent()}
                 </div >
