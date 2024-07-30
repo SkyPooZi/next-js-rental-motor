@@ -3,15 +3,9 @@
 import React from 'react';
 import Image from 'next/image';
 import ContactButton from '@/components/ui/ContactButton';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function MengapaMemilihKami() {
-
-    const router = useRouter();
-
-    const handleCatalogRedirect = () => {
-        router.push('/catalog');
-    };
 
     return (
         <div className="bg-[#FF4D30]">
@@ -31,7 +25,9 @@ export default function MengapaMemilihKami() {
                     </div>
                     <div className="flex flex-row">
                         <ContactButton />
-                        <button onClick={handleCatalogRedirect} className="border border-white text-white py-2 px-4 rounded-full ml-4">Lihat Pilihan Motor</button>
+                        <Link href={`/catalog`}>
+                            <button className="border border-white text-white py-2 px-4 rounded-full ml-4">Lihat Pilihan Motor</button>
+                        </Link>
                     </div>
                 </div>
             </div>
