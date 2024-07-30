@@ -58,13 +58,13 @@ const LoginPage = () => {
       console.log('User data:', user);
       const token = data.access_token;
       console.log('Token:', token);
-      const id = user.id;
-      console.log("user id :", id);
+      const pengguna_id = user.id; // Change id to pengguna_id
+      console.log("User ID (Pengguna ID):", pengguna_id);
       const role = user.peran;
-      console.log('Peran :', role)
+      console.log('Role:', role);
 
       Cookies.set('token', token);
-      Cookies.set('id', id);
+      Cookies.set('pengguna_id', pengguna_id); // Save pengguna_id in cookies
       Cookies.set('role', role);
 
       if (user && user.email === email) {
@@ -81,6 +81,7 @@ const LoginPage = () => {
       setError('An error occurred during login. Please try again.');
     }
   };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white p-4">
       <div className="flex flex-col md:flex-row items-center">
