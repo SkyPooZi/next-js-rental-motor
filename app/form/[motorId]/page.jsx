@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import { PiScroll } from "react-icons/pi";
@@ -16,19 +15,12 @@ import { MdDone, MdClear } from 'react-icons/md';
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import {
-    Checkbox,
     Input,
     Select,
     Textarea,
     Option,
-    Popover,
-    PopoverHandler,
-    PopoverContent,
     Radio,
 } from "@material-tailwind/react";
-import { format, differenceInDays, addDays, startOfToday } from "date-fns";
-import { DayPicker } from "react-day-picker";
-import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 
 import InvoicePopup from '@/components/sub/invoice';
 import Modal from '@/components/sub/rescheduleFormModal';
@@ -46,14 +38,9 @@ dayjs.extend(isBetween);
 
 export default function page({ params: { motorId } }) {
     const [pengguna_id, setPenggunaId] = useState('');
-
-
     const [disabledRanges, setDisabledRanges] = useState([]);
     const [minEndDate, setMinEndDate] = useState(null);
-
-
     const [detailId, setDetailMotorId] = useState(motorId);
-    const router = useRouter();
     const [hargaRental, setHargaRental] = useState(0);
     const [gambarMotor, setGambarMotor] = useState('');
     const [motors, setMotors] = useState([]);
@@ -96,7 +83,6 @@ export default function page({ params: { motorId } }) {
     const token = Cookies.get('token');
 
     useEffect(() => {
-        // Retrieve pengguna_id from cookies
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
         if (penggunaIdFromCookie) {
             setPenggunaId(penggunaIdFromCookie);
@@ -294,6 +280,7 @@ export default function page({ params: { motorId } }) {
                         motor_id,
                         tanggal_mulai,
                         tanggal_selesai,
+                        durasi,
                         keperluan_menyewa,
                         penerimaan_motor,
                         nama_kontak_darurat,
@@ -440,7 +427,7 @@ export default function page({ params: { motorId } }) {
         } else {
             setDurasi(0);
         }
-        
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
@@ -539,7 +526,7 @@ export default function page({ params: { motorId } }) {
                     .filter(item => item.motor_id === motor_id)
                     .map(item => ({
                         from: dayjs(item.tanggal_mulai),
-                        to: dayjs(item.tanggal_selesai).add(1, 'day'),
+                        to: dayjs(item.tanggal_selesai),
                     }));
                 console.log('Disabled Ranges:', disabledRanges);
 
@@ -554,7 +541,7 @@ export default function page({ params: { motorId } }) {
 
     const handleDateStart = (date) => {
         if (date) {
-            const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Change format to Y-m-d
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalMulai(formattedDate);
             setTanggalSelesai('');
             setMinEndDate(dayjs(date).add(1, 'day'));
@@ -565,7 +552,7 @@ export default function page({ params: { motorId } }) {
 
     const handleDateEnd = (date) => {
         if (date) {
-            const formattedDate = dayjs(date).format('YYYY-MM-DD'); // Change format to Y-m-d
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalSelesai(formattedDate);
         } else {
             setTanggalSelesai('');
@@ -591,8 +578,11 @@ export default function page({ params: { motorId } }) {
         const today = dayjs().startOf('day');
         if (date.isBefore(today)) return true;
         for (const range of disabledRanges) {
-            if (date.isBetween(range.from, range.to, 'day', '[]')) {
-                return true;
+            if (date.isSame(range.from, 'day')) {
+                return true; // Disable the start date completely
+            }
+            if (date.isBetween(range.from.startOf('day'), range.to.startOf('day'), 'day', '()')) {
+                return true; // Disable the dates fully within the range, excluding start and end dates
             }
         }
         return false;
@@ -601,10 +591,14 @@ export default function page({ params: { motorId } }) {
     const shouldDisableTime = (time, selectedDate) => {
         if (!selectedDate) return false;
         for (const range of disabledRanges) {
-            if (selectedDate.isBetween(range.from, range.to, 'day', '[]')) {
-                if (time.isBetween(range.from, range.to, 'minute', '[]')) {
-                    return true;
-                }
+            const isSameDayStart = selectedDate.isSame(range.from, 'day');
+            const isSameDayEnd = selectedDate.isSame(range.to, 'day');
+
+            if (isSameDayStart) {
+                return true; // Disable all times on the start date
+            }
+            if (isSameDayEnd && time.isBefore(range.to)) {
+                return true; // Disable times up to the end time on the end date
             }
         }
         return false;
@@ -912,7 +906,7 @@ export default function page({ params: { motorId } }) {
                                                     label="Pilih Tanggal Selesai"
                                                     value={tanggal_selesai ? dayjs(tanggal_selesai) : null}
                                                     onChange={handleDateEnd}
-                                                    minDateTime={minEndDate} 
+                                                    minDateTime={minEndDate}
                                                     shouldDisableDate={shouldDisableDate}
                                                     shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai))}
                                                     renderInput={(params) => <TextField {...params} required />}
