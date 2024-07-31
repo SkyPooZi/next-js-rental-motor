@@ -1,0 +1,20 @@
+.border-slide {
+    position: relative;
+    overflow: hidden;
+}
+
+.border-slide::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #FF4D30;
+    transition: width 0.3s ease, left 0.3s ease;
+}
+
+.border-slide:hover::after, .border-slide-active::after {
+    width: 100%;
+    left: 0;
+}
