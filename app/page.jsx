@@ -194,7 +194,7 @@ export default function Home() {
                             </div>
                         </div>
 
-                        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl min-h-screen overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
+                        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
                             {filteredMotors.map((motor, index) => (
                                 <Motor key={index} motor={motor} />
                             ))}
