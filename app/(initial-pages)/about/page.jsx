@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import ContactButton from '@/components/ui/ContactButton';
 import { useRouter } from 'next/navigation';

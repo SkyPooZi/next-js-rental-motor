@@ -2,13 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import NavbarAfter from '@/components/main/NavbarAfter';
-import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import SwiperComponent from '@/components/ui/swiper';
 import Cookies from 'js-cookie';
 import Image from 'next/image';  
-
 
 const Motor = ({ motor }) => {
     const router = useRouter();
@@ -67,15 +65,6 @@ export default function Home() {
         router.push('/form');
     };
 
-
-    const navbar = () => {
-        if (token == null) {
-            return <NavbarAfter />
-        } else {
-            return <Navbar />
-        }
-    }
-
     useEffect(() => {
         const fetchMotors = async () => {
             const token = Cookies.get('token');
@@ -132,7 +121,7 @@ export default function Home() {
 
     return (
         <>
-            {navbar()}
+            <NavbarAfter />
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F7F9]">
                 <div className="text-center mt-12">
                     <h1 className="text-3xl md:text-5xl font-bold text-black">
@@ -201,99 +190,22 @@ export default function Home() {
                     <div className="flex flex-col items-center p-5 min-h-screen w-full overflow-x-hidden">
                         <div className="w-full max-w-6xl mb-5">
                             <div className="flex justify-between items-center">
-                                <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold text-black">Pilihan Motor</h1>
-                                <div className="flex gap-1 sm:gap-3 ">
-                                    {['All', 'Matic', 'Sport'].map(filter => (
-                                        <button
-                                            key={filter}
-                                            className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 ${selectedFilter === filter ? 'border-[#FF4D30]' : 'border-transparent'}`}
-                                            onClick={() => setSelectedFilter(filter)}
-                                        >
-                                            <span className="text-sm sm:text-base lg:text-lg text-black">{filter}</span>
-                                        </button>
-                                    ))}
-                                </div>
+                                <h1 className="text-sm sm:text-2xl font-semibold text-black">Rekomendasi</h1>
+                                <button onClick={handleCatalogRedirect} className="text-[#FF4D30] text-xs md:text-sm underline hover:no-underline">
+                                    Lihat Semua
+                                </button>
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl bg-white">
-                            {filteredMotors.map((motor, index) => (
-                                <Motor key={index} motor={motor} />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-
-                <div className="p-8 mt-[130px]">
-                    <h2 className="text-2xl font-bold mb-6 text-center text-black">Ulasan</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Array(3).fill().map((_, index) => (
-                            <div key={index} className="max-w-sm rounded overflow-hidden shadow-lg p-4 bg-white">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                                    <div className="ml-4">
-                                        <div className="font-bold text-xl text-black">Adam Aji Langit</div>
-                                        <div className="flex">
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-gray-300">&#9733;</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <div className="flex space-x-2">
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                    </div>
-                                </div>
-                                <p className="text-gray-700 text-base">
-                                    Aliqua id fugiat nostrud irure ex duis ea quis id quis ad et. Sunt qui esse pariatur duis deserunt mollit dolore cillum minim tempor enim. Elit aute irure tempor cupidatat incididunt sint.
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="p-4 mt-12 bg-white shadow-lg w-full">
-                    <h2 className="text-3xl font-bold mb-6 text-center">Galeri</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
-                        <div className="row-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pixabay-163789.jpg" alt="Gallery Image 1" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-jamphotography-2626665.jpg" alt="Gallery Image 2" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-giorgio-de-angelis-482403-1413412.jpg" alt="Gallery Image 3" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-nicholas-dias-1119542-2116475.jpg" alt="Gallery Image 4" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pragyanbezbo-1715193.jpg" alt="Gallery Image 5" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pixabay-104842.jpg" alt="Gallery Image 6" className="w-full h-full object-cover" />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                                {filteredMotors.map((motor) => (
+                                    <Motor key={motor.id} motor={motor} />
+                                ))}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div >
-            <Footer />
+
+                <Footer />
+            </div>
         </>
     );
 }

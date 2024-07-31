@@ -1,6 +1,6 @@
 import React from 'react';
 import Snk from './components/snk';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 
 const SnkPage = () => {

@@ -13,7 +13,6 @@ import Point from "@/components/sub/point";
 import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
 import { Label } from "@/components/ui/label";
-import NavbarAfter from "@/components/main/NavbarAfter";
 import Footer from "@/components/main/Footer";
 import Navbar from "@/components/main/Navbar";
 
