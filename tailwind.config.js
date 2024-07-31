@@ -50,10 +50,18 @@ module.exports = withMT({
       borderRadius: {
         'br-100': '6.25rem',
         'br-50': '3.125rem',
-        'br-20': '1.25rem', 
+        'br-20': '1.25rem',
         'br-10': '0.625rem',
       },
       keyframes: {
+        wave: {
+          '0%': { 'background-position-x': '740px' },
+          '100%': { 'background-position-x': '0px' },
+        },
+        rotateMove: {
+          'from': { transform: 'rotate(0deg)' },
+          'to': { transform: 'rotate(1turn)' },
+        },
         "accordion-down": {
           from: { height: "0" },
           to: { height: "var(--radix-accordion-content-height)" },
@@ -66,6 +74,8 @@ module.exports = withMT({
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        wave: 'wave 2.5s linear infinite',
+        rotateMove: 'rotateMove 10s linear infinite',
       },
     },
   },

@@ -1,0 +1,202 @@
+:root {
+    --color: white;
+    --c1: #fbda61;
+    --c2: #ff5acd;
+    --c3: #2563eb;
+    --gradient: linear-gradient(60deg,
+            var(--c3),
+            var(--c2),
+            var(--c1),
+            var(--c2),
+            var(--c3));
+    --scale-start: 0.5;
+    --scale-end: 1.001;
+    --hover-offset: 5%;
+
+    --ease-elastic: linear(0, 0.186 2.1%, 0.778 7.2%, 1.027 9.7%, 1.133, 1.212, 1.264, 1.292 15.4%,
+            1.296, 1.294, 1.285, 1.269 18.9%, 1.219 20.9%, 1.062 25.8%, 0.995 28.3%,
+            0.944 31.1%, 0.93, 0.921, 0.92 35.7%, 0.926, 0.94 39.7%, 1.001 47%, 1.014,
+            1.021 52.4%, 1.02 56.4%, 1 65.5%, 0.994 70.7%, 1.001 88.4%, 1);
+    --ease-bounce-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (prefers-reduced-motion) {
+    :root {
+        --scale-start: var(--scale-end);
+        --ease-elastic: ease-out;
+        --ease-bounce-out: ease-out;
+        --hover-offset: 0;
+    }
+}
+
+/* Container for items */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    width: 100%;
+    overflow: hidden; /* Ensure no overflow from animations */
+}
+
+/* Individual items */
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 0.5rem;
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+/* Animation class */
+.item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+
+.outer-container {
+    text-align: center;
+    position: relative;
+    width: 100%;
+}
+
+.textAnimation {
+    font-size: calc(0.5rem + 3.5vmin);
+    text-align: center;
+    margin-inline: auto;
+    padding-block: 0.2em;
+    text-wrap: balance;
+    background-color: white;
+    font-weight: 800;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+.textAnimationMini {
+    font-size: calc(0.5rem + 2.5vmin);
+    text-align: center;
+    margin-inline: auto;
+    padding-block: 0.2em;
+    text-wrap: balance;
+    background-color: white;
+    font-weight: 800;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+
+
+@supports (animation-timeline: view()) {
+    .box {
+        animation: trigger steps(1) both, fade linear both;
+        animation-timeline: view();
+        animation-range: entry 80% contain 40%;
+    }
+
+    .textAnimation {
+        animation: pop-back 300ms var(--ease-bounce-out) forwards;
+    }
+
+    .textAnimationMini {
+        animation: pop-back 300ms var(--ease-bounce-out) forwards;
+    }
+
+    @container style(--animate: true) {
+        .textAnimation {
+            animation: pop 600ms var(--ease-elastic) forwards,
+                text-gradient 1s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+        }
+    }
+
+    @container style(--animate: true) {
+        .textAnimationMini {
+            animation: pop 600ms var(--ease-elastic) forwards,
+                text-gradient 1s cubic-bezier(0, 0.55, 0.45, 1) forwards;
+        }
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes trigger {
+    to {
+        --animate: true;
+    }
+}
+
+@keyframes pop {
+    from {
+        scale: var(--scale-start);
+    }
+
+    to {
+        scale: var(--scale-end);
+    }
+}
+
+@keyframes text-gradient {
+    100% {
+        background-position: 150% center;
+    }
+}
+
+@keyframes pop-back {
+    from {
+        scale: var(--scale-end);
+    }
+
+    to {
+        color: var(--color);
+        scale: var(--scale-start);
+    }
+}
+
+@keyframes wink {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25%,
+    75% {
+        transform: translateX(-50%);
+    }
+
+    50% {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes wave {
+    50% {
+        transform: rotate(10deg);
+    }
+}
+
+@keyframes hover {
+
+    from,
+    to {
+        transform: translateY(calc(var(--hover-offset) * -1));
+    }
+
+    50% {
+        transform: translateY(var(--hover-offset));
+    }
+}

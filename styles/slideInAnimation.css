@@ -1,0 +1,68 @@
+/* styles.css */
+
+/* Keyframes for slide-in animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* styles.css */
+
+/* Keyframes for slide-in animation from right to left */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Apply animation class */
+.slide-in-right {
+    animation: slideInFromRight 1s ease-out;
+}
+
+/* Apply animation to the container */
+.slide-in {
+    animation: slideIn 1s ease-out;
+}
+
+/* Optional: To control the delay */
+.delay-1 {
+    animation-delay: 0.3s;
+}
+
+.delay-2 {
+    animation-delay: 0.6s;
+}
+
+.delay-3 {
+    animation-delay: 0.9s;
+}
+
+/* Keyframes for slide-in animation from bottom to top */
+@keyframes slideInFromBottom {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Apply animation class */
+.slide-in-bottom {
+    animation: slideInFromBottom 1s ease-out;
+}
