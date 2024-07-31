@@ -10,7 +10,6 @@ import '../styles/slideInAnimation.css';
 import { Button } from '@material-tailwind/react';
 import GallerySwiper from '@/components/sub/gallerySwiper';
 import NavbarAfter from '@/components/main/NavbarAfter';
-import Navbar from '@/components/main/Navbar';
 import Footer from '@/components/main/Footer';
 import SwiperComponent from '@/components/ui/swiper';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
@@ -19,6 +18,8 @@ import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';
 import HorizontalScroll from '@/components/ui/horizontalScroll';
 import ScrollTextAnimation from '@/components/ui/scrollTextAnimation';
+import Cookies from 'js-cookie';
+import Image from 'next/image';  
 
 const Motor = ({ motor }) => {
     return (
@@ -71,15 +72,6 @@ export default function Home() {
     const [reviews, setReviews] = useState([]);
     const [loadingMotor, setLoadingMotor] = useState(true);
     const [animate, setAnimate] = useState(false);
-
-    const navbar = () => {
-        if (token == null) {
-            return <NavbarAfter />
-        } else {
-            return <Navbar />
-        }
-    }
-
     useEffect(() => {
         const fetchMotors = async () => {
             try {
@@ -174,6 +166,7 @@ export default function Home() {
             <div className=''>
                 <ScrollTextAnimation />
             </div>
+            <NavbarAfter />
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F7F9]">
                 <div className="mt-[130px]">
                     <div className="flex flex-col items-center p-5">
@@ -191,6 +184,10 @@ export default function Home() {
                                         </button>
                                     ))}
                                 </div>
+                                <h1 className="text-sm sm:text-2xl font-semibold text-black">Rekomendasi</h1>
+                                <button onClick={handleCatalogRedirect} className="text-[#FF4D30] text-xs md:text-sm underline hover:no-underline">
+                                    Lihat Semua
+                                </button>
                             </div>
                         </div>
 
@@ -214,9 +211,19 @@ export default function Home() {
 
                 <div className="p-4 mt-12 bg-white shadow-lg w-full">
                     <GallerySwiper />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+                                {filteredMotors.map((motor) => (
+                                    <Motor key={motor.id} motor={motor} />
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <Footer />
+
+                <Footer />
+            </div>
         </>
     );
 }

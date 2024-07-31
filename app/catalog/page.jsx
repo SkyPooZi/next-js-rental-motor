@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Navbar from '@/components/main/Navbar';
+import NavbarAfter from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -52,7 +52,7 @@ const MotorList = () => {
   const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
   const [motors, setMotors] = useState([]);
   const [filteredMotors, setFilteredMotors] = useState([]);
-
+  
   useEffect(() => {
     const fetchMotors = async () => {
       const token = Cookies.get('token');
@@ -77,8 +77,6 @@ const MotorList = () => {
 
         const data = await response.json();
         console.log('JSON response:', data);
-        const id = data.listMotor;
-        console.log('Motor data:', id);
         
         if (data.status === 200) {
           setMotors(data.listMotor);
@@ -114,7 +112,7 @@ const MotorList = () => {
 
   return (
     <>
-      <Navbar />
+      <NavbarAfter /> {/* Updated Navbar component */}
       <div className="flex flex-col items-center p-5 bg-white min-h-screen w-full overflow-x-hidden">
         <div className="w-full max-w-6xl mb-5">
           <div className="flex justify-between items-center">

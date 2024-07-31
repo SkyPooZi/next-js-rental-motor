@@ -14,6 +14,7 @@ import Profile from "@/components/sub/profile";
 import Point from "@/components/sub/point";
 import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/main/Navbar";
 import Footer from "@/components/main/Footer";
 

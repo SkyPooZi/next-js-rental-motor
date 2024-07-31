@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+import Navbar from '@/components/main/NavbarAfter';
 import Navbar from '@/components/main/Navbar';
 import TentangKami from '@/components/sub/about/tentangKami';
 import MengapaMemilihKami from '@/components/sub/about/mengapaMemilihKami';
