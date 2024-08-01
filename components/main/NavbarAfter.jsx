@@ -44,7 +44,7 @@ export default function Navbar() {
 
                     const data = await response.json();
                     console.log('Fetched user data:', data);
-                    setUser(data.user); // Assuming the API response structure contains the user object directly
+                    setUser(data.user);
                 } catch (error) {
                     console.error('Error fetching user data:', error);
                 }
