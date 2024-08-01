@@ -154,7 +154,7 @@ export default function Home() {
 
     return (
         <>
-            {navbar()}
+            <NavbarAfter />
             <div className='md:m-view-pc overflow-x-hidden m-4 mt-10 justify-center mb-5'>
                 <HeaderHomePage />
             </div>
@@ -164,7 +164,6 @@ export default function Home() {
             <div className=''>
                 <ScrollTextAnimation />
             </div>
-            <NavbarAfter />
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F7F9]">
                 <div className="mt-[130px]">
                     <div className="flex flex-col items-center p-5">
