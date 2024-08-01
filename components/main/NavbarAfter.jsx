@@ -88,7 +88,6 @@ export default function Navbar() {
                         <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
                         <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
                         <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
-                        <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
                     </div>
                     <div className="flex items-center space-x-4">
                         {isLoggedIn ? (

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Navbar from '@/components/main/NavbarAfter';
+import NavbarAfter from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';

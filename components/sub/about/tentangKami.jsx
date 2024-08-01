@@ -19,7 +19,7 @@ export default function TentangKami() {
                     </div>
                 </div>
                 <div className="w-1/2 flex justify-center items-center">
-                    <Image src='/images/motor/Vespa.png' alt='motor' width={500} height={500} />
+                    <Image src='/images/vespa.png' alt='motor' width={500} height={500} />
                 </div>
             </div>
         </div>

@@ -11,7 +11,7 @@ export default function MengapaMemilihKami() {
         <div className="bg-[#FF4D30]">
             <div className="mx-view-pc flex flex-row items-center">
                 <div className='mr-20'>
-                    <Image src='/images/utils/orang.png' alt='Gambar Orang' className='py-12 pl-8' width={800} height={500} />
+                    <Image src='/images/orang.png' alt='Gambar Orang' className='py-12 pl-8' width={800} height={500} />
                 </div>
                 <div className='flex flex-col'>
                     <div className='mb-4'>
