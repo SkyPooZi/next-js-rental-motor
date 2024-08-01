@@ -2,7 +2,7 @@
 
 import React from 'react';
 import SyaratDanKetentuan from '@/components/sub/syaratDanKetentuan/syaratDanKetentuan';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 
 export default function SyaratKetentuan() {

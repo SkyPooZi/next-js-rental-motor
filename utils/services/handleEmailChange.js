@@ -1,4 +1,15 @@
-export const handleEmailChange = async (e, { email, token, setLoadingEmail, setError, setOtpSent, setOtpPopupVisible, setServerOtp }) => {
+export const handleEmailChange = async (
+    e,
+    {
+        email,
+        token,
+        setLoadingEmail,
+        setError,
+        setOtpSent,
+        setOtpPopupVisible,
+        setServerOtp
+    }
+) => {
     e.preventDefault();
 
     setLoadingEmail(true);
@@ -14,7 +25,8 @@ export const handleEmailChange = async (e, { email, token, setLoadingEmail, setE
         });
 
         if (!response.ok) {
-            setError(`Failed to send OTP: ${response.statusText}`);
+            const errorText = await response.text();
+            setError(`Failed to send OTP: ${errorText}`);
         } else {
             const data = await response.json();
             console.log(data.message);

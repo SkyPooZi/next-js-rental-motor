@@ -26,7 +26,8 @@ import InvoicePopup from '@/components/sub/invoice';
 import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
+import Lokasi from '@/components/sub/about/Lokasi';
 
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -37,6 +38,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(isBetween);
 
 export default function page({ params: { motorId } }) {
+    const [selectedMotor, setSelectedMotor] = useState(null);
     const [pengguna_id, setPenggunaId] = useState('');
     const [disabledRanges, setDisabledRanges] = useState([]);
     const [minEndDate, setMinEndDate] = useState(null);
@@ -80,6 +82,7 @@ export default function page({ params: { motorId } }) {
     const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
     const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
     const [showInvoice, setShowInvoice] = useState(false);
+    const defaultMotor = motors.find(motor => motor.id === motorId);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -511,6 +514,21 @@ export default function page({ params: { motorId } }) {
     };
 
     useEffect(() => {
+        if (motorId && motors.length > 0) {
+            const motor = motors.find((m) => m.id === parseInt(motorId, 10)); // Ensure both are numbers
+            if (motor) {
+                setSelectedMotor(motor.nama_motor);
+                setMotorId(motor.id);
+                setDetailMotorId(motor.id);
+                setHargaRental(motor.harga_motor_per_1_hari);
+                setNamaMotor(motor.nama_motor);
+                setTanggalMulai('');
+                setTanggalSelesai('');
+            }
+        }
+    }, [motorId, motors]);
+
+    useEffect(() => {
         const fetchBookedDates = async () => {
             if (!motor_id) return;
             try {
@@ -559,8 +577,8 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-
     const handleSelectChangeNamaMotor = (selectedValue) => {
+        setSelectedMotor(selectedValue);
         if (selectedValue) {
             const selectedMotor = motors.find((motor) => motor.nama_motor === selectedValue);
             if (selectedMotor) {
@@ -660,6 +678,13 @@ export default function page({ params: { motorId } }) {
         setIsTermsModalOpen(false);
     };
 
+    if (!motors) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-[#FF4D33]"></div>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -667,7 +692,7 @@ export default function page({ params: { motorId } }) {
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <div className='text-[#666666] mb-5'>
                     <span className='font-semibold text-black md:text-xl text-base flex'>
-                        Booking
+                        Pemesanan
                     </span>
                     <span className='text-sm md:text-base'>
                         Pastikan semua detail pada halaman ini sudah benar sebelum melanjutkan ke pembayaran.
@@ -743,7 +768,7 @@ export default function page({ params: { motorId } }) {
                                         </div>
                                         <div className='w-full flex flex-col gap-2'>
                                             <span className="text-black">
-                                                Akun Sosmed <span className="text-[#FF4D33] font-semibold">*</span>
+                                                Akun Sosial Media <span className="text-[#FF4D33] font-semibold">*</span>
                                             </span>
                                             <Input
                                                 label="Masukkan akun sosmed"
@@ -863,22 +888,31 @@ export default function page({ params: { motorId } }) {
                                             </span>
                                             <div className='text-sm w-full max-w-[473px]'>
                                                 {motors.length > 0 && (
-                                                    <div className="w-full">
-                                                        <Select
-                                                            label='Pilih nama motor'
-                                                            onChange={(value) => handleSelectChangeNamaMotor(value)}
-                                                        >
-                                                            {motors.map((motor) => (
-                                                                <Option key={motor.id} value={motor.nama_motor} disabled={motor.status_motor !== 'Tersedia'} className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}>
-                                                                    <div className="flex items-center">
-                                                                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} width={40}
-                                                                            height={40} className="w-10 h-10 rounded-full mr-2" />
-                                                                        <span>{motor.nama_motor}</span>
-                                                                    </div>
-                                                                </Option>
-                                                            ))}
-                                                        </Select>
-                                                    </div>
+                                                    <Select
+                                                        label="Pilih nama motor"
+                                                        value={selectedMotor} // Ensure value is set
+                                                        onChange={(value) => handleSelectChangeNamaMotor(value)}
+                                                    >
+                                                        {motors.map((motor) => (
+                                                            <Option
+                                                                key={motor.id}
+                                                                value={motor.nama_motor}
+                                                                disabled={motor.status_motor !== 'Tersedia'}
+                                                                className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}
+                                                            >
+                                                                <div className="flex items-center">
+                                                                    <Image
+                                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
+                                                                        alt={motor.nama_motor}
+                                                                        width={40}
+                                                                        height={40}
+                                                                        className="w-10 h-10 rounded-full mr-2"
+                                                                    />
+                                                                    <span>{motor.nama_motor}</span>
+                                                                </div>
+                                                            </Option>
+                                                        ))}
+                                                    </Select>
                                                 )}
                                             </div>
                                         </div>
@@ -975,27 +1009,33 @@ export default function page({ params: { motorId } }) {
                                         </div>
                                     </div>
                                     <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
-                                        <div className="grid w-full gap-1.5 mt-4">
+                                        <div className='relative'>
+                                            <div className='mt-5 mb-6'>
+                                                <p className="text-black text-2xl font-bold text-center">Lokasi Kami</p>
+                                            </div>
+                                            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                                                <iframe
+                                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.872378039436!2d110.89978167475574!3d-6.785381493211696!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e70db4255192741%3A0x6e1d151b0d52676c!2sSewa%20Motor%20Kudus!5e0!3m2!1sid!2sid!4v1722223502208!5m2!1sid!2sid"
+                                                    className="absolute top-0 left-0 w-full h-full"
+                                                    allowFullScreen=""
+                                                    loading="eager"
+                                                    referrerPolicy="no-referrer-when-downgrade"
+                                                ></iframe>
+                                            </div>
                                             <Label>
-                                                <div className='flex flex-row gap-1 items-center'>
-                                                    <IoMapSharp size='25' />
-                                                    <span className='font-semibold text-sm'>
-                                                        Lokasi Rental Motor
-                                                    </span>
-                                                </div>
-                                            </Label>
-                                            <Image src='/images/rentalmotormap.png' alt='map' width={1000} height={1000} className='w-full h-full max-h-[380px]' />
-                                            <Label>
-                                                <div className='flex flex-row gap-1 items-center mt-2'>
-                                                    <IoLocationSharp size='25' color='red' />
+                                                <div className='flex flex-row gap-1 items-center mt-4 mb-10'>
+                                                    <IoLocationSharp size='30' color='red' />
                                                     <Link href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
-                                                        <span className='font-semibold text-[#0194F3] text-sm hover:underline'>
-                                                            Click Disini
+                                                        <span className='font-semibold text-[#0194F3] text-base hover:underline'>
+                                                            Trengguluh, Honggosoco, Kec. Jekulo, Kabupaten Kudus, Jawa Tengah
                                                         </span>
                                                     </Link>
                                                 </div>
                                             </Label>
                                         </div>
+                                    </div>
+                                    <div className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
+                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp- / km</span>
                                     </div>
                                 </div>
                             </div>
@@ -1136,7 +1176,7 @@ export default function page({ params: { motorId } }) {
                                                 <AiOutlineDollarCircle color='#FF4D30' size='23px' />
                                                 <Label>
                                                     <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        {point} Gunakan Points
+                                                        {point} Gunakan Poin
                                                     </span>
                                                 </Label>
                                             </div>
@@ -1167,7 +1207,7 @@ export default function page({ params: { motorId } }) {
                                                     checked={clickedPaymentCashless}
                                                     onChange={handleClickPaymentCashless}
                                                 />
-                                                Cashless
+                                                Non-Tunai
                                             </div>
                                         </div>
                                         {clickedPaymentTunai && (

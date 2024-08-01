@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Cookies from 'js-cookie';
 import ReviewCard from '@/components/sub/reviewCard';
 
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 
 const Detail = () => {

@@ -9,8 +9,7 @@ import '../styles/slideInAnimation.css';
 
 import { Button } from '@material-tailwind/react';
 import GallerySwiper from '@/components/sub/gallerySwiper';
-import NavbarAfter from '@/components/main/NavbarAfter';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import SwiperComponent from '@/components/ui/swiper';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
@@ -40,11 +39,11 @@ const Motor = ({ motor }) => {
                     <div className='flex justify-between'>
                         <div className="mb-2 flex flex-col gap-2">
                             <span className="font-bold text-black/70">Harian : </span>
-                            <span className="font-bold text-[#ff4d30]">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
+                            <span className="font-bold">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
                         </div>
                         <div className="mb-4 flex flex-col gap-2 text-end">
                             <span className="font-bold text-black/70">Mingguan : </span>
-                            <span className='font-bold text-[#ff4d30]'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
+                            <span className='font-bold'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
                         </div>
                     </div>
                     <div className="flex flex-col items-center mb-2">

@@ -85,18 +85,6 @@ export default function Point() {
                                 </span>
                             </Label>
                         </div>
-                        <div className="flex flex-row w-fit gap-6 px-9 py-1 justify-between rounded-md items-center shadow-lg px bg-white">
-                            <Label>
-                                <span className="text-xs">
-                                    Penggunaan kode referal
-                                </span>
-                            </Label>
-                            <Label>
-                                <span className="text-xs">
-                                    0/5
-                                </span>
-                            </Label>
-                        </div>
                     </div>
                 </div>
             </div>

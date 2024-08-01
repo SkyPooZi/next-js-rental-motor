@@ -26,7 +26,11 @@ const TermsModal = ({ isOpen, onClose }) => {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-            <div ref={modalRef} className="relative bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+            <div
+                ref={modalRef}
+                className="relative bg-white p-6 rounded-lg shadow-lg w-full max-w-lg h-full max-h-[80vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+            >
                 <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
                     onClick={onClose}
@@ -34,14 +38,14 @@ const TermsModal = ({ isOpen, onClose }) => {
                 >
                     <FaTimes className="w-6 h-6" />
                 </button>
-                <div className='flex flex-col gap-5 bg-white font-medium'>
-                    <div className='flex flex-row gap-2 items-center justify-center bg-white'>
-                        <span className='font-bold text-black text-lg bg-white'>
+                <div className='flex flex-col gap-5 font-medium'>
+                    <div className='flex flex-row gap-2 items-center justify-center'>
+                        <span className='font-bold text-black text-xl'>
                             Syarat & Ketentuan
                         </span>
                     </div>
-                    <div className='flex flex-col gap-2 bg-white'>
-                        <ol className='list-decimal ml-4 font-semibold text-xs w-full max-w-[500px] leading-5'>
+                    <div className='flex flex-col gap-2'>
+                        <ol className='list-decimal ml-4 font-semibold text-base w-full max-w-[500px] leading-6'>
                             <li>
                                 KTP asli penyewa
                             </li>

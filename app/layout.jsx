@@ -2,10 +2,9 @@
 'use client';
 
 import { Poppins } from 'next/font/google';
-import NavbarAfter from '../components/main/NavbarAfter';
 import { ThemeProvider } from "@/components/ui/themes";
 import './globals.css';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '../components/main/NavbarAfter';
 
 const poppins = Poppins({
   weight: ['400'],

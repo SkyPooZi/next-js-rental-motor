@@ -1,4 +1,17 @@
-export const handleVerifyOTP = async (otp, { id, email, token, setErrorOtp, setLoadingOtp, setShowNotification, setUser, setOtpPopupVisible, serverOtp }) => {
+export const handleVerifyOTP = async (
+    otp,
+    {
+        id,
+        email,
+        token,
+        setErrorOtp,
+        setLoadingOtp,
+        setShowNotification,
+        setUser,
+        setOtpPopupVisible,
+        serverOtp
+    }
+) => {
     if (!id) {
         setErrorOtp('User ID not provided.');
         return;
@@ -22,7 +35,8 @@ export const handleVerifyOTP = async (otp, { id, email, token, setErrorOtp, setL
         });
 
         if (!editResponse.ok) {
-            setErrorOtp(`Failed to update email: ${editResponse.statusText}`);
+            const errorText = await editResponse.text();
+            setErrorOtp(`Failed to update email: ${errorText}`);
         } else {
             const editData = await editResponse.json();
             console.log(editData.message);

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Navbar from '@/components/main/Navbar';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
@@ -79,7 +79,7 @@ const MotorList = () => {
         console.log('JSON response:', data);
         const id = data.listMotor;
         console.log('Motor data:', id);
-        
+
         if (data.status === 200) {
           setMotors(data.listMotor);
           setFilteredMotors(data.listMotor);
@@ -111,6 +111,14 @@ const MotorList = () => {
 
     setFilteredMotors(filtered);
   }, [selectedFilter, motors]);
+
+  if (!motors) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-[#FF4D33]"></div>
+      </div>
+    );
+  }
 
   return (
     <>

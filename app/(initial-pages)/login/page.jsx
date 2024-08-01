@@ -58,13 +58,13 @@ const LoginPage = () => {
       console.log('User data:', user);
       const token = data.access_token;
       console.log('Token:', token);
-      const pengguna_id = user.id; // Change id to pengguna_id
-      console.log("User ID (Pengguna ID):", pengguna_id);
+      const id = user.id; // Change id to id
+      console.log("User ID (Pengguna ID):", id);
       const role = user.peran;
       console.log('Role:', role);
 
       Cookies.set('token', token);
-      Cookies.set('pengguna_id', pengguna_id); // Save pengguna_id in cookies
+      Cookies.set('id', id); // Save id in cookies
       Cookies.set('role', role);
 
       if (user && user.email === email) {

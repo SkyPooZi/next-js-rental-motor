@@ -69,6 +69,20 @@ export default function Profile() {
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
+    const handleOtpVerify = async (otp) => {
+        await handleVerifyOTP(otp, {
+            id: user.id,
+            email,
+            token,
+            setErrorOtp: setError,
+            setLoadingOtp: setLoadingEmail,
+            setShowNotification,
+            setUser: (user) => console.log(user),
+            setOtpPopupVisible,
+            serverOtp
+        });
+    };
+
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -97,6 +111,14 @@ export default function Profile() {
         };
         getUserDetail();
     }, [id, token]);
+
+    if (!user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-[#FF4D33]"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-5 w-full">
@@ -139,7 +161,7 @@ export default function Profile() {
                         <Input
                             type='email'
                             placeholder='Email Anda'
-                            label={`Masukkan email (${user.email})`}
+                            label={`(${user.email})`}
                             disabled
                         />
                     </div>
@@ -176,17 +198,26 @@ export default function Profile() {
 
             <FormSection
                 title="Ubah Email"
-                onSubmit={(e) => handleEmailChange(e, { email, token, setLoadingEmail, setError, setOtpSent, setOtpPopupVisible, setServerOtp })}
+                onSubmit={(e) => handleEmailChange(e, {
+                    email,
+                    token,
+                    setLoadingEmail,
+                    setError,
+                    setOtpSent,
+                    setOtpPopupVisible,
+                    setServerOtp
+                })}
                 isLoading={loadingEmail}
                 submitText="Ubah Email"
             >
                 <div className="flex flex-col gap-2 mt-1">
-                    <Label className='mb-1'>
+                    <label className='mb-1'>
                         <span>Email Baru</span>
-                    </Label>
+                    </label>
                     <Input
+                        label={`Masukkan email`}
                         type='email'
-                        label={`Masukkan email (${user.email})`}
+                        value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
                     />
@@ -200,8 +231,16 @@ export default function Profile() {
             {otpSent && (
                 <OTPPopup
                     isOpen={otpPopupVisible}
-                    onVerify={(otp) => handleVerifyOTP(otp, { id, setError, setShowNotification })}
+                    onVerify={handleOtpVerify}
                     onClose={() => setOtpPopupVisible(false)}
+                    email={email}
+                    token={token}
+                    id={user.id}
+                    serverOtp={serverOtp}
+                    setUser={(user) => console.log(user)}
+                    setShowNotification={setShowNotification}
+                    setOtpPopupVisible={setOtpPopupVisible}
+                    setErrorOtp={setError}
                 />
             )}
 
