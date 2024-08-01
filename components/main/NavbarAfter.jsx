@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -26,19 +26,32 @@ export default function Navbar() {
     }, [router.pathname]);
 
     useEffect(() => {
-        const token = Cookies.get('token');
-        setIsLoggedIn(!!token);
+        const fetchUser = async () => {
+            const token = Cookies.get('token');
+            if (token) {
+                setIsLoggedIn(true);
+                try {
+                    const response = await fetch('https://rental-motor.ruscarestudent.com/api/user/detail/1', {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
 
-        if (token) {
-            fetch('https://rental-motor.ruscarestudent.com/api/user/all')
-                .then(response => response.json())
-                .then(data => {
-                    const loggedInUser = data.user.find(user => user.email === Cookies.get('email'));
-                    if (loggedInUser) {
-                        setUser(loggedInUser);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                });
-        }
+
+                    const data = await response.json();
+                    console.log('Fetched user data:', data);
+                    setUser(data.user);
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            }
+        };
+
+        fetchUser();
     }, []);
 
     const handleLinkClick = (link) => {
