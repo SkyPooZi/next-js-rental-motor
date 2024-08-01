@@ -70,15 +70,6 @@ export default function Home() {
     const [reviews, setReviews] = useState([]);
     const [loadingMotor, setLoadingMotor] = useState(true);
     const [animate, setAnimate] = useState(false);
-
-    const navbar = () => {
-        if (token == null) {
-            return <NavbarAfter />
-        } else {
-            return <Navbar />
-        }
-    }
-
     useEffect(() => {
         const fetchMotors = async () => {
             try {
@@ -163,7 +154,7 @@ export default function Home() {
 
     return (
         <>
-            {navbar()}
+            <NavbarAfter />
             <div className='md:m-view-pc overflow-x-hidden m-4 mt-10 justify-center mb-5'>
                 <HeaderHomePage />
             </div>

@@ -88,6 +88,7 @@ export default function Navbar() {
                         <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
                         <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
                         <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
+                        <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
                     </div>
                     <div className="flex items-center space-x-4">
                         {isLoggedIn ? (
@@ -135,6 +136,25 @@ export default function Navbar() {
                                 Login
                             </button>
                         )}
+                        <Sheet>
+                            <SheetTrigger>
+                                <div className='block lg:hidden border border-white p-2 rounded-md'>
+                                    <IoReorderThreeOutline size='25' />
+                                </div>
+                            </SheetTrigger>
+                            <SheetContent>
+                                <SheetHeader>
+                                    <SheetTitle>
+                                        <div className='flex flex-col items-center gap-8 text-xs sm:text-sm'>
+                                            <Link href="/" className={activeLink === '/' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>Beranda</Link>
+                                            <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
+                                            <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
+                                            <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
+                                        </div>
+                                    </SheetTitle>
+                                </SheetHeader>
+                            </SheetContent>
+                        </Sheet>
                         <Sheet>
                             <SheetTrigger>
                                 <div className='block lg:hidden border border-white p-2 rounded-md'>

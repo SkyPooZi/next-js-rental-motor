@@ -52,7 +52,7 @@ const MotorList = () => {
   const [selectedFilter, setSelectedFilter] = useState('Rekomendasi');
   const [motors, setMotors] = useState([]);
   const [filteredMotors, setFilteredMotors] = useState([]);
-
+  
   useEffect(() => {
     const fetchMotors = async () => {
       const token = Cookies.get('token');
@@ -122,7 +122,7 @@ const MotorList = () => {
 
   return (
     <>
-      <Navbar />
+      <NavbarAfter /> {/* Updated Navbar component */}
       <div className="flex flex-col items-center p-5 bg-white min-h-screen w-full overflow-x-hidden">
         <div className="w-full max-w-6xl mb-5">
           <div className="flex justify-between items-center">
