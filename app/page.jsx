@@ -181,10 +181,6 @@ export default function Home() {
                                         </button>
                                     ))}
                                 </div>
-                                <h1 className="text-sm sm:text-2xl font-semibold text-black">Rekomendasi</h1>
-                                <button className="text-[#FF4D30] text-xs md:text-sm underline hover:no-underline">
-                                    Lihat Semua
-                                </button>
                             </div>
                         </div>
 
@@ -208,11 +204,6 @@ export default function Home() {
 
                 <div className="p-4 mt-12 bg-white shadow-lg w-full">
                     <GallerySwiper />
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
-                        {filteredMotors.map((motor) => (
-                            <Motor key={motor.id} motor={motor} />
-                        ))}
-                    </div>
                 </div>
             </div>
             <Footer />
