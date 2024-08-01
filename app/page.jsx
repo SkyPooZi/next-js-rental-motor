@@ -182,7 +182,7 @@ export default function Home() {
                                     ))}
                                 </div>
                                 <h1 className="text-sm sm:text-2xl font-semibold text-black">Rekomendasi</h1>
-                                <button onClick={handleCatalogRedirect} className="text-[#FF4D30] text-xs md:text-sm underline hover:no-underline">
+                                <button className="text-[#FF4D30] text-xs md:text-sm underline hover:no-underline">
                                     Lihat Semua
                                 </button>
                             </div>
