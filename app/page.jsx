@@ -18,8 +18,6 @@ import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';
 import HorizontalScroll from '@/components/ui/horizontalScroll';
 import ScrollTextAnimation from '@/components/ui/scrollTextAnimation';
-import Cookies from 'js-cookie';
-import Image from 'next/image';
 
 const Motor = ({ motor }) => {
     return (
