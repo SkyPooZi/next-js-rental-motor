@@ -96,7 +96,7 @@ export default function Navbar() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent>
                                     <DropdownMenuItem>
-                                        <Link href="/settings" className='flex items-center gap-2 hover:text-[#FF4D30]'>
+                                        <Link href="/setting" className='flex items-center gap-2 hover:text-[#FF4D30]'>
                                             <IoSettings size='25' />
                                             <Label>
                                                 <span className='font-bold'>Settings</span>
