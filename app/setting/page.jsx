@@ -14,7 +14,7 @@ import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/main/Footer";
-import Navbar from "@/components/main/Navbar";
+import Navbar from "@/components/main/NavbarAfter";
 
 export default function Settings() {
 
