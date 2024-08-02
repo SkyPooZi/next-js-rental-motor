@@ -73,10 +73,10 @@ export default function Navbar() {
 
     return (
         <header className="bg-white shadow-lg">
-            <div className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8">
+            <div className="lg:mx-view-pc">
                 <div className="flex h-16 items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/" className="flex items-center gap-1.5 cursor-pointer">
+                        <Link href="/" className="flex items-center gap-1.5 ml-5 lg:ml-0 cursor-pointer">
                             <Image src='/images/logo.png' alt='Logo' width='38' height='38' />
                             <Label>
                                 <span className='font-bold hidden md:block'>Rental Motor Kudus</span>
@@ -121,7 +121,7 @@ export default function Navbar() {
                                         <div className='flex items-center gap-2 text-[#FF4D30] cursor-pointer'>
                                             <RiLogoutCircleLine size="25" />
                                             <Label>
-                                                <span className='font-bold'>Keluar</span>
+                                                <span className='font-bold cursor-pointer'>Keluar</span>
                                             </Label>
                                         </div>
                                     </DropdownMenuItem>
@@ -135,25 +135,6 @@ export default function Navbar() {
                                 Login
                             </button>
                         )}
-                        <Sheet>
-                            <SheetTrigger>
-                                <div className='block lg:hidden border border-white p-2 rounded-md'>
-                                    <IoReorderThreeOutline size='25' />
-                                </div>
-                            </SheetTrigger>
-                            <SheetContent>
-                                <SheetHeader>
-                                    <SheetTitle>
-                                        <div className='flex flex-col items-center gap-8 text-xs sm:text-sm'>
-                                            <Link href="/" className={activeLink === '/' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>Beranda</Link>
-                                            <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
-                                            <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
-                                            <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
-                                        </div>
-                                    </SheetTitle>
-                                </SheetHeader>
-                            </SheetContent>
-                        </Sheet>
                         <Sheet>
                             <SheetTrigger>
                                 <div className='block lg:hidden border border-white p-2 rounded-md'>

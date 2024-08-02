@@ -84,6 +84,7 @@ export default function page({ params: { motorId } }) {
     const [showInvoice, setShowInvoice] = useState(false);
     const defaultMotor = motors.find(motor => motor.id === motorId);
     const token = Cookies.get('token');
+    const id = Cookies.get('id');
 
     useEffect(() => {
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
@@ -273,7 +274,7 @@ export default function page({ params: { motorId } }) {
                         'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({
-                        pengguna_id,
+                        pengguna_id: id,
                         nama_lengkap,
                         email,
                         no_telp,
@@ -303,10 +304,10 @@ export default function page({ params: { motorId } }) {
                 }
 
                 const historyData = await historyResponse.json();
-                const order_id = historyData.history.id;
+                const historyId = historyData.history.id;
                 console.log('History Data:', historyData);
 
-                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${order_id}`, {
+                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${historyId}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -322,10 +323,11 @@ export default function page({ params: { motorId } }) {
 
                 const paymentData = await paymentResponse.json();
                 const snapToken = paymentData.snapToken;
-                console.log(`Snap Token: ${snapToken}, Order ID: ${order_id}`);
-                Cookies.set('order_id', order_id);
+                const orderId = paymentData.order_id;
+                console.log(`Snap Token: ${snapToken}, Order ID: ${historyId}`);
+                Cookies.set('order_id', orderId);
 
-                if (!snapToken || !order_id) {
+                if (!snapToken || !historyId) {
                     throw new Error('Snap Token or Order ID missing in the response');
                 }
 
@@ -336,7 +338,7 @@ export default function page({ params: { motorId } }) {
                         await updateHistoryStatus(historyData.history.id, 'Dipesan');
 
                         try {
-                            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${order_id}`, {
+                            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
                                 method: 'POST',
                                 headers: {
                                     'Content-Type': 'application/json',
@@ -344,6 +346,7 @@ export default function page({ params: { motorId } }) {
                                 },
                                 body: JSON.stringify({
                                     status_history: 'Dipesan',
+                                    status_pembayaran: 'Lunas',
                                 }),
                             });
 
@@ -643,7 +646,7 @@ export default function page({ params: { motorId } }) {
     const handleClickPaymentCashless = () => {
         setClickedPaymentCashless(true);
         setClickedPaymentTunai(false);
-        setMetodePembayaran('Cashless');
+        setMetodePembayaran('Non-Tunai');
     };
 
     const handleClickDiantar = () => {
