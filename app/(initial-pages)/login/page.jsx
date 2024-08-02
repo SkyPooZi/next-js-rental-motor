@@ -10,18 +10,6 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
 
-  // useEffect(() => {
-  //   // Check if token exists in local storage
-  //   const token = localStorage.getItem('token');
-  //   if (token) {
-  //     router.push('/');
-  //   }
-  // }, []);
-
-  useEffect(() => {
-
-  })
-
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
