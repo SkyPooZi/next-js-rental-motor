@@ -1,7 +1,7 @@
 import React from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlayCircle } from '@fortawesome/free-solid-svg-icons';
+import { Spinner } from "@material-tailwind/react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -86,6 +86,11 @@ function Debat() {
     const items = debat();
     const firstSlideItems = items.slice(0, 9);
     const secondSlideItems = items.slice(9, 18);
+    const [imageLoading, setImageLoading] = useState(true);
+
+    const handleImageLoad = () => {
+        setImageLoading(false);
+    };
 
     return (
         <>
@@ -115,6 +120,11 @@ function Debat() {
                 >
                     {firstSlideItems.map(item => (
                         <SwiperSlide key={item.id} className="relative m-2 cursor-pointer">
+                            {imageLoading && (
+                                <div className="flex items-center justify-center w-72 h-72">
+                                    <Spinner color="orange" className="h-12 w-12" />
+                                </div>
+                            )}
                             <Image width={1000} height={1000} src={item.image} className="w-[500px] h-[250px]" alt="slider 1" />
                         </SwiperSlide>
                     ))}
@@ -141,7 +151,7 @@ function Debat() {
                 >
                     {secondSlideItems.map(item => (
                         <SwiperSlide key={item.id} className="relative m-2 cursor-pointer">
-                            <Image width={1000} height={1000} src={item.image} className="w-[500px] h-[250px]" alt="slider 1" />
+                            <Image width={1000} height={1000} src={item.image} onLoadingComplete={handleImageLoad} className="w-[500px] h-[250px]" alt="slider 1" />
                         </SwiperSlide>
                     ))}
                 </Swiper>
