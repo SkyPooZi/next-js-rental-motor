@@ -111,9 +111,7 @@ export default function Navbar() {
                                     <DropdownMenuItem>
                                         <Link href="/setting" className='flex items-center gap-2 hover:text-[#FF4D30]'>
                                             <IoSettings size='25' />
-                                            <Label>
-                                                <span className='font-bold cursor-pointer'>Settings</span>
-                                            </Label>
+                                            <span className='font-bold cursor-pointer'>Settings</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <div className="border-t border-[#FF4D30] my-2"></div>

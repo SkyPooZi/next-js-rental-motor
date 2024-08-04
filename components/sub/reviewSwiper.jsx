@@ -1,4 +1,3 @@
-// SwiperComponent.js
 import React from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation, Autoplay } from 'swiper/modules';
@@ -50,10 +49,10 @@ const ReviewSwiper = ({ reviews }) => {
                             </SwiperSlide>
                         ))}
 
-                        <div className="custom-swiper-button-prev bg-[#ff4d30] p-2 rounded-full">
+                        <div className="custom-swiper-button-prev bg-[#ff4d30] p-2 cursor-pointer rounded-full">
                             <FaArrowLeft className="text-white" />
                         </div>
-                        <div className="custom-swiper-button-next bg-[#ff4d30] p-2 rounded-full">
+                        <div className="custom-swiper-button-next bg-[#ff4d30] p-2 cursor-pointer rounded-full">
                             <FaArrowRight className="text-white" />
                         </div>
                     </Swiper>

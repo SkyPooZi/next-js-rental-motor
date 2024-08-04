@@ -54,6 +54,7 @@ export default function page({ params: { motorId } }) {
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
     const [motor_id, setMotorId] = useState('');
+    const [stok_motor, setStokMotor] = useState(0);
     const [nama_motor, setNamaMotor] = useState('');
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
@@ -161,6 +162,8 @@ export default function page({ params: { motorId } }) {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
                     setGambarMotor(data.listMotor);
+                    setStokMotor(data.listMotor.stok_motor);
+                    console.log('Stok Motor:', data.listMotor.stok_motor);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -386,18 +389,19 @@ export default function page({ params: { motorId } }) {
                     },
                     onPending: async function (result) {
                         showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
-                        console.log(result);
+                        console.log('Payment Pending:', result);
 
                         await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
                     },
                     onError: async function (result) {
                         showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
-                        console.log(result);
+                        console.log('Payment Error:', result);
 
                         await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
                     },
                     onClose: async function () {
-                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'error');
+                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'warning');
+                        console.log('Payment Popup Closed');
 
                         await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
                     }
@@ -534,6 +538,7 @@ export default function page({ params: { motorId } }) {
     useEffect(() => {
         const fetchBookedDates = async () => {
             if (!motor_id) return;
+
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
@@ -541,24 +546,61 @@ export default function page({ params: { motorId } }) {
                         'Authorization': `Bearer ${token}`
                     },
                 });
+
                 const data = await response.json();
 
-                const disabledRanges = data.history
-                    .filter(item => item.motor_id === motor_id)
-                    .map(item => ({
-                        from: dayjs(item.tanggal_mulai),
-                        to: dayjs(item.tanggal_selesai),
-                    }));
-                console.log('Disabled Ranges:', disabledRanges);
+                // Filter bookings for the specific motorbike
+                const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
 
-                setDisabledRanges(disabledRanges);
+                // Create an object to count bookings per day
+                const bookingCountPerDay = {};
+
+                bookingsForMotor.forEach(item => {
+                    const startDate = dayjs(item.tanggal_mulai);
+                    const endDate = dayjs(item.tanggal_selesai);
+
+                    // Iterate over each day in the booking range
+                    for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate, 'day'); date = date.add(1, 'day')) {
+                        const dateStr = date.format('YYYY-MM-DD');
+
+                        // Initialize count if not already present
+                        if (!bookingCountPerDay[dateStr]) {
+                            bookingCountPerDay[dateStr] = 0;
+                        }
+                        bookingCountPerDay[dateStr]++;
+                    }
+                });
+
+                // Determine which dates to disable based on stock availability
+                const disabledDates = Object.keys(bookingCountPerDay)
+                    .filter(dateStr => bookingCountPerDay[dateStr] >= stok_motor)
+                    .map(dateStr => dayjs(dateStr));
+
+                console.log('Disabled Dates:', disabledDates);
+
+                setDisabledRanges(disabledDates);
             } catch (error) {
                 console.error('Error fetching booked dates:', error);
             }
         };
 
         fetchBookedDates();
-    }, [motor_id, token]);
+    }, [motor_id, token, stok_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
+        if (selectedDayDisabled) return true;
+
+        return false;
+    };
 
     const handleDateStart = (date) => {
         if (date) {
@@ -593,36 +635,6 @@ export default function page({ params: { motorId } }) {
                 setTanggalSelesai('');
             }
         }
-    };
-
-    const shouldDisableDate = (date) => {
-        const today = dayjs().startOf('day');
-        if (date.isBefore(today)) return true;
-        for (const range of disabledRanges) {
-            if (date.isSame(range.from, 'day')) {
-                return true; // Disable the start date completely
-            }
-            if (date.isBetween(range.from.startOf('day'), range.to.startOf('day'), 'day', '()')) {
-                return true; // Disable the dates fully within the range, excluding start and end dates
-            }
-        }
-        return false;
-    };
-
-    const shouldDisableTime = (time, selectedDate) => {
-        if (!selectedDate) return false;
-        for (const range of disabledRanges) {
-            const isSameDayStart = selectedDate.isSame(range.from, 'day');
-            const isSameDayEnd = selectedDate.isSame(range.to, 'day');
-
-            if (isSameDayStart) {
-                return true; // Disable all times on the start date
-            }
-            if (isSameDayEnd && time.isBefore(range.to)) {
-                return true; // Disable times up to the end time on the end date
-            }
-        }
-        return false;
     };
 
     const handleClickPenyewaDiriSendiri = () => {
@@ -1038,7 +1050,7 @@ export default function page({ params: { motorId } }) {
                                         </div>
                                     </div>
                                     <div className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
-                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp- / km</span>
+                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp 25.000</span>
                                     </div>
                                 </div>
                             </div>
