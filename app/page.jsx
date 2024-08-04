@@ -111,7 +111,7 @@ export default function Home() {
                 }
                 if (selectedFilter === 'Sport') {
                     return motor.tipe_motor === 'Sport';
-                }
+                }   
                 return true;
             });
         } else {
