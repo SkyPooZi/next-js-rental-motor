@@ -63,7 +63,7 @@ export default function page({ params: { motorId } }) {
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
     const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
-    const [diskon_id, setDiskonId] = useState('');
+    const [diskon_id, setDiskonId] = useState(diskons.length > 0 ? diskons[0].id : null);
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [point, setPoint] = useState(0);
     const [usePoint, setUsePoint] = useState(false);
@@ -80,10 +80,8 @@ export default function page({ params: { motorId } }) {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
-    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
-    const defaultMotor = motors.find(motor => motor.id === motorId);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -124,16 +122,23 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const handleCheckboxChange = (e) => {
-        const isChecked = e.target.checked;
-
+    const handleCheckboxChange = () => {
+        const isChecked = !usePoint;
         const updatedTotal = calculateTotalPembayaran(isChecked);
+
         if (updatedTotal === 0) {
             setUsePoint(false);
-            showNotificationWithTimeout('Silahkan pilih motor terlebih dahulu', 'error');
+            setPointValue(0);
+            showNotificationWithTimeout('Silahkan isi data terlebih dahulu', 'error');
             scrollToTarget();
         } else {
-            setUsePoint(isChecked);
+            if (usePoint) {
+                setUsePoint(false);
+                setPointValue(0);
+            } else {
+                setUsePoint(isChecked);
+                setPointValue(point);
+            }
         }
     };
 
@@ -328,7 +333,6 @@ export default function page({ params: { motorId } }) {
                 const snapToken = paymentData.snapToken;
                 const orderId = paymentData.order_id;
                 console.log(`Snap Token: ${snapToken}, Order ID: ${historyId}`);
-                Cookies.set('order_id', orderId);
 
                 if (!snapToken || !historyId) {
                     throw new Error('Snap Token or Order ID missing in the response');
@@ -1151,6 +1155,37 @@ export default function page({ params: { motorId } }) {
                                                 </span>
                                             </Label>
                                         </div>
+                                        <div className='flex flex-row gap-2 mt-2 items-center justify-between'>
+                                            <div className='flex gap-2 items-center'>
+                                                <input
+                                                    type="checkbox"
+                                                    id="points"
+                                                    checked={usePoint}
+                                                    onChange={handleCheckboxChange}
+                                                    className={`custom-checkbox h-5 w-5 rounded-full border-2 border-orange-600 text-orange-600 transition duration-150 ease-in-out cursor-pointer`}
+                                                    style={{
+                                                        appearance: 'none',
+                                                        WebkitAppearance: 'none',
+                                                        MozAppearance: 'none'
+                                                    }}
+                                                />
+                                                <div className='flex flex-row gap-1 items-center'>
+                                                    <AiOutlineDollarCircle color='#FF4D30' size='23px' />
+                                                    <Label>
+                                                        <span className='font-medium text-[14px] text-[#FF4D30]'>
+                                                            {point} Gunakan Poin
+                                                        </span>
+                                                    </Label>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <Label>
+                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
+                                                        -Rp. {pointValue}
+                                                    </span>
+                                                </Label>
+                                            </div>
+                                        </div>
                                         <div className='flex flex-row justify-end'>
                                             <div className='w-full max-w-[368px] flex flex-col gap-2'>
                                                 <span className="text-black">
@@ -1163,11 +1198,14 @@ export default function page({ params: { motorId } }) {
                                                             onChange={handleSelectChangeDiskon}
                                                             value={diskons[0].id}
                                                         >
-                                                            {diskons.map((diskon) => (
-                                                                <Option key={diskon.id} value={diskon.id}>
-                                                                    {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
-                                                                </Option>
-                                                            ))}
+                                                            {diskons.map((diskon) => {
+                                                                const potonganRupiah = (hargaRental * durasi * diskon.potongan_harga) / 100;
+                                                                return (
+                                                                    <Option key={diskon.id} value={diskon.id}>
+                                                                        {diskon.nama_diskon} - Potongan: Rp. {potonganRupiah.toLocaleString()}
+                                                                    </Option>
+                                                                );
+                                                            })}
                                                         </Select>
                                                     </div>
                                                 )}
@@ -1179,22 +1217,6 @@ export default function page({ params: { motorId } }) {
                                                     Rp. {total_pembayaran.toLocaleString()}
                                                 </span>
                                             </Label>
-                                        </div>
-                                        <div className='flex flex-row gap-2 mt-2 items-center'>
-                                            <Radio
-                                                id="points"
-                                                color='orange'
-                                                checked={usePoint}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <div className='flex flex-row gap-1 items-center'>
-                                                <AiOutlineDollarCircle color='#FF4D30' size='23px' />
-                                                <Label>
-                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        {point} Gunakan Poin
-                                                    </span>
-                                                </Label>
-                                            </div>
                                         </div>
                                         <div className="border-t border-[#757575] mt-2"></div>
                                         <div className='flex flex-row justify-between'>
