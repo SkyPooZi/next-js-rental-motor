@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
-import { format, differenceInDays, addDays, startOfToday, set } from "date-fns";
 
-import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
-import { MdDone, MdClose } from "react-icons/md";
+import { MdClose } from "react-icons/md";
 
 import {
-    Popover,
-    PopoverHandler,
-    PopoverContent,
     Input,
 } from "@material-tailwind/react";
 import { Label } from "@/components/ui/label";
@@ -17,25 +12,34 @@ import { Button } from "@/components/ui/button";
 
 import { fetchCancelledModal } from '@/utils/services/fetchCancelledModal';
 import { handleReschedule } from '@/utils/services/handleReschedule';
-import { DayPicker } from "react-day-picker";
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TextField } from '@mui/material';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [durasi, setDurasi] = useState('');
-    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
-    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [disabledRanges, setDisabledRanges] = useState([]);
+    const [minEndDate, setMinEndDate] = useState(null);
     const [image, setImage] = useState(null);
     const [motor_id, setMotorId] = useState('');
+    const [stok_motor, setStokMotor] = useState(0);
     const [motorData, setMotorData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [rescheduleModalDetails, setRescheduleModalDetails] = useState(null);
+    const [initialDuration, setInitialDuration] = useState(null);
     const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchBookedDates = async () => {
             if (!motor_id) return;
+
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
@@ -43,55 +47,68 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         'Authorization': `Bearer ${token}`
                     },
                 });
+
                 const data = await response.json();
 
-                const disabledRanges = data.history
-                    .filter(item => item.motor_id === motor_id)
-                    .map(item => {
-                        const startDate = new Date(item.tanggal_mulai);
-                        const endDate = new Date(item.tanggal_selesai);
-                        const range = { from: startDate, to: addDays(endDate, 1) };
-                        return range;
-                    });
-                console.log('Disabled Ranges:', disabledRanges);
+                // Filter bookings for the specific motorbike
+                const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
 
-                const today = startOfToday();
+                // Create an object to count bookings per day
+                const bookingCountPerDay = {};
 
-                const disableBeforeToday = { before: today };
+                bookingsForMotor.forEach(item => {
+                    const startDate = dayjs(item.tanggal_mulai);
+                    const endDate = dayjs(item.tanggal_selesai);
 
-                setDisabledDaysMulai([disableBeforeToday, ...disabledRanges]);
-                setDisabledDaysSelesai([disableBeforeToday, ...disabledRanges]);
+                    // Iterate over each day in the booking range
+                    for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate, 'day'); date = date.add(1, 'day')) {
+                        const dateStr = date.format('YYYY-MM-DD');
+
+                        // Initialize count if not already present
+                        if (!bookingCountPerDay[dateStr]) {
+                            bookingCountPerDay[dateStr] = 0;
+                        }
+                        bookingCountPerDay[dateStr]++;
+                    }
+                });
+
+                // Determine which dates to disable based on stock availability
+                const disabledDates = Object.keys(bookingCountPerDay)
+                    .filter(dateStr => bookingCountPerDay[dateStr] >= stok_motor)
+                    .map(dateStr => dayjs(dateStr));
+
+                console.log('Disabled Dates:', disabledDates);
+
+                setDisabledRanges(disabledDates);
             } catch (error) {
                 console.error('Error fetching booked dates:', error);
             }
         };
 
         fetchBookedDates();
-    }, [motor_id]);
+    }, [motor_id, token, stok_motor]);
 
-    useEffect(() => {
-        if (tanggal_mulai && tanggal_selesai) {
-            const startDate = new Date(tanggal_mulai);
-            const endDate = new Date(tanggal_selesai);
-            const duration = differenceInDays(endDate, startDate);
-            setDurasi(duration);
-        } else {
-            setDurasi('');
-        }
-    }, [tanggal_mulai, tanggal_selesai]);
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
+        if (selectedDayDisabled) return true;
+
+        return false;
+    };
 
     const handleDateStart = (date) => {
         if (date) {
-            const formattedDate = format(date, 'yyyy-MM-dd');
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalMulai(formattedDate);
             setTanggalSelesai('');
-
-            const minEndDate = addDays(date, 1);
-            const disableBeforeMinEndDate = { before: minEndDate };
-            const today = startOfToday();
-            const disableBeforeToday = { before: today };
-
-            setDisabledDaysSelesai([disableBeforeToday, disableBeforeMinEndDate, ...disabledDaysMulai]);
+            setMinEndDate(dayjs(date).add(1, 'day'));
         } else {
             setTanggalMulai('');
         }
@@ -99,11 +116,23 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
 
     const handleDateEnd = (date) => {
         if (date) {
-            setTanggalSelesai(format(date, 'yyyy-MM-dd'));
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalSelesai(formattedDate);
         } else {
             setTanggalSelesai('');
         }
     };
+
+    useEffect(() => {
+        if (tanggal_mulai && tanggal_selesai) {
+            const startDate = dayjs(tanggal_mulai);
+            const endDate = dayjs(tanggal_selesai);
+            const duration = endDate.diff(startDate, 'day');
+            setDurasi(duration);
+        } else {
+            setDurasi(0);
+        }
+    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
 
     useEffect(() => {
         const getCancelledDetails = async () => {
@@ -117,6 +146,11 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
                     setMotorData(data.list_motor.nama_motor);
                     setMotorId(data.list_motor.id);
+
+                    const startDate = dayjs(data.tanggal_mulai);
+                    const endDate = dayjs(data.tanggal_selesai);
+                    const initialDuration = endDate.diff(startDate, 'day');
+                    setInitialDuration(initialDuration);
                 } else {
                     console.log('No data received or incorrect status');
                 }
@@ -131,18 +165,24 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     }, [token, historyId, isOpen]);
 
     const handleConfirm = async () => {
+        if (durasi !== initialDuration) {
+            alert('Durasi penjadwalan ulang harus sama dengan durasi pesanan sebelumnya.');
+            return;
+        }
+
         setIsLoading(true);
         const result = await handleReschedule(token, historyId, tanggal_mulai, tanggal_selesai);
 
         if (result.success) {
             setShowNotification(true);
             onSuccess();
+
             setTimeout(() => {
                 setShowNotification(false);
-                onClose();
                 setIsLoading(false);
                 setTanggalMulai('');
                 setTanggalSelesai('');
+                onClose();
             }, 3000);
         } else {
             console.error('Failed to update reasons:', result.error);
@@ -191,124 +231,49 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                         {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
                                     </span>
                                 </Label>
+                                <Label>
+                                    <span className='text-base'>
+                                        {`Durasi: ${rescheduleModalDetails.durasi} hari`}
+                                    </span>
+                                </Label>
+                                <Label>
+                                    <span className='text-xs text-[#ff4d30]'>
+                                        Durasi penjadwalan ulang harus sama dengan pesanan sebelumnya
+                                    </span>
+                                </Label>
                             </div>
                         </div>
-                        <div className='flex md:flex-row flex-col gap-5'>
-                            <div className='w-full flex flex-col gap-2'>
-                                <span className="text-black">
-                                    Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
-                                </span>
-                                <Popover placement="bottom">
-                                    <PopoverHandler>
-                                        <Input
-                                            required
-                                            label="Pilih Tanggal Mulai"
-                                            onChange={() => null}
-                                            value={tanggal_mulai ? format(new Date(tanggal_mulai), "yyyy-MM-dd") : ""}
-                                        />
-                                    </PopoverHandler>
-                                    <PopoverContent className="z-40">
-                                        <DayPicker
-                                            mode="single"
-                                            selected={tanggal_mulai ? new Date(tanggal_mulai) : undefined}
-                                            onSelect={handleDateStart}
-                                            showOutsideDays
-                                            disabled={disabledDaysMulai}
-                                            className="border-0"
-                                            classNames={{
-                                                caption: "flex justify-center py-2 mb-4 relative items-center",
-                                                caption_label: "text-sm font-medium text-gray-900",
-                                                nav: "flex items-center",
-                                                nav_button:
-                                                    "h-6 w-6 bg-transparent hover:bg-blue-gray-50 p-1 rounded-md transition-colors duration-300",
-                                                nav_button_previous: "absolute left-1.5",
-                                                nav_button_next: "absolute right-1.5",
-                                                table: "w-full border-collapse",
-                                                head_row: "flex font-medium text-gray-900",
-                                                head_cell: "m-0.5 w-9 font-normal text-sm",
-                                                row: "flex w-full mt-2",
-                                                cell: "text-gray-600 rounded-md h-9 w-9 text-center text-sm p-0 m-0.5 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-gray-900/20 [&:has([aria-selected].day-outside)]:text-white [&:has([aria-selected])]:bg-gray-900/50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                                                day: "h-9 w-9 p-0 font-normal",
-                                                day_range_end: "day-range-end",
-                                                day_selected:
-                                                    "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white",
-                                                day_today: "rounded-md bg-gray-200 text-gray-900",
-                                                day_outside:
-                                                    "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
-                                                day_disabled: "text-gray-500 opacity-50",
-                                                day_hidden: "invisible",
-                                            }}
-                                            components={{
-                                                IconLeft: ({ ...props }) => (
-                                                    <ChevronLeftIcon {...props} className="h-4 w-4 stroke-2" />
-                                                ),
-                                                IconRight: ({ ...props }) => (
-                                                    <ChevronRightIcon {...props} className="h-4 w-4 stroke-2" />
-                                                ),
-                                            }}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <div className='flex md:flex-row flex-col gap-5'>
+                                <div className='w-full flex flex-col gap-2'>
+                                    <span className="text-black">
+                                        Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
+                                    </span>
+                                    <DateTimePicker
+                                        label="Pilih Tanggal Mulai"
+                                        value={tanggal_mulai ? dayjs(tanggal_mulai) : null}
+                                        onChange={handleDateStart}
+                                        shouldDisableDate={shouldDisableDate}
+                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai))}
+                                        renderInput={(params) => <TextField {...params} required />}
+                                    />
+                                </div>
+                                <div className="w-full flex flex-col gap-2">
+                                    <span className="text-black">
+                                        Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
+                                    </span>
+                                    <DateTimePicker
+                                        label="Pilih Tanggal Selesai"
+                                        value={tanggal_selesai ? dayjs(tanggal_selesai) : null}
+                                        onChange={handleDateEnd}
+                                        minDateTime={minEndDate}
+                                        shouldDisableDate={shouldDisableDate}
+                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai))}
+                                        renderInput={(params) => <TextField {...params} required />}
+                                    />
+                                </div>
                             </div>
-                        </div>
-                        <div className='flex md:flex-row flex-col gap-5'>
-                            <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">
-                                    Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
-                                </span>
-                                <Popover placement="bottom">
-                                    <PopoverHandler>
-                                        <Input
-                                            required
-                                            label="Pilih Tanggal Selesai"
-                                            onChange={() => null}
-                                            value={tanggal_selesai ? format(new Date(tanggal_selesai), "yyyy-MM-dd") : ""}
-                                        />
-                                    </PopoverHandler>
-                                    <PopoverContent className="z-40">
-                                        <DayPicker
-                                            mode="single"
-                                            selected={tanggal_selesai ? new Date(tanggal_selesai) : undefined}
-                                            onSelect={handleDateEnd}
-                                            showOutsideDays
-                                            disabled={disabledDaysSelesai}
-                                            className="border-0"
-                                            classNames={{
-                                                caption: "flex justify-center py-2 mb-4 relative items-center",
-                                                caption_label: "text-sm font-medium text-gray-900",
-                                                nav: "flex items-center",
-                                                nav_button:
-                                                    "h-6 w-6 bg-transparent hover:bg-blue-gray-50 p-1 rounded-md transition-colors duration-300",
-                                                nav_button_previous: "absolute left-1.5",
-                                                nav_button_next: "absolute right-1.5",
-                                                table: "w-full border-collapse",
-                                                head_row: "flex font-medium text-gray-900",
-                                                head_cell: "m-0.5 w-9 font-normal text-sm",
-                                                row: "flex w-full mt-2",
-                                                cell: "text-gray-600 rounded-md h-9 w-9 text-center text-sm p-0 m-0.5 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-gray-900/20 [&:has([aria-selected].day-outside)]:text-white [&:has([aria-selected])]:bg-gray-900/50 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                                                day: "h-9 w-9 p-0 font-normal",
-                                                day_range_end: "day-range-end",
-                                                day_selected:
-                                                    "rounded-md bg-gray-900 text-white hover:bg-gray-900 hover:text-white focus:bg-gray-900 focus:text-white",
-                                                day_today: "rounded-md bg-gray-200 text-gray-900",
-                                                day_outside:
-                                                    "day-outside text-gray-500 opacity-50 aria-selected:bg-gray-500 aria-selected:text-gray-900 aria-selected:bg-opacity-10",
-                                                day_disabled: "text-gray-500 opacity-50",
-                                                day_hidden: "invisible",
-                                            }}
-                                            components={{
-                                                IconLeft: ({ ...props }) => (
-                                                    <ChevronLeftIcon {...props} className="h-4 w-4 stroke-2" />
-                                                ),
-                                                IconRight: ({ ...props }) => (
-                                                    <ChevronRightIcon {...props} className="h-4 w-4 stroke-2" />
-                                                ),
-                                            }}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </div>
+                        </LocalizationProvider>
                         <div className='flex md:flex-row flex-col gap-5 '>
                             <div className='text-black w-full text-sm'>
                                 Durasi
@@ -321,7 +286,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </div>
                         <Button
                             onClick={handleConfirm}
-                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading}
+                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration}
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}
                         </Button>

@@ -53,7 +53,7 @@ const Modal = ({ isOpen, onClose }) => {
                     </div>
                     <div className='flex flex-col gap-1 items-start font-semibold bg-white'>
                         <span className='font-semibold text-[#E80D12] bg-white'>
-                            Biaya Penjadwalan Ulang Rp, 140.000 berlaku setelah
+                            Biaya Penjadwalan Ulang Rp, 100.000 berlaku setelah
                         </span>
                         {tomorrowFormatted}
                     </div>
