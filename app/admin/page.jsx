@@ -383,8 +383,12 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
-                    <NewOrderBookedList />
-                    <AllChart />
+                    <div>
+                        <NewOrderBookedList />
+                    </div>
+                    <div>
+                        <AllChart />
+                    </div>
                 </div>
             }
         </>
