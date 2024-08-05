@@ -56,11 +56,14 @@ const LoginPage = () => {
       Cookies.set('role', role);
 
       if (user && user.email === email) {
-        // Get the return URL from query parameters or default to home
+        if (role !== 'admin') {
+          router.push('/');
+        } else {
+          router.push('/admin');
+        }
         const params = new URLSearchParams(window.location.search);
         const returnUrl = params.get('returnUrl') || '/';
 
-        // Redirect to the intended page or default home
         router.push(returnUrl);
       } else {
         setError('Invalid email or password');

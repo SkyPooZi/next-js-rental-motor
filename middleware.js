@@ -10,15 +10,21 @@ export function middleware(request) {
     return NextResponse.redirect(new URL(`/pages/login?returnUrl=${encodeURIComponent(returnUrl)}`, request.url));
   }
 
+  // if (request.nextUrl.pathname.startsWith('/admin')) {
+  //   if (role !== 'admin') {
+  //     return NextResponse.redirect(new URL("/", request.url));
+  //   }
+  // }
+
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (role !== 'admin') {
-      return NextResponse.redirect(new URL("/", request.url));
+    if (role === 'admin') {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 
-  if (request.nextUrl.pathname.startsWith('/settings')) {
-    if (role !== 'admin') {
-      return NextResponse.redirect(new URL("/", request.url));
+  if (request.nextUrl.pathname.startsWith('/')) {
+    if (role === 'admin') {
+      return NextResponse.redirect(new URL("/admin", request.url));
     }
   }
 
