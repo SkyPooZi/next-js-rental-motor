@@ -56,11 +56,12 @@ const LoginPage = () => {
       Cookies.set('role', role);
 
       if (user && user.email === email) {
-        if (role !== 'admin') {
-          router.push('/');
-        } else {
-          router.push('/admin');
-        }
+        // Get the return URL from query parameters or default to home
+        const params = new URLSearchParams(window.location.search);
+        const returnUrl = params.get('returnUrl') || '/';
+
+        // Redirect to the intended page or default home
+        router.push(returnUrl);
       } else {
         setError('Invalid email or password');
       }
@@ -78,11 +79,11 @@ const LoginPage = () => {
   }, []);
 
   const handleGoogleLogin = () => {
-    window.location.href = 'https://rental-motor.ruscarestudent.com/api/login/google';
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/google`;
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = 'https://rental-motor.ruscarestudent.com/api/login/facebook';
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`;
   };
 
   return (
