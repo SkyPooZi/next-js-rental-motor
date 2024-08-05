@@ -870,7 +870,7 @@ export default function page({ params: { motorId } }) {
                                         className='' color='grey' size='25'
                                     />
                                     <span className='font-bold text-black text-sm'>
-                                        Booking ini tidak dapat di refund
+                                        Pemesanan ini tidak dapat di refund
                                     </span>
                                 </div>
                                 <div className='flex flex-row gap-2 items-center justify-start '>
@@ -892,7 +892,7 @@ export default function page({ params: { motorId } }) {
                         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                             <div className='flex flex-col items-start justify-start gap-3 text-[#666666] '>
                                 <span className='font-extrabold text-black text-lg flex'>
-                                    Detail Booking
+                                    Detail Pemesanan
                                 </span>
                                 <span className='text-[#FF4D30] text-[14px]'>
                                     Harap isi semua kolom dengan benar untuk memastikan tidak ada kesalahan dalam booking
