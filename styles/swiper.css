@@ -1,0 +1,40 @@
+/* styles/swiper.css */
+.swiper-button-prev,
+.swiper-button-next {
+    display: none; /* Disable default swiper buttons */
+}
+
+.custom-swiper-button-prev,
+.custom-swiper-button-next {
+    color: #000;
+    background-color: #fff;
+    border-radius: 50%;
+    padding: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+}
+
+.custom-swiper-button-prev:hover,
+.custom-swiper-button-next:hover {
+    background-color: #f0f0f0;
+}
+
+.custom-swiper-button-prev {
+    left: 10px;
+}
+
+.custom-swiper-button-next {
+    right: 10px;
+}
+
+.swiper-container {
+    width: 100%;
+}

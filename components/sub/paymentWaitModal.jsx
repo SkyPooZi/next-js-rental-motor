@@ -1,89 +1,98 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Cookies from 'js-cookie';
+
+import { MdDone, MdClose } from "react-icons/md";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox"
+import { Checkbox } from "@/components/ui/checkbox";
 
-const PaymentWaitModal = ({ isOpen, onClose, className }) => {
+import { handleCancelled } from '@/utils/services/handleCancelled';
 
-    const modalRef = useRef(null);
+const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
+    const [selectedReason, setSelectedReason] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const token = Cookies.get('token');
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (modalRef.current && !modalRef.current.contains(event.target)) {
-                onClose();
-            }
-        };
+    const handleCheckboxChange = (reason) => {
+        setSelectedReason(reason);
+    };
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
+    const handleConfirm = async () => {
+        const currentDate = new Date().toISOString().split('T')[0];
+        const result = await handleCancelled(token, historyId, selectedReason, currentDate);
+
+        if (result.success) {
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 3000);
+            onClose();
         } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+            console.error('Failed to update reasons:', result.error);
         }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen, onClose]);
+    };
 
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-            <div ref={modalRef} className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
-                <div className='flex flex-col gap-5'>
-                    <Label>
-                        <span className='font-medium text-base'>
-                            Pilih Alasan Pembatalan
-                        </span>
-                    </Label>
-                    <div className='flex flex-col gap-3'>
-                        <div className='flex flex-row items-end gap-2'>
-                            <Checkbox id="terms" />
-                            <Label>
-                                <span>
-                                    Alasan 1
-                                </span>
-                            </Label>
-                        </div>
-                        <div className='flex flex-row items-end gap-2'>
-                            <Checkbox id="terms" />
-                            <Label>
-                                <span>
-                                    Alasan 2
-                                </span>
-                            </Label>
-                        </div>
-                        <div className='flex flex-row items-end gap-2'>
-                            <Checkbox id="terms" />
-                            <Label>
-                                <span>
-                                    Alasan 3
-                                </span>
-                            </Label>
-                        </div>
-                        <div className='flex flex-row items-end gap-2'>
-                            <Checkbox id="terms" />
-                            <Label>
-                                <span>
-                                    Alasan 4
-                                </span>
-                            </Label>
-                        </div>
-                    </div>
-                    <Button>
+        <>
+            {showNotification && (
+                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50">
+                    <span>Data berhasil diubah</span>
+                    <MdDone className="ml-2 text-white" />
+                </div>
+            )}
+            <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
+                <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg relative">
+                    <MdClose
+                        className="absolute top-4 right-4 text-gray-600 cursor-pointer"
+                        size={24}
+                        onClick={onClose}
+                    />
+                    <div className='flex flex-col gap-5'>
                         <Label>
-                            <span className='cursor-pointer text-xs'>
-                                KONFIRMASI
+                            <span className='font-medium text-lg'>
+                                Pilih Alasan Pembatalan
                             </span>
                         </Label>
-                    </Button>
+                        <div className='flex flex-col gap-3'>
+                            <Label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox id="perubahan-rencana" checked={selectedReason === 'Perubahan Rencana'} onCheckedChange={() => handleCheckboxChange('Perubahan Rencana')} />
+                                <span className='text-base'>
+                                    Perubahan Rencana
+                                </span>
+                            </Label>
+                            <Label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox id="kesalahan-pemesanan" checked={selectedReason === 'Kesalahan Pemesanan'} onCheckedChange={() => handleCheckboxChange('Kesalahan Pemesanan')} />
+                                <span className='text-base'>
+                                    Kesalahan Pemesanan
+                                </span>
+                            </Label>
+                            <Label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox id="penawaran-lebih-baik" checked={selectedReason === 'Menemukan Penawaran Yang Lebih Baik'} onCheckedChange={() => handleCheckboxChange('Menemukan Penawaran Yang Lebih Baik')} />
+                                <span className='text-base'>
+                                    Menemukan Penawaran Yang Lebih Baik
+                                </span>
+                            </Label>
+                            <Label className='flex items-center gap-2 cursor-pointer'>
+                                <Checkbox id="tidak-puas-layanan" checked={selectedReason === 'Tidak Puas Dengan Layanan'} onCheckedChange={() => handleCheckboxChange('Tidak Puas Dengan Layanan')} />
+                                <span className='text-base'>
+                                    Tidak Puas Dengan Layanan
+                                </span>
+                            </Label>
+                        </div>
+                        <Button onClick={handleConfirm}>
+                            <Label>
+                                <span className='cursor-pointer text-base'>
+                                    Konfirmasi
+                                </span>
+                            </Label>
+                        </Button>
+                    </div>
                 </div>
-                {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                    Close
-                </button> */}
             </div>
-        </div>
+        </>
     );
 };
 

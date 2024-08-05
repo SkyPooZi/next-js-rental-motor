@@ -1,196 +1,225 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import NavbarAfter from '@/components/main/NavbarAfter';
-import Navbar from '@/components/main/Navbar';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import Cookies from 'js-cookie';
+
+import '../styles/slideInFoward.css';
+import '../styles/slideInAnimation.css';
+
+import { Spinner, Button } from "@material-tailwind/react";
+import GallerySwiper from '@/components/sub/gallerySwiper';
+import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
-import { useRouter } from 'next/navigation';
 import SwiperComponent from '@/components/ui/swiper';
+import ReviewSwiper from '@/components/sub/reviewSwiper';
+import ReviewCard from '@/components/sub/ReviewCard';
+import ProductSlider from '@/components/ui/swiperNew';
+import HeaderHomePage from '@/components/sub/headerHomepage';
+import HorizontalScroll from '@/components/ui/horizontalScroll';
+import ScrollTextAnimation from '@/components/ui/scrollTextAnimation';
 
-export default function Home() {
+const Motor = ({ motor }) => {
+    const [imageLoading, setImageLoading] = useState(true);
+    const imageUrl = `https://rental-motor.ruscarestudent.com/storage/${motor.gambar_motor}`;
 
-    const router = useRouter();
-
-    const handleCatalogRedirect = () => {
-        router.push('/catalog');
-    };
-
-    const handleFormRedirect = () => {
-        router.push('/form');
+    const handleImageLoad = () => {
+        setImageLoading(false);
     };
 
     return (
         <>
+            <div className="border w-fit border-gray-300 bg-white rounded-lg p-4 shadow-md flex flex-col items-start">
+                <div className="flex justify-center mb-4">
+                    {imageLoading && (
+                        <div className="flex items-center justify-center w-72 h-72">
+                            <Spinner color="orange" className="h-12 w-12" />
+                        </div>
+                    )}
+                    <Image
+                        src={imageUrl}
+                        alt={motor.nama_motor}
+                        width={1000}
+                        height={1000}
+                        priority={true} // Ensure image loads immediately
+                        className={`rounded-lg w-72 h-72 object-cover transition-opacity duration-500 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                        onLoadingComplete={handleImageLoad}
+                    />
+                </div>
+                <div className="w-full text-center px-5">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-5 text-[#ff4d30]">
+                        {motor.nama_motor}
+                    </h3>
+                    <div className='flex justify-between'>
+                        <div className="mb-2 flex flex-col gap-2">
+                            <span className="font-bold text-black/70">Harian : </span>
+                            <span className="font-bold">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
+                        </div>
+                        <div className="mb-4 flex flex-col gap-2 text-end">
+                            <span className="font-bold text-black/70">Mingguan : </span>
+                            <span className='font-bold'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-center mb-2">
+                        <Link href={`/form/${motor.id}`} className='my-5 ml-1'>
+                            <Button className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
+                                <span className="relative text-base z-10">Pesan Sekarang!</span>
+                            </Button>
+                        </Link>
+                        <Link href={`/detail/${motor.id}`}>
+                            <button className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>
+                        </Link>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
 
+export default function Home() {
+    const token = Cookies.get('token');
+    const [selectedFilter, setSelectedFilter] = useState('Semua');
+    const [motors, setMotors] = useState([]);
+    const [filteredMotors, setFilteredMotors] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const [loadingMotor, setLoadingMotor] = useState(true);
+    const [animate, setAnimate] = useState(false);
+
+    useEffect(() => {
+        const fetchMotors = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (data.status === 200) {
+                    setMotors(data.listMotor);
+                    setFilteredMotors(data.listMotor);
+                } else {
+                    console.error('Unexpected response status:', data.status);
+                }
+            } catch (error) {
+                console.error('Error fetching motor data:', error);
+            } finally {
+                setLoadingMotor(false);
+            }
+        };
+
+        fetchMotors();
+    }, []);
+
+    useEffect(() => {
+        let filtered = motors;
+
+        if (selectedFilter !== 'Semua') {
+            filtered = motors.filter(motor => {
+                if (selectedFilter === 'Matic') {
+                    return motor.tipe_motor.includes('Matic');
+                }
+                if (selectedFilter === 'Sport') {
+                    return motor.tipe_motor === 'Sport';
+                }   
+                return true;
+            });
+        } else {
+            filtered = motors.slice(0, 3);
+        }
+
+        setFilteredMotors(filtered);
+        setAnimate(false);
+        setTimeout(() => setAnimate(true), 0);
+    }, [selectedFilter, motors]);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                });
+                const data = await response.json();
+                if (data.status === 200) {
+                    const filteredReviews = data.review.filter(review => review.penilaian === 5);
+                    setReviews(filteredReviews);
+                } else {
+                    console.error('Unexpected response status:', data.status);
+                }
+            } catch (error) {
+                console.error('Error fetching reviews:', error);
+            }
+        };
+
+        fetchReviews();
+    }, [token]);
+
+    if (loadingMotor) {
+        return <div className="flex items-center justify-center min-h-screen">
+            <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-[#FF4D33]"></div>
+        </div>
+    }
+
+    return (
+        <>
             <Navbar />
+            <div className='md:m-view-pc overflow-x-hidden m-4 mt-10 justify-center mb-5'>
+                <HeaderHomePage />
+            </div>
+            <div className='overflow-x-hidden'>
+                <ProductSlider />
+            </div>
+            <div className=''>
+                <ScrollTextAnimation />
+            </div>
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F7F9]">
-                <div className="text-center mt-12">
-                    <h1 className="text-3xl md:text-5xl font-bold text-black">
-                        Jelajahi & <span className="text-[#FF4D30]">Temukan</span>
-                    </h1>
-                    <p className="text-base mt-4 text-black">
-                        Sewa Motor dengan Mudah,<br />
-                        Rasakan Kemudahan Tanpa Batas!
-                    </p>
-                    <div className="flex justify-center items-center mt-6">
-                        <button className="px-6 py-2 bg-[#FF4D30] text-white font-semibold rounded hover:bg-red-800 flex items-center" onClick={handleCatalogRedirect}>
-                            <img src="/images/icon-calendar.png" alt="Kalender" className="mr-2" />
-                            Booking Now
-                        </button>
-                    </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row items-center mt-10 space-y-4 md:space-y-0">
-                    <div className="relative flex items-center md:items-start">
-                        {/* swiper */}
-                        <div className="w-full max-w-4xl mt-8">
-                            <SwiperComponent />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-col items-center bg-white min-h-screen mt-[130px]">
-                    <div className="bg-white w-full flex flex-col items-center p-6 md:flex-row md:justify-between md:p-12">
-                        <div className="md:w-1/2 flex justify-center">
-                            <img src="/images/motor/dummy.png" alt="Motorbike" className="w-full md:w-3/4" />
-                        </div>
-                        <div className="text-center md:text-left md:w-1/2 mt-6 md:mt-0">
-                            <h1 className="text-3xl font-bold mb-4 text-[#FF4D30]">Puaskan Petualangan Anda!</h1>
-                            <p className="text-xl mb-4 text-[#FF4D30]">Diskon Gila di Sewa Motor Kudus!</p>
-                            <p className="text-lg">Tersedia Berbagai Jenis Motor untuk Memenuhi Kebutuhan Petualangan Anda!</p>
-                            <div className="flex justify-center md:justify-start mt-6 space-x-4">
-                                <img src="/images/motor/dummy.png" alt="Motorbike 1" className="w-16" />
-                                <img src="/images/motor/dummy.png" alt="Motorbike 2" className="w-16" />
-                                <img src="/images/motor/dummy.png" alt="Motorbike 3" className="w-16" />
-                                <img src="/images/motor/dummy.png" alt="Motorbike 4" className="w-16" />
+                <div className="mt-[130px]">
+                    <div className="flex flex-col items-center p-5">
+                        <div className="w-full max-w-6xl mb-5">
+                            <div className="flex justify-between items-center">
+                                <h1 className="text-sm sm:text-2xl lg:text-3xl font-bold">Pilihan Motor</h1>
+                                <div className="flex gap-1 sm:gap-3 mb-4">
+                                    {['Semua', 'Matic', 'Sport'].map(filter => (
+                                        <button
+                                            key={filter}
+                                            className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 border-transparent border-slide hover:text-[#ff4d30] ${selectedFilter === filter ? 'border-slide-active text-[#ff4d30]' : ''}`}
+                                            onClick={() => setSelectedFilter(filter)}
+                                        >
+                                            <span className="text-sm sm:text-base lg:text-lg">{filter}</span>
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div className="flex flex-col items-center justify-center bg-[#FF4D30] text-white py-8 w-full -mt-16">
-                    <p className="text-lg text-center mt-2">Rencanakan perjalanan Anda sekarang</p>
-                    <h1 className="text-3xl font-bold text-center">Penyewaan Cepat & Mudah</h1>
-                    <div className="flex justify-center items-center mt-8 w-full">
-                        <div className="flex flex-col items-center mx-2">
-                            <img src="/images/cs.png" alt="24/7" className="mb-1" style={{ margin: '5px' }} />
-                            <p className="mt-2 text-center">24/7 Customer Service</p>
-                        </div>
-                        <div className="flex flex-col items-center mx-2">
-                            <img src="/images/deliv.png" alt="Free Delivery" className="mb-1" style={{ margin: '5px' }} />
-                            <p className="mt-2 text-center">Gratis Pengiriman & Pengambilan Area Kudus</p>
-                        </div>
-                        <div className="flex flex-col items-center mx-2">
-                            <img src="/images/wallet.png" alt="Best Price" className="mb-1" style={{ margin: '5px' }} />
-                            <p className="mt-2 text-center">Harga Terbaik Mulai Dari 50K</p>
+                        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
+                            {filteredMotors.map((motor, index) => (
+                                <Motor key={index} motor={motor} />
+                            ))}
                         </div>
                     </div>
                 </div>
 
-                <div className="p-8 mt-[130px]">
-                    <div className="flex justify-between items-center flex-col md:flex-row mb-6">
-                        <h2 className="text-2xl md:text-3xl font-bold text-center md:text-left text-black">Pilihan Motor</h2>
-                        <div className="flex space-x-4 mt-4 md:mt-0">
-                            <a href="#" className="text-[#FF4D30] border-b-2 border-[#FF4D30]">Rekomendasi</a>
-                            <a href="#" className="text-gray-600">Matic</a>
-                            <a href="#" className="text-gray-600">Manual</a>
-                        </div>
-                    </div>
+                <Link href='/catalog' className='mb-7'>
+                    <Button className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
+                        <span className="relative text-base z-10">Cek Motor Lainnya</span>
+                    </Button>
+                </Link>
 
-
-                    <div className="bg-white p-4 rounded-lg">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-black">
-                            {Array(3)
-                                .fill()
-                                .map((_, index) => (
-                                    <div key={index} className="bg-white rounded-lg shadow p-4">
-                                        <img
-                                            src="/images/motor/dummy.png"
-                                            alt="Motor"
-                                            className="w-full h-48 object-cover rounded-t-lg"
-                                        />
-                                        <h3 className="text-center font-bold my-2 mt-4 md:mt-10">Nama Motor</h3>
-                                        <div className="flex justify-around my-2 mt-4">
-                                            <p>Daily: <br />50K</p>
-                                            <p>Weekly: <br />320K</p>
-                                        </div>
-                                        <div className="text-center mt-4">
-                                            <button onClick={handleFormRedirect} className="bg-white text-[#FF4D30] border border-[#FF4D30] px-8 py-2 font-bold hover:bg-[#FF4D30] hover:text-white transition mt-10">Booking Now!</button>
-                                            <p onClick={handleCatalogRedirect} className="text-[#FF4D30] mt-2">Lihat detail</p>
-                                        </div>
-                                    </div>
-                                ))}
-                        </div>
-                    </div>
-                </div>
-
-
-                <div className="p-8 mt-[130px]">
-                    <h2 className="text-2xl font-bold mb-6 text-center text-black">Ulasan</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {Array(3).fill().map((_, index) => (
-                            <div key={index} className="max-w-sm rounded overflow-hidden shadow-lg p-4 bg-white">
-                                <div className="flex items-center mb-4">
-                                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                                    <div className="ml-4">
-                                        <div className="font-bold text-xl text-black">Adam Aji Langit</div>
-                                        <div className="flex">
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-yellow-500">&#9733;</span>
-                                            <span className="text-gray-300">&#9733;</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="mb-4">
-                                    <div className="flex space-x-2">
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                        <img src="/images/motor/review.png" alt="Review Image" className="object-cover w-20 h-20" />
-                                    </div>
-                                </div>
-                                <p className="text-gray-700 text-base">
-                                    Aliqua id fugiat nostrud irure ex duis ea quis id quis ad et. Sunt qui esse pariatur duis deserunt mollit dolore cillum minim tempor enim. Elit aute irure tempor cupidatat incididunt sint.
-                                </p>
-                            </div>
-                        ))}
-                    </div>
+                <div className="w-full overflow-x-hidden">
+                    <ReviewSwiper reviews={reviews} />
                 </div>
 
                 <div className="p-4 mt-12 bg-white shadow-lg w-full">
-                    <h2 className="text-3xl font-bold mb-6 text-center">Galeri</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-0">
-                        <div className="row-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pixabay-163789.jpg" alt="Gallery Image 1" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-jamphotography-2626665.jpg" alt="Gallery Image 2" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-giorgio-de-angelis-482403-1413412.jpg" alt="Gallery Image 3" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-nicholas-dias-1119542-2116475.jpg" alt="Gallery Image 4" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pragyanbezbo-1715193.jpg" alt="Gallery Image 5" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className="col-span-1">
-                            <div className="w-full h-full">
-                                <img src="/images/gallery/pexels-pixabay-104842.jpg" alt="Gallery Image 6" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                    </div>
+                    <GallerySwiper />
                 </div>
             </div>
             <Footer />

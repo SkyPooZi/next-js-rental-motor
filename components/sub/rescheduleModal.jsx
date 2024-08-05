@@ -1,150 +1,314 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { addDays, format } from "date-fns";
+import Cookies from 'js-cookie';
 
-import { CalendarIcon } from "@radix-ui/react-icons";
+import { MdDone, MdClear, MdClose } from 'react-icons/md';
 
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+    Input,
+} from "@material-tailwind/react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem, SelectValue } from "@/components/ui/select";
 
-import { cn } from "@/lib/utils";
+import { fetchCancelledModal } from '@/utils/services/fetchCancelledModal';
+import { handleConfirmReschedule } from '@/utils/services/rescheduleService';
+import { handlePaymentAndReschedule } from '@/utils/services/reschedulePaymentService';
+import { fetchBookedDates } from '@/utils/services/bookingService';
+import { calculateDaysAgo } from '@/utils/services/dateService';
+import { handleReschedule } from '@/utils/services/handleReschedule';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TextField } from '@mui/material';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
 
-const RescheduleModal = ({ isOpen, onClose, className }) => {
-    const currentDate = new Date();
+dayjs.extend(isBetween);
 
-    const [date, setDate] = useState({
-        from: currentDate,
-        to: addDays(currentDate, 1),
-    });
-
-    const modalRef = useRef(null);
+const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
+    const [tanggal_mulai, setTanggalMulai] = useState('');
+    const [tanggal_selesai, setTanggalSelesai] = useState('');
+    const [durasi, setDurasi] = useState('');
+    const [disabledRanges, setDisabledRanges] = useState([]);
+    const [minEndDate, setMinEndDate] = useState(null);
+    const [image, setImage] = useState(null);
+    const [motor_id, setMotorId] = useState('');
+    const [stok_motor, setStokMotor] = useState(0);
+    const [motorData, setMotorData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [rescheduleModalDetails, setRescheduleModalDetails] = useState(null);
+    const [initialDuration, setInitialDuration] = useState(null);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [daysAgoText, setDaysAgoText] = useState('');
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (modalRef.current && !modalRef.current.contains(event.target)) {
-                onClose();
+        if (rescheduleModalDetails?.created_at) {
+            const daysAgo = calculateDaysAgo(rescheduleModalDetails.created_at);
+            setDaysAgoText(daysAgo);
+        }
+    }, [rescheduleModalDetails]);
+
+    const showNotificationWithTimeout = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
+
+        setTimeout(() => {
+            setShowNotification(false);
+            onClose();
+        }, timeout);
+    };
+
+    const showNotificationWithTimeoutCancel = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
+
+        setTimeout(() => {
+            setShowNotification(false);
+        }, timeout);
+    };
+
+    useEffect(() => {
+        const getDisabledDates = async () => {
+            const dates = await fetchBookedDates(motor_id, token, stok_motor);
+            setDisabledRanges(dates);
+        };
+
+        getDisabledDates();
+    }, [motor_id, token, stok_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
+        if (selectedDayDisabled) return true;
+
+        return false;
+    };
+
+    const handleDateStart = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+            setMinEndDate(dayjs(date).add(1, 'day'));
+        } else {
+            setTanggalMulai('');
+        }
+    };
+
+    const handleDateEnd = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalSelesai(formattedDate);
+        } else {
+            setTanggalSelesai('');
+        }
+    };
+
+    useEffect(() => {
+        if (tanggal_mulai && tanggal_selesai) {
+            const startDate = dayjs(tanggal_mulai);
+            const endDate = dayjs(tanggal_selesai);
+            const duration = endDate.diff(startDate, 'day');
+            setDurasi(duration);
+        } else {
+            setDurasi(0);
+        }
+    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
+
+    useEffect(() => {
+        const getCancelledDetails = async () => {
+            try {
+                const response = await fetchCancelledModal(token, historyId);
+
+                if (response && response.status === 200) {
+                    const data = response.history;
+                    setRescheduleModalDetails(data);
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
+                    setMotorData(data.list_motor.nama_motor);
+                    setMotorId(data.list_motor.id);
+
+                    const startDate = dayjs(data.tanggal_mulai);
+                    const endDate = dayjs(data.tanggal_selesai);
+                    const initialDuration = endDate.diff(startDate, 'day');
+                    setInitialDuration(initialDuration);
+                } else {
+                    console.log('No data received or incorrect status');
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment details:', error);
             }
         };
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+        if (historyId && isOpen) {
+            getCancelledDetails();
         }
+    }, [token, historyId, isOpen]);
 
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', `${process.env.MIDTRANS_CLIENT_KEY}`);
+        script.async = false;
+        script.onload = () => {
+            console.log('Midtrans Snap script loaded');
         };
-    }, [isOpen, onClose]);
+        document.head.appendChild(script);
+    }, []);
+
+    const onConfirm = async () => {
+        await handleConfirmReschedule({
+            historyId,
+            token,
+            durasi,
+            initialDuration,
+            handleRescheduleAndNotify,
+            handlePaymentAndReschedule,
+            showNotificationWithTimeoutCancel,
+            setIsLoading
+        });
+    };
+
+    const handleRescheduleAndNotify = async () => {
+        try {
+            const result = await handleReschedule(token, historyId, tanggal_mulai, tanggal_selesai);
+            if (result.success) {
+                showNotificationWithTimeout('Penjadwalan Ulang Berhasil!', 'success');
+                setTimeout(() => {
+                    onSuccess();
+                }, 3000)
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Failed to update reasons:', error);
+            setIsLoading(false);
+        }
+    };
+
+    const handleClose = () => {
+        onClose();
+        setTanggalMulai('');
+        setTanggalSelesai('');
+    };
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-            <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
-                <div className='w-full flex flex-col gap-5'>
-                    <Label>
-                        <span className='font-semibold text-base'>
-                            Penjadwalan Ulang
-                        </span>
-                    </Label>
-                    <div className='flex flex-row gap-2'>
-                        <Image src='/images/motor/dummy.png' alt='motor' width={70} height={0} />
-                        <div className="flex flex-col gap-1">
-                            <Label>
-                                <span className="text-base">
-                                    Motor
-                                </span>
-                            </Label>
-                            <Label>
-                                <span className="text-base">
-                                    08-03-2024 - 09-03-2024
-                                </span>
-                            </Label>
-                        </div>
-                    </div>
-                    <div className='w-full flex flex-col gap-5'>
-                        <div className={cn("grid", className)}>
-                            <span className='text-black'>Tanggal Mulai</span>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        id="date"
-                                        variant={"outline"}
-                                        className={cn(
-                                            "w-[368px] justify-start text-left font-normal",
-                                            !date && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date?.from ? (
-                                            date.to ? (
-                                                <>
-                                                    {format(date.from, "LLL dd, y")} -{" "}
-                                                    {format(date.to, "LLL dd, y")}
-                                                </>
-                                            ) : (
-                                                format(date.from, "LLL dd, y")
-                                            )
-                                        ) : (
-                                            <span>Pilih</span>
-                                        )}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0" align="start">
-                                    <Calendar
-                                        initialFocus
-                                        mode="range"
-                                        defaultMonth={date?.from}
-                                        selected={date}
-                                        onSelect={setDate}
-                                        numberOfMonths={2}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
-                    <div className='flex flex-row gap-5 '>
-                        <div className='text-black'>
-                            Durasi
-                            <Select disabled>
-                                <SelectTrigger className='w-[368px]'>
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem className='hover:bg-accent' value="matic">
-                                            <span>Matic</span>
-                                        </SelectItem>
-                                        <SelectItem className='hover:bg-accent' value="manual">
-                                            <span>Manual</span>
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <Button className='cursor-pointer'>
-                        <Label>
-                            <span className='cursor-pointer'>
-                                Simpan
-                            </span>
-                        </Label>
-                    </Button>
+    return rescheduleModalDetails ? (
+        <>
+            {showNotification && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${notificationType === 'success' ? 'bg-green-500' : notificationType === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50`}>
+                    <span>{notificationMessage}</span>
+                    {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                 </div>
-                {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                    Close
-                </button> */}
+            )}
+            <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
+                <div className="bg-white p-6 rounded-lg shadow-lg relative z-40">
+                    <MdClose
+                        className="absolute top-4 right-4 text-gray-600 cursor-pointer"
+                        size={24}
+                        onClick={handleClose}
+                    />
+                    <div className='w-full flex flex-col gap-5'>
+                        <div className='flex gap-3 items-center'>
+                            <Label>
+                                <span className='font-semibold text-base'>
+                                    Penjadwalan Ulang
+                                </span>
+                            </Label>
+                            <Label>
+                                <span className='text-base font-semibold opacity-55'>
+                                    {daysAgoText}
+                                </span>
+                            </Label>
+                        </div>
+                        <div className='flex flex-row gap-2'>
+                            <Image src={image || '/images/motor/dummy.png'} alt='motor' width={100} height={0} />
+                            <div className="flex flex-col gap-1">
+                                <Label>
+                                    <span className="text-base">
+                                        {motorData || 'Motor'}
+                                    </span>
+                                </Label>
+                                <Label>
+                                    <span className="text-base">
+                                        {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
+                                    </span>
+                                </Label>
+                                <Label>
+                                    <span className='text-base'>
+                                        {`Durasi: ${rescheduleModalDetails.durasi} hari`}
+                                    </span>
+                                </Label>
+                                <Label>
+                                    <span className='text-xs text-[#ff4d30]'>
+                                        Durasi penjadwalan ulang harus sama dengan pesanan sebelumnya
+                                    </span>
+                                </Label>
+                            </div>
+                        </div>
+                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <div className='flex md:flex-row flex-col gap-5'>
+                                <div className='w-full flex flex-col gap-2'>
+                                    <span className="text-black">
+                                        Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
+                                    </span>
+                                    <DateTimePicker
+                                        label="Pilih Tanggal Mulai"
+                                        value={tanggal_mulai ? dayjs(tanggal_mulai) : null}
+                                        onChange={handleDateStart}
+                                        shouldDisableDate={shouldDisableDate}
+                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai))}
+                                        renderInput={(params) => <TextField {...params} required />}
+                                    />
+                                </div>
+                                <div className="w-full flex flex-col gap-2">
+                                    <span className="text-black">
+                                        Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
+                                    </span>
+                                    <DateTimePicker
+                                        label="Pilih Tanggal Selesai"
+                                        value={tanggal_selesai ? dayjs(tanggal_selesai) : null}
+                                        onChange={handleDateEnd}
+                                        minDateTime={minEndDate}
+                                        shouldDisableDate={shouldDisableDate}
+                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai))}
+                                        renderInput={(params) => <TextField {...params} required />}
+                                    />
+                                </div>
+                            </div>
+                        </LocalizationProvider>
+                        <div className='flex md:flex-row flex-col gap-5 '>
+                            <div className='text-black w-full text-sm'>
+                                Durasi
+                                <Input
+                                    label="Durasi (hari)"
+                                    value={`${durasi} hari`}
+                                    disabled
+                                />
+                            </div>
+                        </div>
+                        <Button
+                            onClick={onConfirm}
+                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration}
+                        >
+                            {isLoading ? 'Loading...' : 'Konfirmasi'}
+                        </Button>
+                    </div>
+                </div>
             </div>
-        </div>
-    );
+        </>
+    ) : null;
 };
 
 export default RescheduleModal;

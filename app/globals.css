@@ -1,6 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  scrollbar-color: #ff4d30 white;
+}
 
 
 @layer base {
@@ -64,34 +70,53 @@
   visibility: hidden;
 }
 
-.hint-color{
-  color:white;
+.hint-color {
+  color: white;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
+
 /* styles/globals.css */
 .swiper-button-next-custom,
 .swiper-button-prev-custom {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    cursor: pointer;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 0.5rem;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0.5rem;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .swiper-button-next-custom {
-    right: 10px;
+  right: 10px;
 }
 
 .swiper-button-prev-custom {
-    left: 10px;
+  left: 10px;
+}
+
+/* Tambahkan ini ke file CSS global Anda */
+.custom-checkbox:checked {
+  background-color: #FF4D30;
+  border-color: #FF4D30;
+}
+
+.custom-checkbox:checked::after {
+  content: '';
+  display: block;
+  width: 50%;
+  height: 50%;
+  border-radius: 50%;
+  background-color: white;
+  position: relative;
+  top: 25%;
+  left: 25%;
 }
 

@@ -1,40 +1,47 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-
-import { FaStar } from "react-icons/fa";
-import { CiImageOn } from "react-icons/ci";
+import Cookies from 'js-cookie';
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const CancelReasonModal = ({ isOpen, onClose, className }) => {
+import { fetchCancelledModal } from '@/utils/services/fetchCancelledModal';
 
-    const modalRef = useRef(null);
+const CancelReasonModal = ({ isOpen, onClose, historyId }) => {
+    const [image, setImage] = useState(null);
+    const [motorData, setMotorData] = useState(null);
+    const [cancelModalDetails, setCancelModalDetails] = useState(null);
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (modalRef.current && !modalRef.current.contains(event.target)) {
-                onClose();
+        const getCancelledDetails = async () => {
+            try {
+                const response = await fetchCancelledModal(token, historyId);
+
+                if (response && response.status === 200) {
+                    const data = response.history;
+                    console.log('Fetched data:', data);
+                    setCancelModalDetails(data);
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
+                    setMotorData(data.list_motor.nama_motor);
+                } else {
+                    console.log('No data received or incorrect status');
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment details:', error);
             }
         };
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+        if (historyId && isOpen) {
+            getCancelledDetails();
         }
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [isOpen, onClose]);
+    }, [token, historyId, isOpen]);
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-            <div ref={modalRef} className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+    return cancelModalDetails ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-25">
+            <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg">
                 <div className='flex flex-col gap-5'>
                     <Label>
                         <span className='font-semibold text-base'>
@@ -43,28 +50,28 @@ const CancelReasonModal = ({ isOpen, onClose, className }) => {
                     </Label>
                     <Label>
                         <span>
-                            Pada 01-03-2024 22.08
+                            Pada {cancelModalDetails.tanggal_pembatalan}
                         </span>
                     </Label>
                     <div className='flex flex-row gap-2'>
-                        <Image src='/images/motor/dummy.png' alt='motor' width={70} height={0} />
-                        <div className="flex flex-col gap-1">
+                        <Image src={image || '/images/motor/dummy.png'} alt='motor' width={100} height={0} />
+                        <div className="flex flex-col gap-1 justify-center">
                             <Label>
                                 <span className="text-base">
-                                    Motor
+                                    {motorData || 'Motor'}
                                 </span>
                             </Label>
                         </div>
                     </div>
-                    <div className='w-full flex flex-row gap-5 border p-5'>
+                    <div className='w-full flex flex-row gap-5 border border-black opacity-55 rounded-md p-5'>
                         <Label>
-                            <span>
-                                Alasan : Pembayaran gagal
+                            <span className='text-black text-md'>
+                                Alasan : {cancelModalDetails.alasan_pembatalan}
                             </span>
                         </Label>
                     </div>
                     <div className='flex flex-row gap-2 justify-end'>
-                        <Button>
+                        <Button onClick={onClose}>
                             <Label>
                                 <span className='cursor-pointer text-xs'>
                                     OK
@@ -73,12 +80,9 @@ const CancelReasonModal = ({ isOpen, onClose, className }) => {
                         </Button>
                     </div>
                 </div>
-                {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
-                    Close
-                </button> */}
             </div>
         </div>
-    );
+    ) : null;
 };
 
 export default CancelReasonModal;

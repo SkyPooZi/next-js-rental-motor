@@ -1,193 +1,160 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTheme } from "next-themes";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
+
 import { IoIosArrowDown } from "react-icons/io";
-import { CgProfile } from "react-icons/cg";
-import { AiOutlineHistory, AiOutlineDollarCircle } from "react-icons/ai";
-import { FiInfo } from "react-icons/fi";
-import { RiLogoutCircleLine } from "react-icons/ri";
 import { IoSettings, IoReorderThreeOutline } from "react-icons/io5";
+import { RiLogoutCircleLine } from "react-icons/ri";
 
-import {
-    Avatar,
-    AvatarFallback,
-    AvatarImage
-} from "@/components/ui/avatar";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger
-} from "../ui/dropdown-menu";
-import {
-    Sheet,
-    SheetContent,
-    SheetDescription,
-    SheetHeader,
-    SheetTitle,
-    SheetTrigger,
-} from "@/components/ui/sheet"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 
-import Profile from "@/components/sub/profile";
-import History from "@/components/sub/history";
-import Terms from "@/components/sub/terms";
-import Point from "@/components/sub/point";
+export default function Navbar() {
+    const [activeLink, setActiveLink] = useState('/');
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState(null);
+    const router = useRouter();
 
-export default function NavbarAfter() {
-    const [activeLink, setActiveLink] = useState('');
+    useEffect(() => {
+        setActiveLink(router.pathname);
+    }, [router.pathname]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const token = Cookies.get('token');
+            const id = Cookies.get('id');
+            if (token) {
+                setIsLoggedIn(true);
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('Fetched user data:', data);
+                    setUser(data.user);
+                } catch (error) {
+                    console.error('Error fetching user data:', error);
+                }
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const handleLinkClick = (link) => {
         setActiveLink(link);
     };
 
+    const handleLoginClick = () => {
+        window.location.href = '/login';
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        Cookies.remove('token');
+        Cookies.remove('id');
+        Cookies.remove('role');
+        Cookies.remove('email');
+        router.push('/login');
+    };
+
     return (
-        <div className='w-full h-[65px] top-0 shadow-lg px-20 z-50'>
-            <div className='w-full h-full flex flex-row items-center justify-between m-auto px-[10px]'>
-                <Link href="/" className='flex flex-row items-center md:text-sm'>
-                    <Image src='/images/logo.png' alt='Logo' width='25' height='25' className='cursor-pointer  md:w-auto' />
-                    <Label>
-                        <span className='font-bold hover:text-[#FF4D30] ml-[10px] hidden md:block'>
-                            Rental Motor Kudus
-                        </span>
-                    </Label>
-                </Link>
-                <div className='w-[600px] h-full flex flex-row items-center justify-between'>
-                    <div className='hidden md:flex items-center justify-between w-full mr-[15px] px-[20px] py-[10px] font-medium text-sm'>
-                        <Link href="/" passHref className={activeLink === '/' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>
-                            Beranda
-                        </Link>
-                        <Link href="/list" passHref className={activeLink === '/list' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/list')}>
-                            Daftar Motor
-                        </Link>
-                        <Link href="/about" passHref className={activeLink === '/about' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>
-                            Tentang Kami
-                        </Link>
-                        <Link href="/snk" passHref className={activeLink === '/terms' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/syarat-dan-ketentuan')}>
-                            Syarat dan Ketentuan
+        <header className="bg-white shadow-lg">
+            <div className="lg:mx-view-pc">
+                <div className="flex h-16 items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="flex items-center gap-1.5 ml-5 lg:ml-0 cursor-pointer">
+                            <Image src='/images/logo.png' alt='Logo' width='38' height='38' />
+                            <Label>
+                                <span className='font-bold hidden md:block'>Rental Motor Kudus</span>
+                            </Label>
                         </Link>
                     </div>
-                </div>
-                <div className='flex flex-row gap-5 max-sm:w-20 max-sm:gap-1 cursor-pointer'>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger>
-                            <div className='flex flex-row justify-center items-center gap-2'>
-                                <Avatar>
-                                    <AvatarImage src="https://github.com/shadcn.png" />
-                                    <AvatarFallback>CN</AvatarFallback>
-                                </Avatar>
-                                <Label>
-                                    <span className='font-bold ml-[10px] hidden md:block'>
-                                        Hai, User
-                                    </span>
-                                </Label>
-                                <IoIosArrowDown />
-                            </div>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                            <DropdownMenuItem>
-                                <Link href="/settings?tab=profile">
-                                    <div className='flex flex-row justify-center items-center hover:text-[#FF4D30] cursor-pointer'>
-                                        <IoSettings size='25' />
+                    <div className="hidden lg:flex items-center space-x-8">
+                        <Link href="/" className={activeLink === '/' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>Beranda</Link>
+                        <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
+                        <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
+                        <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        {isLoggedIn ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                    <div className='flex items-center gap-2 cursor-pointer'>
+                                        <Avatar className="w-10 h-10">
+                                            {user?.gambar ? (
+                                                <AvatarImage className="w-full h-full object-cover" src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}`} />
+                                            ) : (
+                                                <AvatarFallback>o_o</AvatarFallback>
+                                            )}
+                                        </Avatar>
                                         <Label>
-                                            <span className='font-bold ml-[10px] hidden md:block cursor-pointer'>
-                                                Settings
-                                            </span>
+                                            <span className='font-bold hidden md:block'>Hai, {user?.nama_pengguna}</span>
                                         </Label>
+                                        <IoIosArrowDown />
                                     </div>
-                                </Link>
-                                {/* <Link href="/settings?tab=profile">
-                                    <div className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
-                                        <CgProfile size="25" />
-                                        <Label>
-                                            <span className='font-bold ml-[10px] hidden md:block'>
-                                                Profil
-                                            </span>
-                                        </Label>
-                                    </div>
-                                </Link> */}
-                            </DropdownMenuItem>
-                            {/* <DropdownMenuItem>
-                                <Link href="/settings?tab=history" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
-                                    <AiOutlineHistory size="25" />
-                                    <Label>
-                                        <span className='font-bold ml-[10px] hidden md:block'>
-                                            Riwayat Penyewaan
-                                        </span>
-                                    </Label>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link href="/settings?tab=terms" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
-                                    <FiInfo size="25" />
-                                    <Label>
-                                        <span className='font-bold ml-[10px] hidden md:block'>
-                                            Kebijakan Privasi
-                                        </span>
-                                    </Label>
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <Link href="/settings?tab=point" className='flex flex-row justify-center items-center hover:text-[#FF4D30]'>
-                                    <AiOutlineDollarCircle size='25' />
-                                    <Label>
-                                        <span className='font-bold ml-[10px] hidden md:block'>
-                                            Poin Saya
-                                        </span>
-                                    </Label>
-                                </Link>
-                            </DropdownMenuItem> */}
-                            <div className="border-t border-[#FF4D30] m-2"></div>
-                            <DropdownMenuItem>
-                                <Link href="/logout">
-                                    <div className='flex flex-row justify-center items-center text-[#FF4D30]'>
-                                        <RiLogoutCircleLine size="25" />
-                                        <Label>
-                                            <span className='font-bold ml-[10px] hidden md:block'>
-                                                Keluar
-                                            </span>
-                                        </Label>
-                                    </div>
-                                </Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                    <Sheet>
-                        <div className='md:hidden'>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent>
+                                    <DropdownMenuItem>
+                                        <Link href="/setting" className='flex items-center gap-2 hover:text-[#FF4D30]'>
+                                            <IoSettings size='25' />
+                                            <span className='font-bold cursor-pointer'>Settings</span>
+                                        </Link>
+                                    </DropdownMenuItem>
+                                    <div className="border-t border-[#FF4D30] my-2"></div>
+                                    <DropdownMenuItem onSelect={handleLogout}>
+                                        <div className='flex items-center gap-2 text-[#FF4D30] cursor-pointer'>
+                                            <RiLogoutCircleLine size="25" />
+                                            <Label>
+                                                <span className='font-bold cursor-pointer'>Keluar</span>
+                                            </Label>
+                                        </div>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <button
+                                onClick={handleLoginClick}
+                                className="px-4 py-2 text-white bg-[#FF4D30] rounded"
+                            >
+                                Login
+                            </button>
+                        )}
+                        <Sheet>
                             <SheetTrigger>
-                                <div className='border border-white p-2 rounded-md'>
+                                <div className='block lg:hidden border border-white p-2 rounded-md'>
                                     <IoReorderThreeOutline size='25' />
                                 </div>
                             </SheetTrigger>
                             <SheetContent>
                                 <SheetHeader>
                                     <SheetTitle>
-                                        <div className='flex flex-col w-full h-full pt-36 gap-8 items-center justify-center text-xs sm:text-sm sm:max-w-[500px]'>
-                                            <Link href="/" passHref className={activeLink === '/' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>
-                                                Beranda
-                                            </Link>
-                                            <Link href="/list" passHref className={activeLink === '/list' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/list')}>
-                                                Daftar Motor
-                                            </Link>
-                                            <Link href="/about" passHref className={activeLink === '/about' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>
-                                                Tentang Kami
-                                            </Link>
-                                            <Link href="/terms" passHref className={activeLink === '/terms' ? 'text-[#FF4D30] cursor-pointer hover:text-[#FF4D30]' : 'cursor-pointer hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/syarat-dan-ketentuan')}>
-                                                Syarat dan Ketentuan
-                                            </Link>
+                                        <div className='flex flex-col items-center gap-8 text-xs sm:text-sm'>
+                                            <Link href="/" className={activeLink === '/' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/')}>Beranda</Link>
+                                            <Link href="/catalog" className={activeLink === '/catalog' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/catalog')}>Daftar Motor</Link>
+                                            <Link href="/about" className={activeLink === '/about' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/about')}>Tentang Kami</Link>
+                                            <Link href="/snk" className={activeLink === '/snk' ? 'text-[#FF4D30]' : 'text-gray-700 hover:text-[#FF4D30]'} onClick={() => handleLinkClick('/snk')}>Syarat & Ketentuan</Link>
                                         </div>
                                     </SheetTitle>
                                 </SheetHeader>
                             </SheetContent>
-                        </div>
-                    </Sheet>
+                        </Sheet>
+                    </div>
                 </div>
             </div>
-        </div >
+        </header>
     );
 }
