@@ -49,7 +49,7 @@ const Motor = ({ motor }) => {
         </div>
         <div className="flex flex-col items-center mb-2">
           <Button onClick={() => handleFormRedirect(motor.id)} className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
-            <span className="relative text-base z-10">Booking Now</span>
+            <span className="relative text-base z-10">Pesan Sekarang!</span>
           </Button>
           <button onClick={() => handleDetailRedirect(motor.id)} className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>
         </div>

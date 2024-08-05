@@ -34,10 +34,15 @@ const RegisterPage = () => {
 
       if (createUserResponse.ok) {
         const responseData = await createUserResponse.json();
+        const user = responseData.user;
         const token = responseData.access_token;
+        const id = user.id;
+        const role = user.peran;
 
         // Save token in cookies
         Cookies.set('token', token);
+        Cookies.set('id', id);
+        Cookies.set('role', role);
 
         router.push('/');
       } else {
