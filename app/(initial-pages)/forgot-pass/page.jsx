@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const ForgotPass = () => {
   const router = useRouter();
@@ -10,6 +11,7 @@ const ForgotPass = () => {
   const [email, setEmail] = useState('');
   const [userId, setUserId] = useState(null);
   const [message, setMessage] = useState('');
+  const token = Cookies.get('token');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
@@ -28,7 +30,7 @@ const ForgotPass = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+          'Authorization': `Bearer ${token}`,
         },
       });
 
@@ -80,7 +82,7 @@ const ForgotPass = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ password: newPassword }),
           });
