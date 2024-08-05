@@ -74,49 +74,55 @@ const NewOrderBookedList = () => {
     }
 
     return (
-        <div className="p-4">
+        <div className="p-4 mb-4">
             <h2 className="text-2xl font-semibold mb-4">Pesanan Baru</h2>
-            <div className="grid gap-y-4">
-                {newOrders.map(order => (
-                    <div key={order.id} className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md p-4">
-                        <div className="flex items-center mb-4">
-                            <MdHistory size='25' className="mr-4 text-blue-600" />
-                            <div>
-                                <p className="font-medium">ID Pesanan: {order.id}</p>
-                                <p className="text-sm">Nama Lengkap: {order.nama_lengkap}</p>
+            <div className="overflow-x-auto">
+                <div className="flex gap-x-4">
+                    {newOrders.map(order => (
+                        <div key={order.id} className="flex-none w-[300px] relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md p-4">
+                            <div className="flex items-center mb-4">
+                                <MdHistory size='25' className="mr-4 text-blue-600" />
+                                <div>
+                                    <p className="font-medium">ID Pesanan: {order.id}</p>
+                                    <p className="text-sm">Nama Lengkap: {order.nama_lengkap}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} className="w-16 h-16 mr-4 rounded-lg" />
+                                <div>
+                                    <p className="font-medium">Motor: {order.list_motor.nama_motor} ({order.list_motor.merk_motor})</p>
+                                    <p className="text-sm text-gray-500">Tipe: {order.list_motor.tipe_motor}</p>
+                                </div>
+                            </div>
+                            <div className='flex flex-col gap-3'>
+                                <p className="text-sm">No. Telp: {order.no_telp}</p>
+                                <p className="text-sm">Email: {order.email}</p>
+                                <p className="text-sm">Keperluan Menyewa: {order.keperluan_menyewa}</p>
+                                <p className="text-sm">Total Pembayaran: Rp. {order.total_pembayaran}</p>
+                                <p className="text-sm">Metode Pembayaran: {order.metode_pembayaran}</p>
+                                <p className="text-sm">Tanggal Mulai: {order.tanggal_mulai}</p>
+                                <p className="text-sm">Tanggal Selesai: {order.tanggal_selesai}</p>
+                            </div>
+                            <div className='mt-5'>
+                                <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
+                                    <Label>
+                                        <span className="text-[#FF4D33] cursor-pointer">
+                                            Tampilkan Invoice
+                                        </span>
+                                    </Label>
+                                </Button>
                             </div>
                         </div>
-                        <div className="flex items-center mb-4">
-                            <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} className="w-16 h-16 mr-4 rounded-lg" />
-                            <div>
-                                <p className="font-medium">Motor: {order.list_motor.nama_motor} ({order.list_motor.merk_motor})</p>
-                                <p className="text-sm text-gray-500">Tipe: {order.list_motor.tipe_motor}</p>
-                            </div>
-                        </div>
-                        <div className='flex flex-col gap-3'>
-                            <p className="text-sm">No. Telp: {order.no_telp}</p>
-                            <p className="text-sm">Email: {order.email}</p>
-                            <p className="text-sm">Keperluan Menyewa: {order.keperluan_menyewa}</p>
-                            <p className="text-sm">Total Pembayaran: Rp. {order.total_pembayaran}</p>
-                            <p className="text-sm">Metode Pembayaran: {order.metode_pembayaran}</p>
-                            <p className="text-sm">Tanggal Mulai: {order.tanggal_mulai}</p>
-                            <p className="text-sm">Tanggal Selesai: {order.tanggal_selesai}</p>
-                        </div>
-                        <div className='mt-5'>
-                            <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
-                                <Label>
-                                    <span className="text-[#FF4D33] cursor-pointer">
-                                        Tampilkan Invoice
-                                    </span>
-                                </Label>
-                            </Button>
-                        </div>
-                    </div>
-                ))}
-                {showInvoice && (
-                    <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
-                )}
+                    ))}
+                </div>
             </div>
+            {showInvoice && (
+                <InvoicePopup
+                    onClose={() => setShowInvoice(false)}
+                    orderId={orderNumber}
+                    style={{ zIndex: 50 }}
+                />
+            )}
         </div>
     );
 };

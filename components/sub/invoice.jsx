@@ -160,7 +160,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
 
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50">
             <div className="bg-[#F6F7F9] p-6 rounded-lg relative mx-4">
                 <div className="flex items-center justify-between mb-4 gap-44">
                     <div className="flex items-center">
