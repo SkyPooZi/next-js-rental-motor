@@ -44,6 +44,10 @@ export default function Navbar() {
 
                     const data = await response.json();
                     console.log('Fetched user data:', data);
+                    const user = data.user;
+                    const role = user.peran;
+                    Cookies.set('role', role)
+
                     setUser(data.user);
                 } catch (error) {
                     console.error('Error fetching user data:', error);
