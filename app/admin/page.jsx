@@ -19,7 +19,7 @@ import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
-import { redirect } from "next/dist/server/api-utils";
+import NewOrderBookedList from '@/components/sub/admin/newOrderBookedList';
 import Discount from "@/components/sub/admin/discount";
 
 export default function Dashboard() {
@@ -383,6 +383,7 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
+                    <NewOrderBookedList />
                     <AllChart />
                 </div>
             }
