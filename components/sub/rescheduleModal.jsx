@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 
-import { MdClose } from "react-icons/md";
+import { MdDone, MdClear, MdClose } from 'react-icons/md';
 
 import {
     Input,
@@ -11,6 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 import { fetchCancelledModal } from '@/utils/services/fetchCancelledModal';
+import { handleConfirmReschedule } from '@/utils/services/rescheduleService';
+import { handlePaymentAndReschedule } from '@/utils/services/reschedulePaymentService';
+import { fetchBookedDates } from '@/utils/services/bookingService';
+import { calculateDaysAgo } from '@/utils/services/dateService';
 import { handleReschedule } from '@/utils/services/handleReschedule';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -21,7 +25,6 @@ import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(isBetween);
 
 const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
-    const [showNotification, setShowNotification] = useState(false);
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [durasi, setDurasi] = useState('');
@@ -34,58 +37,47 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [rescheduleModalDetails, setRescheduleModalDetails] = useState(null);
     const [initialDuration, setInitialDuration] = useState(null);
+    const [notificationMessage, setNotificationMessage] = useState('');
+    const [notificationType, setNotificationType] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [daysAgoText, setDaysAgoText] = useState('');
     const token = Cookies.get('token');
 
     useEffect(() => {
-        const fetchBookedDates = async () => {
-            if (!motor_id) return;
+        if (rescheduleModalDetails?.created_at) {
+            const daysAgo = calculateDaysAgo(rescheduleModalDetails.created_at);
+            setDaysAgoText(daysAgo);
+        }
+    }, [rescheduleModalDetails]);
 
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
+    const showNotificationWithTimeout = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
 
-                const data = await response.json();
+        setTimeout(() => {
+            setShowNotification(false);
+            onClose();
+        }, timeout);
+    };
 
-                // Filter bookings for the specific motorbike
-                const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
+    const showNotificationWithTimeoutCancel = (message, type, timeout = 3000) => {
+        setNotificationMessage(message);
+        setNotificationType(type);
+        setShowNotification(true);
 
-                // Create an object to count bookings per day
-                const bookingCountPerDay = {};
+        setTimeout(() => {
+            setShowNotification(false);
+        }, timeout);
+    };
 
-                bookingsForMotor.forEach(item => {
-                    const startDate = dayjs(item.tanggal_mulai);
-                    const endDate = dayjs(item.tanggal_selesai);
-
-                    // Iterate over each day in the booking range
-                    for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate, 'day'); date = date.add(1, 'day')) {
-                        const dateStr = date.format('YYYY-MM-DD');
-
-                        // Initialize count if not already present
-                        if (!bookingCountPerDay[dateStr]) {
-                            bookingCountPerDay[dateStr] = 0;
-                        }
-                        bookingCountPerDay[dateStr]++;
-                    }
-                });
-
-                // Determine which dates to disable based on stock availability
-                const disabledDates = Object.keys(bookingCountPerDay)
-                    .filter(dateStr => bookingCountPerDay[dateStr] >= stok_motor)
-                    .map(dateStr => dayjs(dateStr));
-
-                console.log('Disabled Dates:', disabledDates);
-
-                setDisabledRanges(disabledDates);
-            } catch (error) {
-                console.error('Error fetching booked dates:', error);
-            }
+    useEffect(() => {
+        const getDisabledDates = async () => {
+            const dates = await fetchBookedDates(motor_id, token, stok_motor);
+            setDisabledRanges(dates);
         };
 
-        fetchBookedDates();
+        getDisabledDates();
     }, [motor_id, token, stok_motor]);
 
     const shouldDisableDate = (date) => {
@@ -141,7 +133,6 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
 
                 if (response && response.status === 200) {
                     const data = response.history;
-                    console.log('Fetched data:', data);
                     setRescheduleModalDetails(data);
                     setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
                     setMotorData(data.list_motor.nama_motor);
@@ -164,28 +155,43 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         }
     }, [token, historyId, isOpen]);
 
-    const handleConfirm = async () => {
-        if (durasi !== initialDuration) {
-            alert('Durasi penjadwalan ulang harus sama dengan durasi pesanan sebelumnya.');
-            return;
-        }
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://app.sandbox.midtrans.com/snap/snap.js';
+        script.setAttribute('data-client-key', `${process.env.MIDTRANS_CLIENT_KEY}`);
+        script.async = false;
+        script.onload = () => {
+            console.log('Midtrans Snap script loaded');
+        };
+        document.head.appendChild(script);
+    }, []);
 
-        setIsLoading(true);
-        const result = await handleReschedule(token, historyId, tanggal_mulai, tanggal_selesai);
+    const onConfirm = async () => {
+        await handleConfirmReschedule({
+            historyId,
+            token,
+            durasi,
+            initialDuration,
+            handleRescheduleAndNotify,
+            handlePaymentAndReschedule,
+            showNotificationWithTimeoutCancel,
+            setIsLoading
+        });
+    };
 
-        if (result.success) {
-            setShowNotification(true);
-            onSuccess();
-
-            setTimeout(() => {
-                setShowNotification(false);
-                setIsLoading(false);
-                setTanggalMulai('');
-                setTanggalSelesai('');
-                onClose();
-            }, 3000);
-        } else {
-            console.error('Failed to update reasons:', result.error);
+    const handleRescheduleAndNotify = async () => {
+        try {
+            const result = await handleReschedule(token, historyId, tanggal_mulai, tanggal_selesai);
+            if (result.success) {
+                showNotificationWithTimeout('Penjadwalan Ulang Berhasil!', 'success');
+                setTimeout(() => {
+                    onSuccess();
+                }, 3000)
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Failed to update reasons:', error);
             setIsLoading(false);
         }
     };
@@ -201,8 +207,9 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     return rescheduleModalDetails ? (
         <>
             {showNotification && (
-                <div className="absolute top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-md z-50">
-                    Penjadwalan ulang berhasil!
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${notificationType === 'success' ? 'bg-green-500' : notificationType === 'error' ? 'bg-red-500' : 'bg-blue-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg z-50`}>
+                    <span>{notificationMessage}</span>
+                    {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                 </div>
             )}
             <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
@@ -213,11 +220,18 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         onClick={handleClose}
                     />
                     <div className='w-full flex flex-col gap-5'>
-                        <Label>
-                            <span className='font-semibold text-base'>
-                                Penjadwalan Ulang
-                            </span>
-                        </Label>
+                        <div className='flex gap-3 items-center'>
+                            <Label>
+                                <span className='font-semibold text-base'>
+                                    Penjadwalan Ulang
+                                </span>
+                            </Label>
+                            <Label>
+                                <span className='text-base font-semibold opacity-55'>
+                                    {daysAgoText}
+                                </span>
+                            </Label>
+                        </div>
                         <div className='flex flex-row gap-2'>
                             <Image src={image || '/images/motor/dummy.png'} alt='motor' width={100} height={0} />
                             <div className="flex flex-col gap-1">
@@ -285,7 +299,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                             </div>
                         </div>
                         <Button
-                            onClick={handleConfirm}
+                            onClick={onConfirm}
                             disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration}
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}

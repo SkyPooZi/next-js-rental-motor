@@ -61,7 +61,7 @@ export default function PaymentWait() {
     return paymentDetails.length > 0 ? (
         paymentDetails.map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
-                <div className="flex flex-col md:flex-row gap-3 justify-between items-center">
+                <div className="flex flex-col md:flex-row gap-3 justify-between">
                     <div className="flex flex-row gap-2">
                         <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
                         <div className="flex flex-col gap-1">
