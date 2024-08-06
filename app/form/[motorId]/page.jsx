@@ -450,6 +450,7 @@ export default function page({ params: { motorId } }) {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
+                    pengguna_id: id,
                     nama_lengkap,
                     email,
                     no_telp,
