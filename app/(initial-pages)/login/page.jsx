@@ -49,17 +49,18 @@ const LoginPage = () => {
       const user = data.user;
       const token = data.access_token;
       const id = user.id;
-      const role = user.peran;
+
+      console.log('role zidan', user.peran)
 
       Cookies.set('token', token);
       Cookies.set('id', id);
-      Cookies.set('role', role);
+      Cookies.set('role', user.peran);
 
       if (user && user.email === email) {
-        if (role !== 'admin') {
-          router.push('/');
-        } else {
+        if (user.peran === 'admin') {
           router.push('/admin');
+        } else{
+          router.push('/');
         }
         const params = new URLSearchParams(window.location.search);
         const returnUrl = params.get('returnUrl') || '/';

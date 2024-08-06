@@ -5,19 +5,23 @@ export function middleware(request) {
   const role = request.cookies.get('role');
   const motorId = request.cookies.get('motorId');
 
+  console.log('role:', role);
+  const admin = role === 'admin';
+  console.log('role:', admin);
+
   if (!token) {
     const returnUrl = request.nextUrl.pathname;
     return NextResponse.redirect(new URL(`/login?returnUrl=${encodeURIComponent(returnUrl)}`, request.url));
   }
 
   // Handle access to the /admin page
-  if (request.nextUrl.pathname === '/admin') {
-    if (role === 'admin') {
-      return NextResponse.redirect(new URL('/admin', request.url));
-    } else {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+  // if (request.nextUrl.pathname === '/admin') {
+  //   // if (admin !== true) {
+  //   //   return NextResponse.redirect(new URL('/', request.url));
+  //   // } else {
+  //   //   return NextResponse.redirect(new URL('/admin', request.url));
+  //   // }
+  // }
 
   // Redirect to specific motor form if motorId is present
   if (request.nextUrl.pathname === '/form') {
