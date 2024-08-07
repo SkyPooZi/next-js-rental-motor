@@ -50,8 +50,6 @@ const LoginPage = () => {
       const token = data.access_token;
       const id = user.id;
 
-      console.log('role zidan', user.peran)
-
       Cookies.set('token', token);
       Cookies.set('id', id);
       Cookies.set('role', user.peran);
@@ -83,11 +81,11 @@ const LoginPage = () => {
   }, []);
 
   const handleGoogleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/google`;
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google`);
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`;
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`);
   };
 
   return (

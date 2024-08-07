@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
 
 const ForgotOTP = () => {
   const router = useRouter();
@@ -10,7 +9,6 @@ const ForgotOTP = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [sentOtp, setSentOtp] = useState(''); // Store the sent OTP for verification
-  const token = Cookies.get('token');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
@@ -28,7 +26,6 @@ const ForgotOTP = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ email }),
       });
