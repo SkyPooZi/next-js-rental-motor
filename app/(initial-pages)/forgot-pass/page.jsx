@@ -30,7 +30,7 @@ const ForgotPass = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -82,7 +82,6 @@ const ForgotPass = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ password: newPassword }),
           });
