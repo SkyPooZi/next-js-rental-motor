@@ -50,23 +50,32 @@ const LoginPage = () => {
       const token = data.access_token;
       const id = user.id;
 
+      console.log('bearer token:', token);
       Cookies.set('token', token);
       Cookies.set('id', id);
-      Cookies.set('role', user.peran);
 
       if (user && user.email === email) {
-        if (user.peran === 'admin') {
-          router.push('/admin');
-        } else{
-          router.push('/');
-        }
-        const params = new URLSearchParams(window.location.search);
-        const returnUrl = params.get('returnUrl') || '/';
+        const isAdmin = user.peran === 'admin' ? 'true' : null;
+        console.log('is admin:', isAdmin);
 
+        if (isAdmin !== null) {
+          Cookies.set('isAdmin', 'true');
+          console.log(Cookies.get('isAdmin'));
+        } else {
+          Cookies.remove('isAdmin');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        let returnUrl = params.get('returnUrl') || '/';
+
+        if (isAdmin !== null && returnUrl === '/') {
+          returnUrl = '/admin';
+        }
         router.push(returnUrl);
       } else {
         setError('Invalid email or password');
       }
+
     } catch (error) {
       console.error('Login failed:', error);
       setError('An error occurred during login. Please try again.');

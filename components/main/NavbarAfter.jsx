@@ -72,6 +72,7 @@ export default function Navbar() {
         Cookies.remove('id');
         Cookies.remove('role');
         Cookies.remove('email');
+        Cookies.remove('isAdmin');
         router.push('/login');
     };
 
