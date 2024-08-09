@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
 
 const ForgotOTP = () => {
   const router = useRouter();
@@ -106,24 +107,14 @@ const ForgotOTP = () => {
               ))}
             </div>
             <div className="flex mt-4 w-full">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="bg-red-500 text-white font-bold rounded-lg shadow hover:bg-red-800 w-full max-w-xs"
-                style={{ height: '48px' }}
-              >
-                Berikutnya
-              </button>
+              <Button type="button" onClick={handleSubmit} className="w-full before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+                <span className="relative text-base z-10">Berikutnya</span>
+              </Button>
             </div>
             <div className="flex mt-4 w-full">
-              <button
-                type="button"
-                onClick={() => sendOtpEmail(email)}
-                className="bg-blue-500 text-white font-bold rounded-lg shadow hover:bg-blue-800 w-full max-w-xs"
-                style={{ height: '48px' }}
-              >
-                Resend OTP
-              </button>
+              <Button type="button" onClick={() => sendOtpEmail(email)} className="w-full before:ease bg-[#2196f3] border-2 border-[#2196f3] capitalize relative overflow-hidden shadow-[#2196f3] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#2196f3] hover:border-2 hover:border-[#2196f3] hover:shadow-[#2196f3] hover:before:h-96 hover:before:-translate-y-48">
+                <span className="relative text-base z-10">Resend OTP</span>
+              </Button>
             </div>
           </div>
         </div>
