@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
 
 const ForgotEmail = () => {
   const router = useRouter();
@@ -14,7 +15,7 @@ const ForgotEmail = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
+
     if (!email || !emailRegex.test(email)) {
       alert('Please enter a valid email address.');
       return;
@@ -45,12 +46,9 @@ const ForgotEmail = () => {
               className="mt-4 p-2 border bg-white text-black border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-11/12 md:w-96 h-12 shadow shadow-black shadow-opacity-25"
             />
             <div className="flex mt-4 w-full justify-start">
-              <button
-                type="submit"
-                className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg h-12 shadow shadow-black shadow-opacity-25 hover:bg-red-800 w-11/12 md:w-96"
-              >
-                Kirim Kode OTP
-              </button>
+              <Button type="submit" className="w-96 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+                <span className="relative text-base z-10">Kirim Kode OTP</span>
+              </Button>
             </div>
           </form>
         </div>
