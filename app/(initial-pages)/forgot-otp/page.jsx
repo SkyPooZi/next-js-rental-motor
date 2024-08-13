@@ -35,10 +35,10 @@ const ForgotOTP = () => {
         const data = await response.json();
         const otp = data.OTP;
         setSentOtp(otp);
-        setMessage('OTP has been sent to your email.');
-        console.log(otp)
+        setMessage('OTP sudah terkirim ke email anda.');
+        console.log(otp);
       } else {
-        setMessage('Failed to send OTP. Please try again.');
+        setMessage('Gagal untuk mengirim OTP, cek kembali email yang anda isikan.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -73,7 +73,7 @@ const ForgotOTP = () => {
   };
 
   const handleSubmit = () => {
-    if (otp.every(num => num !== '')) {
+    if (otp.every((num) => num !== '')) {
       verifyOtp();
     } else {
       alert('Please fill in all fields.');
@@ -81,15 +81,21 @@ const ForgotOTP = () => {
   };
 
   return (
-    <div className="flex items-center justify-center bg-white h-screen">
-      <div className="flex flex-col lg:flex-row items-center w-full max-w-4xl mx-auto">
-        <img
-          src="/images/reset.png"
-          alt="Login"
-          className="w-full lg:w-1/2 h-auto object-cover mb-4 lg:mb-0"
-        />
-        <div className="flex flex-col items-center justify-center w-full lg:w-1/2">
-          <h1 className="text-2xl lg:text-3xl font-bold mb-6 text-black">Reset Kata Sandi</h1>
+    <div className="flex items-center justify-center bg-gray-300 min-h-screen p-4">
+      <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-12 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col md:flex-row">
+
+        {/* Image Section */}
+        <div className="w-full md:w-1/2 mt-6 md:mt-0">
+          <img
+            src="/images/reset.png"
+            alt="Reset"
+            className="object-cover h-64 md:h-full w-full rounded-lg md:rounded-l-lg"
+          />
+        </div>
+
+        {/* Form Section */}
+        <div className="flex flex-col items-center justify-center w-full md:w-1/2">
+          <h1 className="text-lg md:text-xl lg:text-2xl font-bold mb-4 md:mb-6 text-black">Konfirmasi Email Dengan OTP</h1>
           <p className="text-md text-black mb-4">{message}</p>
           <div className="flex flex-col gap-4 items-center lg:items-start">
             <div className="flex justify-between w-full max-w-xs space-x-2 mt-4">
@@ -101,7 +107,7 @@ const ForgotOTP = () => {
                   maxLength="1"
                   value={value}
                   onChange={(e) => handleChange(e, index)}
-                  className="border bg-white text-black border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg text-center shadow w-12 h-12"
+                  className="input-animated border bg-white text-black border-black focus:outline-none rounded-lg text-center shadow w-12 h-12"
                   required
                 />
               ))}
@@ -118,7 +124,20 @@ const ForgotOTP = () => {
             </div>
           </div>
         </div>
+
       </div>
+
+      <style jsx>{`
+        .input-animated {
+          transition: border-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .input-animated:hover,
+        .input-animated:focus {
+          transform: scale(1.05);
+          border-color: #FF4D33;
+        }
+      `}</style>
     </div>
   );
 };
