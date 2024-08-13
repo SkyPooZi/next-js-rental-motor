@@ -8,17 +8,17 @@ export function middleware(request) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (role !== 'admin') {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
+  // if (request.nextUrl.pathname.startsWith('/admin')) {
+  //   if (role !== 'admin') {
+  //     return NextResponse.redirect(new URL("/", request.url));
+  //   }
+  // }
 
-  if (request.nextUrl.pathname.startsWith('/settings')) {
-    if (role !== 'admin') {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
+  // if (request.nextUrl.pathname.startsWith('/settings')) {
+  //   if (role !== 'admin') {
+  //     return NextResponse.redirect(new URL("/", request.url));
+  //   }
+  // }
 }
 
 export const config = {
