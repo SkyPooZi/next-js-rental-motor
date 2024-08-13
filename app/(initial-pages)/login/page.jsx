@@ -90,7 +90,7 @@ const LoginPage = () => {
     }
   }, []);
 
-  const handleGoogleLogin = () => {
+  const handleGoogleLogin = async () => {
     router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google`);
   };
 
