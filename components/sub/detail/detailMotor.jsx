@@ -11,7 +11,7 @@ const DetailMotor = ({ motor }) => {
         <>
             <div className="mx-view-pc flex flex-row my-20">
                 <div className="bg-[#F2F2F2] rounded-lg shadow-md mr-20 items-center justify-center px-10">
-                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} width={384} height={384} />
+                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`} alt={motor.nama_motor} width={500} height={500} />
                 </div>
                 <div>
                     <h2 className="text-2xl font-bold mb-4 text-black">Motor {motor.nama_motor}</h2>
@@ -56,7 +56,7 @@ const DetailMotor = ({ motor }) => {
                         </Link>
                         <Link href={`/form/${motor.id}`}>
                             <Button className="ml-5 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
-                                <span className="relative text-base z-10">Booking Sekarang</span>
+                                <span className="relative text-base z-10">Pesan Sekarang!</span>
                             </Button>
                         </Link>
 

@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
 
 const LoginPage = () => {
@@ -49,25 +50,33 @@ const LoginPage = () => {
       const user = data.user;
       const token = data.access_token;
       const id = user.id;
-      const role = user.peran;
 
+      console.log('bearer token:', token);
       Cookies.set('token', token);
       Cookies.set('id', id);
-      Cookies.set('role', role);
 
       if (user && user.email === email) {
-        if (role !== 'admin') {
-          router.push('/');
-        } else {
-          router.push('/admin');
-        }
-        const params = new URLSearchParams(window.location.search);
-        const returnUrl = params.get('returnUrl') || '/';
+        const isAdmin = user.peran === 'admin' ? 'true' : null;
+        console.log('is admin:', isAdmin);
 
+        if (isAdmin !== null) {
+          Cookies.set('isAdmin', 'true');
+          console.log(Cookies.get('isAdmin'));
+        } else {
+          Cookies.remove('isAdmin');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        let returnUrl = params.get('returnUrl') || '/';
+
+        if (isAdmin !== null && returnUrl === '/') {
+          returnUrl = '/admin';
+        }
         router.push(returnUrl);
       } else {
         setError('Invalid email or password');
       }
+
     } catch (error) {
       console.error('Login failed:', error);
       setError('An error occurred during login. Please try again.');
@@ -81,12 +90,12 @@ const LoginPage = () => {
     }
   }, []);
 
-  const handleGoogleLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/google`;
+  const handleGoogleLogin = async () => {
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google`);
   };
 
   const handleFacebookLogin = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`;
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`);
   };
 
   return (
@@ -127,12 +136,9 @@ const LoginPage = () => {
               <span className="flex-grow"></span>
               <a href="/forgot-email" className="hover:underline">Lupa Kata Sandi?</a>
             </div>
-            <button
-              type="submit"
-              className="bg-[#ff4d30] text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 w-full md:w-80 lg:w-96 hover:bg-red-600 mt-2 md:mt-4"
-            >
-              Login
-            </button>
+            <Button type="submit" className="w-96 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+              <span className="relative text-base z-10">Login</span>
+            </Button>
           </form>
           <div className="flex justify-center mt-2 md:mt-4 text-sm md:text-base text-black">
             <span>Belum punya akun?</span>

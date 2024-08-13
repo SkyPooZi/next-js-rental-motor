@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
 
 const RegisterPage = () => {
@@ -34,10 +35,15 @@ const RegisterPage = () => {
 
       if (createUserResponse.ok) {
         const responseData = await createUserResponse.json();
+        const user = responseData.user;
         const token = responseData.access_token;
+        const id = user.id;
+        const role = user.peran;
 
         // Save token in cookies
         Cookies.set('token', token);
+        Cookies.set('id', id);
+        Cookies.set('role', role);
 
         router.push('/');
       } else {
@@ -119,12 +125,9 @@ const RegisterPage = () => {
               className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
             {error && <p className="text-red-500 mt-2">{error}</p>}
-            <button
-              type="submit"
-              className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 shadow hover:bg-red-600 w-full max-w-sm"
-            >
-              Register
-            </button>
+            <Button type="submit" className="w-96 mt-4 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+              <span className="relative text-base z-10">Register</span>
+            </Button>
           </form>
           <div className="flex justify-center md:justify-start mt-4 text-black">
             <input type="checkbox" id="ingat-saya" className="mr-2" />

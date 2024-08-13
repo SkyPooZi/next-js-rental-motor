@@ -1,6 +1,7 @@
 'use client';
 import { React, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
+import Image from "next/image";
 import { MdHistory } from "react-icons/md";
 import { FaStar, FaUserCircle, FaMotorcycle } from "react-icons/fa";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";

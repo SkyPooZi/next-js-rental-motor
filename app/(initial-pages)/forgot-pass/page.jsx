@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
+import Cookies from 'js-cookie';
 
 const ForgotPass = () => {
   const router = useRouter();
@@ -10,6 +12,7 @@ const ForgotPass = () => {
   const [email, setEmail] = useState('');
   const [userId, setUserId] = useState(null);
   const [message, setMessage] = useState('');
+  const token = Cookies.get('token');
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
@@ -28,7 +31,7 @@ const ForgotPass = () => {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
+          'Content-Type': 'application/json',
         },
       });
 
@@ -80,7 +83,6 @@ const ForgotPass = () => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer 4|2HIQ8LZ6GMNPOa2rn0FxNlmzrr5m4elubwd2OsLx055ea188`,
             },
             body: JSON.stringify({ password: newPassword }),
           });
@@ -133,13 +135,9 @@ const ForgotPass = () => {
               className="p-2 border bg-white text-black border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg shadow w-full max-w-md lg:max-w-xs"
             />
             <div className="flex mt-4 w-full">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className="bg-red-500 text-white font-bold py-2 px-4 rounded-lg shadow hover:bg-red-800 w-full max-w-md lg:max-w-xs"
-              >
-                Ubah Kata Sandi
-              </button>
+              <Button type="button" onClick={handleSubmit} className="w-full before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+                <span className="relative text-base z-10">Ubah Kata Sandi</span>
+              </Button>
             </div>
           </div>
         </div>
