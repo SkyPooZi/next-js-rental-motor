@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@material-tailwind/react';
+import Cookies from 'js-cookie';
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -9,7 +11,8 @@ const RegisterPage = () => {
   const [formData, setFormData] = useState({
     nama_pengguna: '',
     email: '',
-    password: ''
+    password: '',
+    kode_referensi: '',
   });
 
   const [error, setError] = useState(null);
@@ -22,7 +25,7 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/create`, {
+      const createUserResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,16 +33,60 @@ const RegisterPage = () => {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      if (createUserResponse.ok) {
+        const responseData = await createUserResponse.json();
+        const user = responseData.user;
+        const token = responseData.access_token;
+        const id = user.id;
+        const role = user.peran;
+
+        // Save token in cookies
+        Cookies.set('token', token);
+        Cookies.set('id', id);
+        Cookies.set('role', role);
+
         router.push('/');
       } else {
-        const errorData = await response.json();
+        const errorData = await createUserResponse.json();
         setError(errorData.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Registration failed:', error);
       setError('An unexpected error occurred');
     }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+
+    if (code && state) {
+      // Exchange the code for an access token
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google/callback?code=${code}&state=${state}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.token) {
+            // Save the token (if needed) and redirect to the homepage
+            Cookies.set('token', data.token);
+            router.push('/');
+          } else {
+            setError('Login failed');
+          }
+        })
+        .catch((error) => {
+          console.error('OAuth callback error:', error);
+          setError('An unexpected error occurred');
+        });
+    }
+  }, [router]);
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/google`;
+  };
+
+  const handleFacebookLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`;
   };
 
   return (
@@ -78,12 +125,9 @@ const RegisterPage = () => {
               className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
             {error && <p className="text-red-500 mt-2">{error}</p>}
-            <button
-              type="submit"
-              className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 shadow hover:bg-red-600 w-full max-w-sm"
-            >
-              Register
-            </button>
+            <Button type="submit" className="w-96 mt-4 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+              <span className="relative text-base z-10">Register</span>
+            </Button>
           </form>
           <div className="flex justify-center md:justify-start mt-4 text-black">
             <input type="checkbox" id="ingat-saya" className="mr-2" />
@@ -101,6 +145,9 @@ const RegisterPage = () => {
           <div className="flex flex-col md:flex-row gap-2 items-center mt-3">
             <input
               type="text"
+              name="kode_referensi"
+              value={formData.kode_referensi}
+              onChange={handleChange}
               placeholder="Masukkan Kode"
               className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
             />
@@ -109,18 +156,18 @@ const RegisterPage = () => {
             <span>Atau</span>
           </div>
           <div className="flex justify-center md:justify-start items-center mt-2 gap-2">
-            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
+            <button onClick={handleGoogleLogin} className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
               <img
                 src="/images/google.png"
                 alt="Google"
               />
-            </a>
-            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow ">
+            </button>
+            <button onClick={handleFacebookLogin} className="flex md:px-6 md:py-3 items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow ">
               <img
                 src="/images/facebook.png"
                 alt="Facebook"
               />
-            </a>
+            </button>
           </div>
         </div>
       </div>

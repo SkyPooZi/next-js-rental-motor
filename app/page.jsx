@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+
 import '../styles/slideInFoward.css';
 import '../styles/slideInAnimation.css';
 
-import { Button } from '@material-tailwind/react';
+import { Spinner, Button } from "@material-tailwind/react";
 import GallerySwiper from '@/components/sub/gallerySwiper';
 import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
@@ -20,16 +21,30 @@ import HorizontalScroll from '@/components/ui/horizontalScroll';
 import ScrollTextAnimation from '@/components/ui/scrollTextAnimation';
 
 const Motor = ({ motor }) => {
+    const [imageLoading, setImageLoading] = useState(true);
+    const imageUrl = `https://rental-motor.ruscarestudent.com/storage/${motor.gambar_motor}`;
+
+    const handleImageLoad = () => {
+        setImageLoading(false);
+    };
+
     return (
         <>
             <div className="border w-fit border-gray-300 bg-white rounded-lg p-4 shadow-md flex flex-col items-start">
                 <div className="flex justify-center mb-4">
+                    {imageLoading && (
+                        <div className="flex items-center justify-center w-72 h-72">
+                            <Spinner color="orange" className="h-12 w-12" />
+                        </div>
+                    )}
                     <Image
-                        src={`https://rental-motor.ruscarestudent.com/storage/${motor.gambar_motor}`}
+                        src={imageUrl}
                         alt={motor.nama_motor}
                         width={1000}
                         height={1000}
-                        className="rounded-lg w-72 h-72 object-cover"
+                        priority={true} // Ensure image loads immediately
+                        className={`rounded-lg w-72 h-72 object-cover transition-opacity duration-500 ${imageLoading ? 'opacity-0' : 'opacity-100'}`}
+                        onLoadingComplete={handleImageLoad}
                     />
                 </div>
                 <div className="w-full text-center px-5">
@@ -74,6 +89,8 @@ export default function Home() {
     useEffect(() => {
         const fetchMotors = async () => {
             try {
+                console.log(Cookies.get('token'));
+                console.log(Cookies.get('id'));
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -111,7 +128,7 @@ export default function Home() {
                 }
                 if (selectedFilter === 'Sport') {
                     return motor.tipe_motor === 'Sport';
-                }
+                }   
                 return true;
             });
         } else {

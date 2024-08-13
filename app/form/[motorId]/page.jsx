@@ -54,6 +54,7 @@ export default function page({ params: { motorId } }) {
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
     const [motor_id, setMotorId] = useState('');
+    const [stok_motor, setStokMotor] = useState(0);
     const [nama_motor, setNamaMotor] = useState('');
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
@@ -62,7 +63,7 @@ export default function page({ params: { motorId } }) {
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
     const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
-    const [diskon_id, setDiskonId] = useState('');
+    const [diskon_id, setDiskonId] = useState(diskons.length > 0 ? diskons[0].id : null);
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [point, setPoint] = useState(0);
     const [usePoint, setUsePoint] = useState(false);
@@ -79,10 +80,8 @@ export default function page({ params: { motorId } }) {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
-    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
-    const defaultMotor = motors.find(motor => motor.id === motorId);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -123,16 +122,23 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const handleCheckboxChange = (e) => {
-        const isChecked = e.target.checked;
-
+    const handleCheckboxChange = () => {
+        const isChecked = !usePoint;
         const updatedTotal = calculateTotalPembayaran(isChecked);
+
         if (updatedTotal === 0) {
             setUsePoint(false);
-            showNotificationWithTimeout('Silahkan pilih motor terlebih dahulu', 'error');
+            setPointValue(0);
+            showNotificationWithTimeout('Silahkan isi data terlebih dahulu', 'error');
             scrollToTarget();
         } else {
-            setUsePoint(isChecked);
+            if (usePoint) {
+                setUsePoint(false);
+                setPointValue(0);
+            } else {
+                setUsePoint(isChecked);
+                setPointValue(point);
+            }
         }
     };
 
@@ -161,6 +167,8 @@ export default function page({ params: { motorId } }) {
                     const data = await response.json();
                     console.log('Fetched motor:', data);
                     setGambarMotor(data.listMotor);
+                    setStokMotor(data.listMotor.stok_motor);
+                    console.log('Stok Motor:', data.listMotor.stok_motor);
                 }
             } catch (err) {
                 setError(`An error occurred: ${err.message}`);
@@ -325,7 +333,6 @@ export default function page({ params: { motorId } }) {
                 const snapToken = paymentData.snapToken;
                 const orderId = paymentData.order_id;
                 console.log(`Snap Token: ${snapToken}, Order ID: ${historyId}`);
-                Cookies.set('order_id', orderId);
 
                 if (!snapToken || !historyId) {
                     throw new Error('Snap Token or Order ID missing in the response');
@@ -386,18 +393,19 @@ export default function page({ params: { motorId } }) {
                     },
                     onPending: async function (result) {
                         showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
-                        console.log(result);
+                        console.log('Payment Pending:', result);
 
                         await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
                     },
                     onError: async function (result) {
                         showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
-                        console.log(result);
+                        console.log('Payment Error:', result);
 
                         await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
                     },
                     onClose: async function () {
-                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'error');
+                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'warning');
+                        console.log('Payment Popup Closed');
 
                         await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
                     }
@@ -442,6 +450,7 @@ export default function page({ params: { motorId } }) {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
+                    pengguna_id: id,
                     nama_lengkap,
                     email,
                     no_telp,
@@ -534,6 +543,7 @@ export default function page({ params: { motorId } }) {
     useEffect(() => {
         const fetchBookedDates = async () => {
             if (!motor_id) return;
+
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
                     method: 'GET',
@@ -541,24 +551,61 @@ export default function page({ params: { motorId } }) {
                         'Authorization': `Bearer ${token}`
                     },
                 });
+
                 const data = await response.json();
 
-                const disabledRanges = data.history
-                    .filter(item => item.motor_id === motor_id)
-                    .map(item => ({
-                        from: dayjs(item.tanggal_mulai),
-                        to: dayjs(item.tanggal_selesai),
-                    }));
-                console.log('Disabled Ranges:', disabledRanges);
+                // Filter bookings for the specific motorbike
+                const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
 
-                setDisabledRanges(disabledRanges);
+                // Create an object to count bookings per day
+                const bookingCountPerDay = {};
+
+                bookingsForMotor.forEach(item => {
+                    const startDate = dayjs(item.tanggal_mulai);
+                    const endDate = dayjs(item.tanggal_selesai);
+
+                    // Iterate over each day in the booking range
+                    for (let date = startDate; date.isBefore(endDate) || date.isSame(endDate, 'day'); date = date.add(1, 'day')) {
+                        const dateStr = date.format('YYYY-MM-DD');
+
+                        // Initialize count if not already present
+                        if (!bookingCountPerDay[dateStr]) {
+                            bookingCountPerDay[dateStr] = 0;
+                        }
+                        bookingCountPerDay[dateStr]++;
+                    }
+                });
+
+                // Determine which dates to disable based on stock availability
+                const disabledDates = Object.keys(bookingCountPerDay)
+                    .filter(dateStr => bookingCountPerDay[dateStr] >= stok_motor)
+                    .map(dateStr => dayjs(dateStr));
+
+                console.log('Disabled Dates:', disabledDates);
+
+                setDisabledRanges(disabledDates);
             } catch (error) {
                 console.error('Error fetching booked dates:', error);
             }
         };
 
         fetchBookedDates();
-    }, [motor_id, token]);
+    }, [motor_id, token, stok_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
+        if (selectedDayDisabled) return true;
+
+        return false;
+    };
 
     const handleDateStart = (date) => {
         if (date) {
@@ -593,36 +640,6 @@ export default function page({ params: { motorId } }) {
                 setTanggalSelesai('');
             }
         }
-    };
-
-    const shouldDisableDate = (date) => {
-        const today = dayjs().startOf('day');
-        if (date.isBefore(today)) return true;
-        for (const range of disabledRanges) {
-            if (date.isSame(range.from, 'day')) {
-                return true; // Disable the start date completely
-            }
-            if (date.isBetween(range.from.startOf('day'), range.to.startOf('day'), 'day', '()')) {
-                return true; // Disable the dates fully within the range, excluding start and end dates
-            }
-        }
-        return false;
-    };
-
-    const shouldDisableTime = (time, selectedDate) => {
-        if (!selectedDate) return false;
-        for (const range of disabledRanges) {
-            const isSameDayStart = selectedDate.isSame(range.from, 'day');
-            const isSameDayEnd = selectedDate.isSame(range.to, 'day');
-
-            if (isSameDayStart) {
-                return true; // Disable all times on the start date
-            }
-            if (isSameDayEnd && time.isBefore(range.to)) {
-                return true; // Disable times up to the end time on the end date
-            }
-        }
-        return false;
     };
 
     const handleClickPenyewaDiriSendiri = () => {
@@ -854,7 +871,7 @@ export default function page({ params: { motorId } }) {
                                         className='' color='grey' size='25'
                                     />
                                     <span className='font-bold text-black text-sm'>
-                                        Booking ini tidak dapat di refund
+                                        Pemesanan ini tidak dapat di refund
                                     </span>
                                 </div>
                                 <div className='flex flex-row gap-2 items-center justify-start '>
@@ -876,7 +893,7 @@ export default function page({ params: { motorId } }) {
                         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
                             <div className='flex flex-col items-start justify-start gap-3 text-[#666666] '>
                                 <span className='font-extrabold text-black text-lg flex'>
-                                    Detail Booking
+                                    Detail Pemesanan
                                 </span>
                                 <span className='text-[#FF4D30] text-[14px]'>
                                     Harap isi semua kolom dengan benar untuk memastikan tidak ada kesalahan dalam booking
@@ -1038,7 +1055,7 @@ export default function page({ params: { motorId } }) {
                                         </div>
                                     </div>
                                     <div className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
-                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp- / km</span>
+                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp 25.000</span>
                                     </div>
                                 </div>
                             </div>
@@ -1139,6 +1156,37 @@ export default function page({ params: { motorId } }) {
                                                 </span>
                                             </Label>
                                         </div>
+                                        <div className='flex flex-row gap-2 mt-2 items-center justify-between'>
+                                            <div className='flex gap-2 items-center'>
+                                                <input
+                                                    type="checkbox"
+                                                    id="points"
+                                                    checked={usePoint}
+                                                    onChange={handleCheckboxChange}
+                                                    className={`custom-checkbox h-5 w-5 rounded-full border-2 border-orange-600 text-orange-600 transition duration-150 ease-in-out cursor-pointer`}
+                                                    style={{
+                                                        appearance: 'none',
+                                                        WebkitAppearance: 'none',
+                                                        MozAppearance: 'none'
+                                                    }}
+                                                />
+                                                <div className='flex flex-row gap-1 items-center'>
+                                                    <AiOutlineDollarCircle color='#FF4D30' size='23px' />
+                                                    <Label>
+                                                        <span className='font-medium text-[14px] text-[#FF4D30]'>
+                                                            {point} Gunakan Poin
+                                                        </span>
+                                                    </Label>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <Label>
+                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
+                                                        -Rp. {pointValue}
+                                                    </span>
+                                                </Label>
+                                            </div>
+                                        </div>
                                         <div className='flex flex-row justify-end'>
                                             <div className='w-full max-w-[368px] flex flex-col gap-2'>
                                                 <span className="text-black">
@@ -1151,11 +1199,14 @@ export default function page({ params: { motorId } }) {
                                                             onChange={handleSelectChangeDiskon}
                                                             value={diskons[0].id}
                                                         >
-                                                            {diskons.map((diskon) => (
-                                                                <Option key={diskon.id} value={diskon.id}>
-                                                                    {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
-                                                                </Option>
-                                                            ))}
+                                                            {diskons.map((diskon) => {
+                                                                const potonganRupiah = (hargaRental * durasi * diskon.potongan_harga) / 100;
+                                                                return (
+                                                                    <Option key={diskon.id} value={diskon.id}>
+                                                                        {diskon.nama_diskon} - Potongan: Rp. {potonganRupiah.toLocaleString()}
+                                                                    </Option>
+                                                                );
+                                                            })}
                                                         </Select>
                                                     </div>
                                                 )}
@@ -1167,22 +1218,6 @@ export default function page({ params: { motorId } }) {
                                                     Rp. {total_pembayaran.toLocaleString()}
                                                 </span>
                                             </Label>
-                                        </div>
-                                        <div className='flex flex-row gap-2 mt-2 items-center'>
-                                            <Radio
-                                                id="points"
-                                                color='orange'
-                                                checked={usePoint}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <div className='flex flex-row gap-1 items-center'>
-                                                <AiOutlineDollarCircle color='#FF4D30' size='23px' />
-                                                <Label>
-                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        {point} Gunakan Poin
-                                                    </span>
-                                                </Label>
-                                            </div>
                                         </div>
                                         <div className="border-t border-[#757575] mt-2"></div>
                                         <div className='flex flex-row justify-between'>

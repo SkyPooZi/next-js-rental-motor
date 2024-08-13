@@ -49,7 +49,8 @@ export const handleVerifyOTP = async (
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+                window.location.reload();
+            }, 1000);
 
             setOtpPopupVisible(false);
         }

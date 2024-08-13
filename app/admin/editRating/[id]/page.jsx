@@ -22,6 +22,10 @@ import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
 import Sidebar from '@/components/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
+import Loading from '@/components/ui/loading';
+import EditReviewForm from '@/components/sub/editReviewForm';
+import { fetchReviewData } from '@/utils/services/reviewService';
+import { updateReview } from '@/utils/services/updateReview';
 
 const Page = ({ params: { id } }) => {
     const [review, setReview] = useState(null);
@@ -43,32 +47,19 @@ const Page = ({ params: { id } }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/detail/${id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (response.status === 204) {
-                    setError('No content available for the provided ID');
-                } else if (!response.ok) {
-                    setError(`Failed to fetch data: ${response.statusText}`);
-                } else {
-                    const data = await response.json();
-                    console.log('Fetched data:', data);
-                    setReview(data.review);
-                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.review.gambar}`);
-                    setPenilaian(data.review.penilaian);
-                }
+                const reviewData = await fetchReviewData({ id, token });
+                console.log('Fetched data:', reviewData);
+                setReview(reviewData);
+                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${reviewData.gambar}`);
+                setPenilaian(reviewData.penilaian);
             } catch (err) {
-                setError(`An error occurred: ${err.message}`);
+                setError(err.message);
             } finally {
                 setLoadData(false);
             }
         };
         fetchData();
-    }, [id]);
+    }, [id, token]);
 
     const handleRatingChange = (newRating) => {
         setPenilaian(newRating);
@@ -76,45 +67,27 @@ const Page = ({ params: { id } }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const formData = new FormData();
-        if (file) formData.append('gambar', file);
-        if (nama_pengguna) formData.append('nama_pengguna', nama_pengguna);
-        if (penilaian) formData.append('penilaian', penilaian);
-        if (komentar) formData.append('komentar', komentar);
-
         setLoading(true);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/edit/${id}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
-            });
+            const updatedReview = await updateReview({ id, token, file, nama_pengguna, penilaian, komentar });
+            console.log('Updated data:', updatedReview);
+            setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${updatedReview.gambar}`);
+            setShowNotification(true);
 
-            if (!response.ok) {
-                setError(`Failed to update data: ${response.statusText}`);
-            } else {
-                const data = await response.json();
-                console.log('Updated data:', data);
-                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.review.gambar}`);
-                setShowNotification(true);
+            setReview((prevReview) => ({
+                ...prevReview,
+                ...(nama_pengguna && { nama_pengguna: updatedReview.nama_pengguna }),
+                ...(penilaian && { penilaian: updatedReview.penilaian }),
+                ...(komentar && { komentar: updatedReview.komentar }),
+            }));
 
-                setReview((prevReview) => ({
-                    ...prevReview,
-                    ...(nama_pengguna && { nama_pengguna: data.review.nama_pengguna }),
-                    ...(penilaian && { penilaian: data.review.penilaian }),
-                    ...(komentar && { komentar: data.review.komentar }),
-                }));
-
-                setTimeout(() => {
-                    setShowNotification(false);
-                }, 3000);
-            }
+            setTimeout(() => {
+                setShowNotification(false);
+                window.location.reload();
+            }, 1000);
         } catch (err) {
-            setError(`An error occurred: ${err.message}`);
+            setError(err.message);
         } finally {
             setLoading(false);
         }
@@ -143,9 +116,6 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
-            <div className='hidden xl:block'>
-                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-            </div>
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -154,137 +124,70 @@ const Page = ({ params: { id } }) => {
                 {activeComponent === "history" && <History />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'dashboard' ? (
-                null
-            ) : activeComponent === 'list' ? (
-                null
-            ) : activeComponent === 'user' ? (
-                null
-            ) : activeComponent === 'discount' ? (
-                null
-            ) : activeComponent === 'history' ? (
-                null
-            ) : activeComponent === 'rating' ? (
-                null
-            ) : <div className="block p-4 xl:ml-80">
-                <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
-                    <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">
-                        <div className="capitalize">
-                            <nav aria-label="breadcrumb" className="w-max">
-                                <ol className="hidden md:flex flex-col md:flex-row items-start w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
-                                    <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
-                                        <a href="#">
-                                            <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">dashboard</p>
-                                        </a>
-                                        <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
-                                    </li>
-                                    <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Ulasan</p>
-                                        <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
-                                    </li>
-                                    <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                        <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Edit
-                                        </p>
-                                    </li>
-                                </ol>
-                            </nav>
-                            <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
-                        </div>
-                        <div className="flex">
-                            <div className="md:order-1 sm:order-2 order-2">
-                                <NavbarAdmin />
+            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
+                <div className="block p-4 xl:ml-80">
+                    <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
+                        <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">
+                            <div className="capitalize">
+                                <nav aria-label="breadcrumb" className="w-max">
+                                    <ol className="hidden md:flex flex-col md:flex-row items-start w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
+                                        <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
+                                            <a href="#">
+                                                <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">dashboard</p>
+                                            </a>
+                                            <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
+                                        </li>
+                                        <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
+                                            <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Ulasan</p>
+                                            <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
+                                        </li>
+                                        <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
+                                            <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Edit
+                                            </p>
+                                        </li>
+                                    </ol>
+                                </nav>
+                                <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900 mt-2">Edit</h6>
                             </div>
-                            <div className="order-1">
-                                <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                            <div className="flex">
+                                <div className="md:order-1 sm:order-2 order-2">
+                                    <NavbarAdmin />
+                                </div>
+                                <div className="order-1">
+                                    <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </nav>
-                {loadData && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
-                        <Spinner color="blue" size="xl" />
-                    </div>
-                )}
-                <div className="mt-12">
-                    {error ? (
-                        <p>Error: {error}</p>
-                    ) : review ? (
-                        <form action='post' method='post' onSubmit={handleSubmit}>
-                            <Card className="w-full h-full">
-                                <CardHeader floated={false} shadow={false} className="rounded-none">
-                                    <div className="mb-4 flex flex-col justify-between gap-4">
-                                        <span className="text-black font-medium">
-                                            Edit Ulasan
-                                        </span>
-                                        <div className="border-t border-[#969696] w-full"></div>
-                                        <span className="text-black">
-                                            Foto
-                                        </span>
-                                        <div className="mr-4">
-                                            <img
-                                                src={imagePreview || image}
-                                                alt="Image Preview"
-                                                className="max-w-40 h-auto rounded-md"
-                                            />
-                                        </div>
-                                        <div className="flex flex-col md:flex-row gap-5">
-                                            <div className="w-full flex flex-col gap-2">
-                                                <span className="text-black">
-                                                    Nama Pengguna
-                                                </span>
-                                                <Input
-                                                    label={`Nama Pengguna (${review.user.nama_pengguna})`}
-                                                    onChange={(e) => setNamaPengguna(e.target.value)}
-                                                    disabled
-                                                />
-                                            </div>
-                                            <div className="w-full flex flex-col gap-2">
-                                                <span className="text-black">
-                                                    Penilaian
-                                                </span>
-                                                <div className="flex gap-3 cursor-pointer">
-                                                    {[...Array(totalStars)].map((_, index) => {
-                                                        const starValue = index + 1;
-                                                        return renderStar(starValue);
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col md:flex-row gap-4">
-                                            <div className="w-full flex flex-col gap-2">
-                                                <span className="text-black">
-                                                    Komentar
-                                                </span>
-                                                <Textarea
-                                                    label={`Komentar (${review.komentar})`}
-                                                    onChange={(e) => setKomentar(e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <Button
-                                                type="submit"
-                                                className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                loading={loading}
-                                            >
-                                                {loading ? 'Loading...' : 'Ubah Data'}
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        </form>
-                    ) : (
-                        <p>Loading...</p>
+                    </nav>
+                    {loadData && (
+                        <Loading />
                     )}
-                    {showNotification && (
-                        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
-                            <span>Data berhasil diupdate</span>
-                            <MdDone className="ml-2 text-white" />
-                        </div>
-                    )}
+                    <div className="mt-12">
+                        {error ? (
+                            <p>Error: {error}</p>
+                        ) : review ? (
+                            <EditReviewForm
+                                handleSubmit={handleSubmit}
+                                imagePreview={imagePreview}
+                                image={image}
+                                review={review}
+                                setNamaPengguna={setNamaPengguna}
+                                totalStars={totalStars}
+                                renderStar={renderStar}
+                                setKomentar={setKomentar}
+                                loading={loading}
+                            />
+                        ) : (
+                            <p>Loading...</p>
+                        )}
+                        {showNotification && (
+                            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                                <span>Data berhasil diupdate</span>
+                                <MdDone className="ml-2 text-white" />
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
             }
         </>
     );
