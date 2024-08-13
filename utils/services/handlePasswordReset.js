@@ -36,7 +36,8 @@ export const handlePasswordReset = async (e, { password, confirmPassword, id, to
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+                window.location.reload();
+            }, 1000);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);
