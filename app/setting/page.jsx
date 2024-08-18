@@ -1,6 +1,6 @@
 "use client";
 
-import { React, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
@@ -42,16 +42,17 @@ export default function Settings() {
     return (
         <>
             <Navbar />
-            <div className="h-full w-full py-10 md:px-24 md:py-16 bg-[#F6F7F9] lg:pl-0">
-                <div className="flex flex-col lg:flex-row items-center lg:items-start">
+            <div className="h-full w-full py-10 md:px-24 md:py-16 bg-[#F6F7F9]">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start w-full">
                     <style jsx>{`
                         .button-wrapper {
                             position: relative;
                             display: flex;
                             align-items: center;
+                            width: 100%;
                             padding: 10px 20px;
                             cursor: pointer;
-                            transition: background-color 0.3s ease, color 0.3s ease;
+                            transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
                         }
 
                         .button-wrapper::before {
@@ -67,7 +68,7 @@ export default function Settings() {
 
                         .button-wrapper:hover::before,
                         .button-wrapper.active::before {
-                            background-color: #FF4D30; /* Your accent color */
+                            background-color: #FF4D30;
                             width: 8px;
                         }
 
@@ -75,13 +76,54 @@ export default function Settings() {
                         .button-wrapper.active {
                             background-color: #F6F7F9; /* Background color on hover */
                             color: #FF4D30; /* Text color on hover */
+                            transform: scale(1.05); /* Slight scale on hover */
                         }
 
                         .icon {
                             margin-right: 10px;
+                            flex-shrink: 0; /* Prevent the icon from shrinking */
+                        }
+
+                        .button-wrapper span {
+                            white-space: nowrap; /* Prevent text wrapping */
+                        }
+
+                        .settings-sidebar {
+                            animation: slideIn 0.5s ease-in-out;
+                        }
+
+                        @keyframes slideIn {
+                            from {
+                                transform: translateX(-100%);
+                                opacity: 0;
+                            }
+                            to {
+                                transform: translateX(0);
+                                opacity: 1;
+                            }
+                        }
+
+                        .content-area {
+                            animation: fadeIn 0.5s ease-in-out;
+                        }
+
+                        @keyframes fadeIn {
+                            from {
+                                opacity: 0;
+                            }
+                            to {
+                                opacity: 1;
+                            }
+                        }
+
+                        /* Hide sidebar on mobile devices */
+                        @media (max-width: 768px) {
+                            .settings-sidebar {
+                                display: none;
+                            }
                         }
                     `}</style>
-                    <div className="flex flex-col bg-white h-screen w-[240px] border-r border-gray-300 p-2">
+                    <div className="hidden lg:flex flex-col bg-white h-full w-fit border-r border-gray-300 p-5 rounded-md settings-sidebar">
                         <span className="text-lg px-4 pt-5">Settings</span>
                         <div className="border-t border-[#FF4D30] mt-2 mx-4"></div>
                         <button
@@ -120,7 +162,7 @@ export default function Settings() {
                                 <span className="font-medium text-base">Kebijakan Privasi</span>
                             </div>
                         </button>
-                        <div className="border-t border-[#FF4D30] mt-2 mx-4"></div>
+                        <div className="border-t border-[#FF4D30] mt-2 mx-4 mb-5"></div>
                         <Link href="/login">
                             <button className={`button-wrapper text-[#FF4D30]`}>
                                 <div className="flex flex-row items-center gap-2">
@@ -137,7 +179,7 @@ export default function Settings() {
                     <div className="flex lg:hidden fixed bottom-5 right-2 z-40">
                         <DefaultSpeedDial activeComponent={activeComponent} handleButtonClick={handleButtonClick} />
                     </div>
-                    <div className="w-full">
+                    <div className="w-full content-area">
                         {renderComponent()}
                     </div>
                 </div>
