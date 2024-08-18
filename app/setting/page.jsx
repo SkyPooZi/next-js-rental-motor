@@ -18,7 +18,6 @@ import Navbar from "@/components/main/NavbarAfter";
 import Footer from "@/components/main/Footer";
 
 export default function Settings() {
-
     const [activeComponent, setActiveComponent] = useState("profile");
 
     const renderComponent = () => {
@@ -43,48 +42,89 @@ export default function Settings() {
     return (
         <>
             <Navbar />
-            <div className="h-full w-full px-2 py-10 md:px-24 md:py-16 bg-[#F6F7F9]">
-                <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8">
-                    <div className="w-full hidden max-w-[240px] h-fit lg:flex flex-col gap-2 py-5 px-2 rounded-md bg-white">
-                        <span className="text-lg">Settings</span>
-                        <div className="border-t border-[#FF4D30] mt-2"></div>
-                        <button onClick={() => handleButtonClick('profile')}>
-                            <div className={`flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md hover:bg-[#FF4D30] hover:text-white hover:duration-500 ${activeComponent === 'profile' ? 'bg-[#FF4D30] text-white' : ''}`}>
-                                <CgProfile size='25' />
-                                <span className="font-medium text-base">
-                                    Profil
-                                </span>
+            <div className="h-full w-full py-10 md:px-24 md:py-16 bg-[#F6F7F9] lg:pl-0">
+                <div className="flex flex-col lg:flex-row items-center lg:items-start">
+                    <style jsx>{`
+                        .button-wrapper {
+                            position: relative;
+                            display: flex;
+                            align-items: center;
+                            padding: 10px 20px;
+                            cursor: pointer;
+                            transition: background-color 0.3s ease, color 0.3s ease;
+                        }
+
+                        .button-wrapper::before {
+                            content: '';
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            bottom: 0;
+                            width: 4px;
+                            background-color: transparent;
+                            transition: background-color 0.3s ease, width 0.3s ease;
+                        }
+
+                        .button-wrapper:hover::before,
+                        .button-wrapper.active::before {
+                            background-color: #FF4D30; /* Your accent color */
+                            width: 8px;
+                        }
+
+                        .button-wrapper:hover,
+                        .button-wrapper.active {
+                            background-color: #F6F7F9; /* Background color on hover */
+                            color: #FF4D30; /* Text color on hover */
+                        }
+
+                        .icon {
+                            margin-right: 10px;
+                        }
+                    `}</style>
+                    <div className="flex flex-col bg-white h-screen w-[240px] border-r border-gray-300 p-2">
+                        <span className="text-lg px-4 pt-5">Settings</span>
+                        <div className="border-t border-[#FF4D30] mt-2 mx-4"></div>
+                        <button
+                            onClick={() => handleButtonClick('profile')}
+                            className={`button-wrapper ${activeComponent === 'profile' ? 'active' : ''}`}
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <CgProfile size='25' className="icon" />
+                                <span className="font-medium text-base">Profil</span>
                             </div>
                         </button>
-                        <button onClick={() => handleButtonClick('point')}>
-                            <div className={`flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md hover:bg-[#FF4D30] hover:text-white hover:duration-500 ${activeComponent === 'point' ? 'bg-[#FF4D30] text-white' : ''}`}>
-                                <AiOutlineDollarCircle size='25' />
-                                <span className="font-medium text-base" >
-                                    Poin Saya
-                                </span>
+                        <button
+                            onClick={() => handleButtonClick('point')}
+                            className={`button-wrapper ${activeComponent === 'point' ? 'active' : ''}`}
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <AiOutlineDollarCircle size='25' className="icon" />
+                                <span className="font-medium text-base">Poin Saya</span>
                             </div>
                         </button>
-                        <button onClick={() => handleButtonClick('history')}>
-                            <div className={`flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md hover:bg-[#FF4D30] hover:text-white hover:duration-500 ${activeComponent === 'history' ? 'bg-[#FF4D30] text-white' : ''}`}>
-                                <AiOutlineHistory size='25' />
-                                <span className="font-medium text-base">
-                                    Riwayat Penyewaan
-                                </span>
+                        <button
+                            onClick={() => handleButtonClick('history')}
+                            className={`button-wrapper ${activeComponent === 'history' ? 'active' : ''}`}
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <AiOutlineHistory size='25' className="icon" />
+                                <span className="font-medium text-base">Riwayat Penyewaan</span>
                             </div>
                         </button>
-                        <button onClick={() => handleButtonClick('terms')}>
-                            <div className={`flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md hover:bg-[#FF4D30] hover:text-white hover:duration-500 ${activeComponent === 'terms' ? 'bg-[#FF4D30] text-white' : ''}`}>
-                                <FiInfo size='25' />
-                                <span className="font-medium text-base">
-                                    Kebijakan Privasi
-                                </span>
+                        <button
+                            onClick={() => handleButtonClick('terms')}
+                            className={`button-wrapper ${activeComponent === 'terms' ? 'active' : ''}`}
+                        >
+                            <div className="flex flex-row items-center gap-2">
+                                <FiInfo size='25' className="icon" />
+                                <span className="font-medium text-base">Kebijakan Privasi</span>
                             </div>
                         </button>
-                        <div className="border-t border-[#FF4D30] mt-2"></div>
+                        <div className="border-t border-[#FF4D30] mt-2 mx-4"></div>
                         <Link href="/login">
-                            <button>
-                                <div className='flex flex-row items-center mt-3 gap-2 px-1 py-1 rounded-md text-[#FF4D30] hover:bg-[#FF4D30] hover:text-white hover:duration-500'>
-                                    <RiLogoutCircleLine size="25" />
+                            <button className={`button-wrapper text-[#FF4D30]`}>
+                                <div className="flex flex-row items-center gap-2">
+                                    <RiLogoutCircleLine size="25" className="icon" />
                                     <Label>
                                         <span className='font-medium text-base'>
                                             Keluar
@@ -97,8 +137,10 @@ export default function Settings() {
                     <div className="flex lg:hidden fixed bottom-5 right-2 z-40">
                         <DefaultSpeedDial activeComponent={activeComponent} handleButtonClick={handleButtonClick} />
                     </div>
-                    {renderComponent()}
-                </div >
+                    <div className="w-full">
+                        {renderComponent()}
+                    </div>
+                </div>
             </div>
             <Footer />
         </>
