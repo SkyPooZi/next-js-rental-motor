@@ -44,6 +44,10 @@ export default function Navbar() {
 
                     const data = await response.json();
                     console.log('Fetched user data:', data);
+                    const user = data.user;
+                    const role = user.peran;
+                    Cookies.set('role', role)
+
                     setUser(data.user);
                 } catch (error) {
                     console.error('Error fetching user data:', error);
@@ -68,6 +72,7 @@ export default function Navbar() {
         Cookies.remove('id');
         Cookies.remove('role');
         Cookies.remove('email');
+        Cookies.remove('isAdmin');
         router.push('/login');
     };
 
@@ -111,9 +116,7 @@ export default function Navbar() {
                                     <DropdownMenuItem>
                                         <Link href="/setting" className='flex items-center gap-2 hover:text-[#FF4D30]'>
                                             <IoSettings size='25' />
-                                            <Label>
-                                                <span className='font-bold cursor-pointer'>Settings</span>
-                                            </Label>
+                                            <span className='font-bold cursor-pointer'>Settings</span>
                                         </Link>
                                     </DropdownMenuItem>
                                     <div className="border-t border-[#FF4D30] my-2"></div>

@@ -1,26 +1,27 @@
 'use client';
 import { React, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import Image from "next/image";
-
 import { MdHistory } from "react-icons/md";
-import { FaStar } from "react-icons/fa";
-import { FaUserCircle } from "react-icons/fa";
-import { FaMotorcycle } from "react-icons/fa";
+import { FaStar, FaUserCircle, FaMotorcycle } from "react-icons/fa";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
-import {
-    Spinner
-} from "@material-tailwind/react";
+import { Spinner } from "@material-tailwind/react";
 
+import StatCard from '@/components/sub/statCard';
+import FormHeaderDashboard from '@/components/sub/admin/formHeaderDashboard';
 import AllChart from "@/components/sub/allChart";
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
 import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
-import { redirect } from "next/dist/server/api-utils";
+import NewOrderBookedList from '@/components/sub/admin/newOrderBookedList';
 import Discount from "@/components/sub/admin/discount";
+import Loading from '@/components/ui/loading';
+import { formatToRupiah } from '@/utils/formatToRupiah';
+import { fetchMotorData } from '@/utils/services/fetchMotor';
+import { fetchSewaData } from '@/utils/services/fetchHistoryProfit';
+import { fetchReview } from '@/utils/services/reviewService';
+import { fetchUser } from '@/utils/services/fetchUser';
+import { fetchStatusMotorData } from '@/utils/services/motorStatusService';
 
 export default function Dashboard() {
     const [motor, setMotor] = useState([]);
@@ -36,27 +37,13 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [totalKeuntungan, setTotalKeuntungan] = useState(0);
     const [activeComponent, setActiveComponent] = useState("dashboard");
-    const [presentasiPenambahan, setPresentasiPenambahan] = useState(0);
     const token = Cookies.get('token');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                const { listMotor } = responseData;
-                console.log('listMotor Data:', listMotor);
-
+                const { listMotor, totalMotor } = await fetchMotorData(token);
                 setMotor(listMotor);
-
-                const totalMotor = listMotor.length;
                 setTotalMotor(totalMotor);
             } catch (error) {
                 console.error('Fetch error:', error);
@@ -65,174 +52,74 @@ export default function Dashboard() {
             }
         };
         fetchData();
-    }, []);
+    }, [token]);
 
     useEffect(() => {
         const fetchSewa = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                const { history } = responseData;
-                console.log('History Data:', history);
-
-                const filteredHistory = history.filter(item => item.status_history !== 'Menunggu Pembayaran' && item.status_history !== 'Dibatalkan');
+                const { filteredHistory, totalKeuntungan, totalSewa } = await fetchSewaData(token);
                 setSewa(filteredHistory);
-
-                const totalKeuntungan = history.reduce((sum, item) => sum + item.total_pembayaran, 0);
-                console.log('Total Pembayaran:', totalKeuntungan);
-
                 setTotalKeuntungan(totalKeuntungan);
-                setTotalSewa(filteredHistory.length);
+                setTotalSewa(totalSewa);
             } catch (error) {
                 console.error('Fetch error:', error);
             }
         };
         fetchSewa();
-    }, []);
+    }, [token]);
 
     useEffect(() => {
-        const fetchReview = async () => {
+        const getReviews = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                const { review } = responseData;
-                console.log('Review Data:', review);
-
+                const review = await fetchReview(token);
                 setUlasan(review);
 
                 const totalUlasan = review.length;
                 setTotalUlasan(totalUlasan);
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Error fetching reviews:', error);
             }
         };
-        fetchReview();
-    }, []);
+        getReviews();
+    }, [token]);
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const getUsers = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                const { user } = responseData;
-                console.log('User Data:', user);
-
+                const user = await fetchUser(token);
                 setUser(user);
 
                 const totalUser = user.length;
                 setTotalUser(totalUser);
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Error fetching users:', error);
             }
-        }
-        fetchUser();
-    }, []);
+        };
+        getUsers();
+    }, [token]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const responseData = await response.json();
-                console.log('Response Data:', responseData);
-
-                if (responseData.listMotor && Array.isArray(responseData.listMotor)) {
-                    const { listMotor } = responseData;
-                    console.log('ListMotor Data:', listMotor);
-
-                    const available = listMotor.filter(motor => motor.status_motor === 'Tersedia');
-                    console.log('Available Motors:', available);
-
-                    const unavailable = listMotor.filter(motor => motor.status_motor !== 'Tersedia');
-                    console.log('Unavailable Motors:', unavailable);
-
-                    setMotor(listMotor);
-                    setAvailableMotor(available);
-                    setUnavailableMotor(unavailable);
-                } else {
-                    console.error('ListMotor is not defined or not an array');
-                }
+                const { listMotor, available, unavailable } = await fetchStatusMotorData(token);
+                setMotor(listMotor);
+                setAvailableMotor(available);
+                setUnavailableMotor(unavailable);
             } catch (error) {
                 console.error('Fetch error:', error);
             }
         };
         fetchData();
-    }, []);
-
-    useEffect(() => {
-        const fetchFilteredHistory = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered?filter=4_minggu`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const responseData = await response.json();
-                console.log('Filtered History Data:', responseData);
-
-                const currentWeekHistory = responseData.history;
-
-                // Mendapatkan history minggu sebelumnya dari penyimpanan lokal atau database
-                const previousWeekHistory = await fetchSewa(); // Implementasi asinkron ini sesuai dengan penyimpanan yang Anda gunakan
-
-                // Hitung total sewa
-                const totalSewa = currentWeekHistory.length;
-                setTotalSewa(totalSewa);
-
-                // Hitung presentasi penambahan
-                const penambahan = currentWeekHistory.length - previousWeekHistory.length;
-                const presentasiPenambahan = previousWeekHistory.length > 0 ? (penambahan / previousWeekHistory.length) * 100 : 0;
-                setPresentasiPenambahan(presentasiPenambahan);
-            } catch (error) {
-                console.error('Fetch error:', error);
-            }
-        };
-
-        fetchFilteredHistory();
-    }, []);
+    }, [token]);
 
     const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
 
-    const formatToRupiah = (number) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(number);
-    };
-
     return (
         <>
             {loading && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
-                    <Spinner color="blue" size="xl" />
-                </div>
+                <Loading />
             )}
             <div>
                 {activeComponent === "list" && <MotorList />}
@@ -241,149 +128,61 @@ export default function Dashboard() {
                 {activeComponent === "history" && <History />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'list' ? (
-                null
-            ) : activeComponent === 'user' ? (
-                null
-            ) : activeComponent === 'discount' ? (
-                null
-            ) : activeComponent === 'history' ? (
-                null
-            ) : activeComponent === 'rating' ? (
-                null
-            ) :
+            {activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
                 <div className="p-4 xl:ml-80">
-                    <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
-                        <div className="flex flex-col-reverse justify-between gap-6 md:flex-row md:items-center">
-                            <div className="capitalize">
-                                <nav aria-label="breadcrumb" className="w-max">
-                                    <ol className="flex flex-wrap items-center w-full bg-opacity-60 rounded-md bg-transparent p-0 transition-all">
-                                        <li className="flex items-center text-blue-gray-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-light-blue-500">
-                                            <a href="#">
-                                                <p className="block antialiased text-sm leading-normal text-blue-900 font-normal opacity-50 transition-all hover:text-blue-500 hover:opacity-100">beranda</p>
-                                            </a>
-                                            <span className="text-gray-500 text-sm antialiased font-normal leading-normal mx-2 pointer-events-none select-none">/</span>
-                                        </li>
-                                        <li className="flex items-center text-blue-900 antialiased text-sm font-normal leading-normal cursor-pointer transition-colors duration-300 hover:text-blue-500">
-                                            <p className="block antialiased text-sm leading-normal font-normal text-[#1E3A8A]">Beranda</p>
-                                        </li>
-                                    </ol>
-                                </nav>
-                                <h6 className="block antialiased tracking-normal text-base font-semibold leading-relaxed text-gray-900">Beranda</h6>
-                            </div>
-                            <div className="flex">
-                                <div className="md:order-1 sm:order-2 order-2">
-                                    <NavbarAdmin />
-                                </div>
-                                <div className="order-1">
-                                    <Sidebar activeComponent={activeComponent} handleButtonClick={handleBtnClick} />
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
+                    <FormHeaderDashboard activeComponent={activeComponent} handleBtnClick={handleBtnClick} />
                     <div className="mt-12">
                         <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-blue-600 to-blue-400 text-white shadow-blue-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <FaMotorcycle size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-medium">Total Motor</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalMotor}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+1%</strong>&nbsp;dari minggu lalu
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-pink-600 to-pink-400 text-white shadow-pink-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <MdHistory size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-medium">Total Sewa</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalSewa}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">{presentasiPenambahan.toFixed(2)}%</strong>&nbsp;dari minggu lalu
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-yellow-600 to-yellow-400 text-white shadow-yellow-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <FaStar size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-normal">Total Ulasan</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{totalUlasan}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+35%</strong>&nbsp;dari minggu lalu
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-orange-600 to-orange-400 text-white shadow-orange-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <FaUserCircle size='25' color="white" />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-normal">Total Pengguna</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug text-blue-gray-900">{totalUser}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+12%</strong>&nbsp;dari minggu lalu
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-green-600 to-green-400 text-white shadow-green-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <FaMotorcycle size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tersedia</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{availableMotor.length}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-red-500">-5%</strong>&nbsp;dari hari ini
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-red-600 to-red-400 text-white shadow-red-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <FaMotorcycle size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-medium">Total Motor <br></br> Tidak Tersedia</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{unavailableMotor.length}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+35%</strong>&nbsp;dari hari ini
-                                    </p> */}
-                                </div>
-                            </div>
-                            <div className="relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md">
-                                <div className="bg-clip-border mx-4 rounded-xl overflow-hidden bg-gradient-to-tr from-green-600 to-green-400 text-white shadow-green-500/40 shadow-lg absolute -mt-4 grid h-16 w-16 place-items-center">
-                                    <LiaHandHoldingUsdSolid size='25' />
-                                </div>
-                                <div className="p-4 text-right">
-                                    <p className="block antialiased text-sm leading-normal font-medium">Total Hasil <br /> Keuntungan</p>
-                                    <h4 className="block antialiased tracking-normal text-2xl font-semibold leading-snug">{formatToRupiah(totalKeuntungan)}</h4>
-                                </div>
-                                <div className="border-t border-blue-gray-50 p-4">
-                                    {/* <p className="block antialiased text-sm leading-relaxed font-normal">
-                                        <strong className="text-green-500">+35%</strong>&nbsp;dari hari ini
-                                    </p> */}
-                                </div>
-                            </div>
+                            <StatCard
+                                icon={<FaMotorcycle size="25" />}
+                                title="Total Motor"
+                                value={totalMotor}
+                                color="blue"
+                            />
+                            <StatCard
+                                icon={<MdHistory size="25" />}
+                                title="Total Sewa"
+                                value={totalSewa}
+                                color="pink"
+                            />
+                            <StatCard
+                                icon={<FaStar size="25" />}
+                                title="Total Ulasan"
+                                value={totalUlasan}
+                                color="yellow"
+                            />
+                            <StatCard
+                                icon={<FaUserCircle size="25" />}
+                                title="Total Pengguna"
+                                value={totalUser}
+                                color="orange"
+                            />
+                            <StatCard
+                                icon={<FaMotorcycle size="25" />}
+                                title="Total Motor Tersedia"
+                                value={availableMotor.length}
+                                color="green"
+                            />
+                            <StatCard
+                                icon={<FaMotorcycle size="25" />}
+                                title="Motor Tidak Tersedia"
+                                value={unavailableMotor.length}
+                                color="red"
+                            />
+                            <StatCard
+                                icon={<LiaHandHoldingUsdSolid size="25" />}
+                                title="Total Hasil Keuntungan"
+                                value={formatToRupiah(totalKeuntungan)}
+                                color="green"
+                            />
                         </div>
                     </div>
-                    <AllChart />
+                    <div>
+                        <NewOrderBookedList />
+                    </div>
+                    <div>
+                        <AllChart />
+                    </div>
                 </div>
             }
         </>
