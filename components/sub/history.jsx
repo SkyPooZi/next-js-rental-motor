@@ -85,9 +85,12 @@ export default function History() {
                 </div>
                 <div className="xl:hidden flex justify-end">
                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Pilih Kategori</Button>
-                        </DropdownMenuTrigger>
+                        <div className="flex items-center justify-between w-full">
+                            <h2 className="text-lg font-semibold">Riwayat Pengguna</h2>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">Pilih Kategori</Button>
+                            </DropdownMenuTrigger>
+                        </div>
                         <DropdownMenuContent className="w-56">
                             <DropdownMenuLabel>Pilih Kategori</DropdownMenuLabel>
                             <DropdownMenuSeparator />
@@ -128,6 +131,6 @@ export default function History() {
                 </div>
             </div>
             {renderComponent()}
-        </div>
+        </div >
     );
 }
