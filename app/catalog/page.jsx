@@ -5,7 +5,7 @@ import Image from 'next/image';
 import NavbarAfter from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import fetchCatalog from 'D:/next-js-rental-motor/utils/services/fetchCatalog';
 
 const Motor = ({ motor }) => {
   const router = useRouter();
@@ -54,44 +54,13 @@ const MotorList = () => {
   const [filteredMotors, setFilteredMotors] = useState([]);
   
   useEffect(() => {
-    const fetchMotors = async () => {
-      const token = Cookies.get('token');
-
-      if (!token) {
-        console.error('Token not found');
-        return;
-      }
-
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-        });
-        console.log('Raw response:', response);
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log('JSON response:', data);
-        const id = data.listMotor;
-        console.log('Motor data:', id);
-
-        if (data.status === 200) {
-          setMotors(data.listMotor);
-          setFilteredMotors(data.listMotor);
-        } else {
-          console.error('Unexpected response status:', data.status);
-        }
-      } catch (error) {
-        console.error('Error fetching motor data:', error);
-      }
+    const fetchMotorsData = async () => {
+      const motors = await fetchCatalog();
+      setMotors(motors);
+      setFilteredMotors(motors);
     };
 
-    fetchMotors();
+    fetchMotorsData();
   }, []);
 
   useEffect(() => {
@@ -122,7 +91,7 @@ const MotorList = () => {
 
   return (
     <>
-      <NavbarAfter /> {/* Updated Navbar component */}
+      <NavbarAfter />
       <div className="flex flex-col items-center p-5 bg-white min-h-screen w-full overflow-x-hidden">
         <div className="w-full max-w-6xl mb-5">
           <div className="flex justify-between items-center">
