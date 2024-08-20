@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
@@ -20,6 +20,12 @@ import Footer from "@/components/main/Footer";
 export default function Settings() {
     const [activeComponent, setActiveComponent] = useState("profile");
 
+    const [animationClass, setAnimationClass] = useState("fade-in");
+
+    useEffect(() => {
+        setAnimationClass("fade-in"); // Set the class for fade-in animation
+    }, [activeComponent]);
+
     const renderComponent = () => {
         switch (activeComponent) {
             case "profile":
@@ -36,7 +42,10 @@ export default function Settings() {
     };
 
     const handleButtonClick = (component) => {
-        setActiveComponent(component);
+        setAnimationClass("fade-out"); // Set the class for fade-out animation
+        setTimeout(() => {
+            setActiveComponent(component);
+        }, 300); // Delay changing the component to allow the fade-out to complete
     };
 
     return (
@@ -45,7 +54,7 @@ export default function Settings() {
             <div className="h-full w-full py-10 md:px-24 md:py-16 bg-[#F6F7F9]">
                 <div className="flex flex-col lg:flex-row items-center lg:items-start w-full">
                     <style jsx>{`
-                        .button-wrapper {
+                          .button-wrapper {
                             position: relative;
                             display: flex;
                             align-items: center;
@@ -103,16 +112,33 @@ export default function Settings() {
                             }
                         }
 
-                        .content-area {
+                        .fade-in {
                             animation: fadeIn 0.5s ease-in-out;
+                        }
+
+                        .fade-out {
+                            animation: fadeOut 0.5s ease-in-out;
                         }
 
                         @keyframes fadeIn {
                             from {
                                 opacity: 0;
+                                transform: translateY(10px);
                             }
                             to {
                                 opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        @keyframes fadeOut {
+                            from {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                            to {
+                                opacity: 0;
+                                transform: translateY(10px);
                             }
                         }
 
@@ -179,7 +205,7 @@ export default function Settings() {
                     <div className="flex lg:hidden fixed bottom-5 right-2 z-40">
                         <DefaultSpeedDial activeComponent={activeComponent} handleButtonClick={handleButtonClick} />
                     </div>
-                    <div className="w-full content-area">
+                    <div className={`w-full content-area ${animationClass}`}>
                         {renderComponent()}
                     </div>
                 </div>
