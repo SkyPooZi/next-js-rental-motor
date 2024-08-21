@@ -65,14 +65,20 @@ export default function Notification() {
 
     const handleSubmit = async (e, id) => {
         e.preventDefault();
+
         if (!id) {
-            setError('No ID available to edit.');
+            setError('No ID available to process.');
             return;
-        };
-        const formData = new FormData();
-        formData.append('status_history', 'Dipesan');
+        }
+
         setBtnLoading(true);
+
         try {
+            const formData = new FormData();
+            formData.append('status_history', 'Dipesan');
+            setLoadingCancel(true);
+
+            // First API call: Update history
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
                 headers: {
@@ -80,28 +86,68 @@ export default function Notification() {
                 },
                 body: formData
             });
+
             if (!response.ok) {
-                setError(`Failed to update data: ${response.statusText}`);
-            } else {
-                const data = await response.json();
-                console.log('Updated data:', data);
-                setShowNotification(true);
-                setHistory(prevHistory => prevHistory.map(item =>
-                    item.id === id ? { ...item, status_history: 'Dipesan' } : item
-                ));
-                setTimeout(() => {
-                    setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
-                    setBtnLoading(false);
-                    setShowNotification(false);
-                    setTimeout(() => setShowNotification(false), 3000);
-                }, 1000);
-                setSelectedId(null);
-            };
-        } catch (err) {
-            setError(`An error occurred: ${err.message}`);
+                throw new Error(`Failed to update data: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Updated data:', data);
+            setShowNotificationCancel(true);
+            setHistory(prevHistory => prevHistory.map(item =>
+                item.id === id ? { ...item, status_history: 'Dipesan' } : item
+            ));
+            setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+            setTimeout(() => {
+                setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+                setLoadingCancel(false);
+                setShowNotificationCancel(false);
+            }, 1000);
+            setSelectedId(null);
+
+            const orderId = Cookies.get('orderIdTunai');
+
+            // Third API call: Update Invoice with status
+            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status_history: 'Dipesan',
+                    status_pembayaran: 'Lunas',
+                }),
+            });
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update invoice status');
+            }
+
+            const updateData = await updateResponse.json();
+            console.log('Invoice status update response:', updateData);
+
+            // Handle successful submission
+            setShowNotification(true);
+            setHistory(prevHistory => prevHistory.map(item =>
+                item.id === id ? { ...item, status_history: 'Dipesan' } : item
+            ));
+
+            setTimeout(() => {
+                setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+                setBtnLoading(false);
+                setShowNotification(false);
+            }, 1000);
+
+            setSelectedId(null);
+
+        } catch (error) {
+            console.error('An error occurred:', error);
+            setError(`An error occurred: ${error.message}`);
         } finally {
             setLoading(false);
-        };
+        }
+
     };
 
     const handleSubmitCancel = async (e, id) => {

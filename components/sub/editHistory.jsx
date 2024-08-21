@@ -325,10 +325,10 @@ const EditHistoryForm = ({
                                 <span className="text-black">
                                     Diskon
                                 </span>
-                                {diskons.length > 0 && (
+                                {diskons && diskons.length > 0 ? (
                                     <div className="w-full">
                                         <Select
-                                            label={`Pilih diskon (${history.diskon.nama_diskon})`}
+                                            label={`Pilih diskon (${history.diskon?.nama_diskon || "Tidak ada diskon"})`}
                                             onChange={handleSelectChangeDiskon}
                                             disabled
                                         >
@@ -337,6 +337,18 @@ const EditHistoryForm = ({
                                                     {id_diskon.nama_diskon}
                                                 </Option>
                                             ))}
+                                        </Select>
+                                    </div>
+                                ) : (
+                                    <div className="w-full">
+                                        <Select
+                                            label="Pilih diskon"
+                                            onChange={handleSelectChangeDiskon}
+                                            disabled
+                                        >
+                                            <Option key="no-discount" value="">
+                                                Tidak ada diskon
+                                            </Option>
                                         </Select>
                                     </div>
                                 )}

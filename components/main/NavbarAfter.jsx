@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from '@/components/ui/label';
+import BottomNavbar from '../ui/bottom-navbar';
 
 export default function Navbar() {
     const [activeLink, setActiveLink] = useState('/');
@@ -101,7 +102,14 @@ export default function Navbar() {
                                     <div className='flex items-center gap-2 cursor-pointer'>
                                         <Avatar className="w-10 h-10">
                                             {user?.gambar ? (
-                                                <AvatarImage className="w-full h-full object-cover" src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}`} />
+                                                <AvatarImage
+                                                    className="w-full h-full object-cover"
+                                                    src={
+                                                        user.google_id || user.facebook_id
+                                                            ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                                            : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                                                    }
+                                                />
                                             ) : (
                                                 <AvatarFallback>o_o</AvatarFallback>
                                             )}
@@ -138,7 +146,10 @@ export default function Navbar() {
                                 Login
                             </button>
                         )}
-                        <Sheet>
+                        <div className='block lg:hidden'>
+                            <BottomNavbar />
+                        </div>
+                        {/* <Sheet>
                             <SheetTrigger>
                                 <div className='block lg:hidden border border-white p-2 rounded-md'>
                                     <IoReorderThreeOutline size='25' />
@@ -156,7 +167,7 @@ export default function Navbar() {
                                     </SheetTitle>
                                 </SheetHeader>
                             </SheetContent>
-                        </Sheet>
+                        </Sheet> */}
                     </div>
                 </div>
             </div>
