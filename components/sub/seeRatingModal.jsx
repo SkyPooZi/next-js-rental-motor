@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Cookies from 'js-cookie';
 
 import { FaStar } from "react-icons/fa";
 import { CiImageOn } from "react-icons/ci";
@@ -8,33 +9,77 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
-const SeeRatingModal = ({ isOpen, onClose, className }) => {
+import { fetchCancelledModal } from '@/utils/services/fetchCancelledModal';
+import { fetchReview } from '@/utils/services/fetchReview';
 
-    const modalRef = useRef(null);
+const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
+    const [seeRatingModalDetails, setSeeRatingModalDetails] = useState(null);
+    const [image, setImage] = useState('');
+    const [imagePreview, setImagePreview] = useState(null);
+    const [motor, setMotorData] = useState(null);
+    const [user, setUserData] = useState(null);
+    const [userImage, setUserImage] = useState(null);
+    const [ulasanId, setUlasanId] = useState(null);
+    const [review, setReview] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const token = Cookies.get('token');
 
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (modalRef.current && !modalRef.current.contains(event.target)) {
-                onClose();
+        const getRatingModalDetails = async () => {
+            try {
+                const response = await fetchCancelledModal(token, historyId);
+
+                if (response && response.status === 200) {
+                    const data = response.history;
+                    setSeeRatingModalDetails(data);
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
+                    setUserImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.user.gambar}`);
+                    setUserData(data.user);
+                    setUlasanId(data.ulasan_id);
+                    setMotorData(data.list_motor.nama_motor);
+                } else {
+                    console.log('No data received or incorrect status');
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment details:', error);
             }
         };
 
-        if (isOpen) {
-            document.addEventListener('mousedown', handleClickOutside);
-        } else {
-            document.removeEventListener('mousedown', handleClickOutside);
+        if (historyId && isOpen) {
+            getRatingModalDetails();
         }
+    }, [token, historyId, isOpen]);
 
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
+    useEffect(() => {
+        const getReviewDetails = async () => {
+            try {
+                const response = await fetchReview(token, ulasanId);
+
+                if (response && response.status === 200) {
+                    const data = response.review;
+                    setReview({
+                        penilaian: data.penilaian,
+                        gambar: data.gambar,
+                        komentar: data.komentar,
+                    });
+                } else {
+                    console.log('No data received or incorrect status');
+                }
+            } catch (error) {
+                console.error('Failed to fetch review details:', error);
+            }
         };
-    }, [isOpen, onClose]);
+
+        if (ulasanId && isOpen) {
+            getReviewDetails();
+        }
+    }, [token, ulasanId, isOpen]);
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
-            <div ref={modalRef} className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
+    return seeRatingModalDetails ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg">
                 <div className='flex flex-col gap-5'>
                     <Label>
                         <span className='font-semibold text-base'>
@@ -42,46 +87,47 @@ const SeeRatingModal = ({ isOpen, onClose, className }) => {
                         </span>
                     </Label>
                     <div className='flex flex-row gap-2'>
-                        <Image src='/images/motor/dummy.png' alt='motor' width={70} height={0} />
+                        <Image src={image || '/images/motor/dummy.png'} alt='motor' width={100} height={0} />
                         <div className="flex flex-col gap-1">
                             <Label>
                                 <span className="text-base">
-                                    Motor
+                                    {motor || 'Motor'}
                                 </span>
                             </Label>
                         </div>
                     </div>
                     <div className='w-full flex flex-row gap-5 border p-5'>
                         <Avatar>
-                            <AvatarImage src="https://github.com/shadcn.png" />
+                            <AvatarImage src={userImage || 'https://github.com/shadcn.png'} />
                             <AvatarFallback>CN</AvatarFallback>
                         </Avatar>
                         <div className='flex flex-col gap-2'>
                             <Label>
-                                <span className='text-xs'>
-                                    Nama User
+                                <span className='text-base'>
+                                    {user?.nama_pengguna || 'User'}
                                 </span>
                             </Label>
-                            <div className='flex flex-row gap-2'>
-                                <FaStar size='20' color='#FFC107' />
-                                <FaStar size='20' color='#FFC107' />
-                                <FaStar size='20' color='#FFC107' />
-                                <FaStar size='20' color='#FFC107' />
-                                <FaStar size='20' color='#FFC107' />
+                            <div className="flex gap-3">
+                                {Array.from({ length: review?.penilaian || 0 }, (_, i) => (
+                                    <svg key={i} xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 24 24" stroke="none">
+                                        <path d="M12 .587l3.668 7.425 8.332 1.212-6.042 5.888 1.426 8.31L12 18.897l-7.384 3.925 1.426-8.31L.412 9.224l8.332-1.212L12 .587z" />
+                                    </svg>
+                                ))}
                             </div>
                             <Label>
                                 <span className='leading-5'>
-                                    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Omnis fuga distinctio libero tempora cum quia quidem non praesentium quos commodi?
+                                    {review?.komentar || 'Ulasan'}
                                 </span>
                             </Label>
                             <div className='flex flex-row gap-3'>
-                                <Image src='/images/motor/review.png' height={1000} width={1000} className='max-w-[100px]' />
-                                <Image src='/images/motor/review.png' height={1000} width={1000} className='max-w-[100px]' />
+                                {review?.gambar && (
+                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${review.gambar}`} height={1000} width={1000} className='max-w-[100px]' />
+                                )}
                             </div>
                         </div>
                     </div>
                     <div className='flex flex-row gap-2 justify-end'>
-                        <Button>
+                        <Button onClick={onClose}>
                             <Label>
                                 <span className='cursor-pointer text-xs'>
                                     OK
@@ -95,6 +141,8 @@ const SeeRatingModal = ({ isOpen, onClose, className }) => {
                 </button> */}
             </div>
         </div>
+    ) : (
+        null
     );
 };
 

@@ -3,6 +3,17 @@ import { PiScroll } from "react-icons/pi";
 
 const Modal = ({ isOpen, onClose }) => {
     const modalRef = useRef(null);
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formatDate = (date) => {
+        const options = { day: '2-digit', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('id-ID', options).replace('.', '');
+    }
+
+    const todayFormatted = formatDate(today);
+    const tomorrowFormatted = formatDate(tomorrow);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -38,15 +49,15 @@ const Modal = ({ isOpen, onClose }) => {
                         <span className='font-semibold text-[#00875A] bg-white'>
                             Penjadwalan Ulang Gratis sebelum
                         </span>
-                        25-Maret-2024
+                        {todayFormatted}
                     </div>
                     <div className='flex flex-col gap-1 items-start font-semibold bg-white'>
                         <span className='font-semibold text-[#E80D12] bg-white'>
-                            Biaya Penjadwalan Ulang Rp, 140.000 berlaku setelah
+                            Biaya Penjadwalan Ulang Rp, 100.000 berlaku setelah
                         </span>
-                        26-Maret-2024
+                        {tomorrowFormatted}
                     </div>
-                    Pemesanan ini bisa dijadwalkan ulang, namun dikenakan biaya setelah 25 Maret 2023
+                    Pemesanan ini bisa dijadwalkan ulang, namun dikenakan biaya setelah {tomorrowFormatted}.
                 </div>
                 {/* <button onClick={onClose} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded inline-flex items-center">
                     Close
