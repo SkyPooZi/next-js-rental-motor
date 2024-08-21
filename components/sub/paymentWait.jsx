@@ -71,20 +71,20 @@ export default function PaymentWait() {
                                 </span>
                             </Label>
                             <Label>
-                                <span className="text-base">
+                                <span className="text-base lg:text-lg md:text-fz-medium sm:text-sm">
                                     {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
                                 </span>
                             </Label>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end">
+                    <div className="flex flex-col gap-2 items-end">
                         <Label>
                             <span className="font-bold">
                                 {detail.status_history}
                             </span>
                         </Label>
                         <Label>
-                            <span className="text-[#FF4D33] text-lg">
+                            <span className="text-[#FF4D33] lg:text-xl md:text-base">
                                 Batas Pembayaran - {detail.tanggal_mulai}
                             </span>
                         </Label>
