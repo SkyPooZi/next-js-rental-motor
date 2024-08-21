@@ -151,7 +151,7 @@ export default function Settings() {
                     `}</style>
                     <div className="hidden lg:flex flex-col bg-white h-full w-fit border-r border-gray-300 p-5 rounded-md settings-sidebar">
                         <span className="text-lg px-4 pt-5">Settings</span>
-                        <div className="border-t border-[#FF4D30] mt-2 mx-4"></div>
+                        <div className="border-t border-[#FF4D30] mt-2 mx-4 mb-2"></div>
                         <button
                             onClick={() => handleButtonClick('profile')}
                             className={`button-wrapper ${activeComponent === 'profile' ? 'active' : ''}`}
