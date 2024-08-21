@@ -5,7 +5,7 @@ import Image from 'next/image';
 import NavbarAfter from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
+import fetchCatalog from 'D:/next-js-rental-motor/utils/services/fetchCatalog';
 import { Button } from '@material-tailwind/react';
 
 const Motor = ({ motor }) => {
@@ -65,33 +65,13 @@ const MotorList = () => {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
-    const fetchMotors = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        const id = data.listMotor;
-
-        if (data.status === 200) {
-          setMotors(data.listMotor);
-          setFilteredMotors(data.listMotor);
-        } else {
-          console.error('Unexpected response status:', data.status);
-        }
-      } catch (error) {
-        console.error('Error fetching motor data:', error);
-      }
+    const fetchMotorsData = async () => {
+      const motors = await fetchCatalog();
+      setMotors(motors);
+      setFilteredMotors(motors);
     };
 
-    fetchMotors();
+    fetchMotorsData();
   }, []);
 
   useEffect(() => {
