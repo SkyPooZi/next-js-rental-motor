@@ -206,6 +206,14 @@ export default function page({ params: { motorId } }) {
         document.head.appendChild(script);
     }, []);
 
+    const formatPhoneNumber = (phone) => {
+        // Ensure that the phone number starts with +62
+        if (!phone.startsWith('+62')) {
+            return '+62' + phone.replace(/^0+/, ''); // Remove leading zeros and add +62
+        }
+        return phone;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -213,7 +221,7 @@ export default function page({ params: { motorId } }) {
             pengguna_id: id,
             nama_lengkap,
             email,
-            no_telp,
+            no_telp: formatPhoneNumber(no_telp),
             akun_sosmed,
             alamat,
             penyewa,
@@ -230,10 +238,10 @@ export default function page({ params: { motorId } }) {
             metode_pembayaran,
             total_pembayaran,
             point,
-            usePoint
+            usePoint,
         };
 
-        await handleBookingSubmit(bookingData, token, setLoading, setShowInvoice, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, setError);
+        await handleBookingSubmit(bookingData, token, router, setLoading, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, setError);
     };
 
     useEffect(() => {
@@ -268,7 +276,7 @@ export default function page({ params: { motorId } }) {
                     pengguna_id: id,
                     nama_lengkap,
                     email,
-                    no_telp,
+                    no_telp: formatPhoneNumber(no_telp),
                     akun_sosmed,
                     alamat,
                     penyewa,
@@ -284,7 +292,7 @@ export default function page({ params: { motorId } }) {
                     diskon_id,
                     metode_pembayaran,
                     total_pembayaran,
-                    status_history: 'Dipesan',
+                    status_history: 'Menunggu Pembayaran',
                 }),
             });
 
@@ -312,6 +320,7 @@ export default function page({ params: { motorId } }) {
 
             const invoiceData = await invoiceResponse.json();
             console.log('Invoice created', invoiceData);
+            Cookies.set('orderIdTunai', invoiceData.order_id);
 
             showNotificationWithTimeout(successMessage, 'success');
 
@@ -586,7 +595,7 @@ export default function page({ params: { motorId } }) {
                     </div>
                     <div className='flex flex-col w-full'>
                         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
-                            <div className='flex flex-col gap-8'>
+                            <div className='flex flex-col gap-2'>
                                 <Button
                                     type="submit"
                                     className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white shadow-md hover:shadow-lg bg-[#FF4D33] hover:bg-black active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}

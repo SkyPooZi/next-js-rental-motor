@@ -58,14 +58,30 @@ const DetailKontak = ({ nama_lengkap, setNamaLengkap, akun_sosmed, setAkunSosmed
                             <span className="text-black">
                                 Nomor Telepon <span className="text-[#FF4D33] font-semibold">*</span>
                             </span>
-                            <Input
-                                type='number'
-                                label="Masukkan no telp"
-                                placeholder='08xxxxxxx'
-                                value={no_telp}
-                                onChange={(e) => setNoTelp(e.target.value)}
-                                required
-                            />
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    +62
+                                </span>
+                                <Input
+                                    type="number"
+                                    label="Masukkan no telp"
+                                    placeholder="8892384434"
+                                    value={no_telp}
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+
+                                        // Prevents user from starting the input with "0" after "+62"
+                                        if (inputValue.startsWith('0')) {
+                                            setNoTelp(inputValue.slice(1));
+                                        } else {
+                                            setNoTelp(inputValue);
+                                        }
+                                    }}
+                                    required
+                                    className="border rounded-r"
+                                />
+                            </div>
+                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-5">
