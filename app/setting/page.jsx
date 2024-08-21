@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 import { CgProfile } from "react-icons/cg";
@@ -18,9 +19,16 @@ import Navbar from "@/components/main/NavbarAfter";
 import Footer from "@/components/main/Footer";
 
 export default function Settings() {
+    const router = useRouter(); // Initialize useRouter
+    const searchParams = useSearchParams(); // Initialize useSearchParams to get query params
     const [activeComponent, setActiveComponent] = useState("profile");
 
     const [animationClass, setAnimationClass] = useState("fade-in");
+
+    useEffect(() => {
+        const component = searchParams.get('component') || "profile"; // Safely get 'component' from query params
+        setActiveComponent(component);
+    }, [searchParams]);
 
     useEffect(() => {
         setAnimationClass("fade-in"); // Set the class for fade-in animation
