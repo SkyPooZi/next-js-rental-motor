@@ -1,8 +1,14 @@
 import React from 'react';
+import { useState } from 'react';
+import { Spinner } from '@material-tailwind/react';
 import Image from 'next/image';
 
 const ReviewCard = ({ review }) => {
-    const placeholderImage = "https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=";
+    const [imageLoading, setImageLoading] = useState(true);
+
+    const handleImageLoad = () => {
+        setImageLoading(false);
+    };
 
     return (
         <div className="w-80 h-[340px] rounded-xl overflow-hidden cursor-pointer shadow-lg p-4 bg-white">
@@ -24,11 +30,12 @@ const ReviewCard = ({ review }) => {
                 </div>
             </div>
             <div className="mb-4 flex justify-center">
-                {review.gambar ? (
-                    <Image width={1000} height={1000} src={`https://rental-motor.ruscarestudent.com/storage/${review.gambar}`} alt="Review Image" className="rounded-md object-cover w-32 h-32" />
-                ) : (
-                    <Image width={1000} height={1000} src={placeholderImage} alt="Placeholder" className="object-cover w-20 h-20" />
+                {imageLoading && (
+                    <div className="flex items-center justify-center w-72 h-72">
+                        <Spinner color="orange" className="h-12 w-12" />
+                    </div>
                 )}
+                <Image width={1000} height={1000} onLoadingComplete={handleImageLoad} src={`https://rental-motor.ruscarestudent.com/storage/${review.gambar}`} alt="Review Image" className="rounded-md object-cover w-32 h-32" />
             </div>
             <p className="text-gray-700 text-base h-32 overflow-hidden">
                 "{review.komentar}"

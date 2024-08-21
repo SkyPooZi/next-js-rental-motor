@@ -1,37 +1,28 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-
-import { PiScroll } from "react-icons/pi";
-import { MdCancel, MdOutlineTimer } from "react-icons/md";
-import { FaCircleCheck } from "react-icons/fa6";
-import { AiOutlineDollarCircle } from "react-icons/ai";
-import { IoLocationSharp, IoMapSharp } from "react-icons/io5";
+import { MdOutlineTimer } from "react-icons/md";
 import { MdDone, MdClear } from 'react-icons/md';
-
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
-import {
-    Input,
-    Select,
-    Textarea,
-    Option,
-    Radio,
-} from "@material-tailwind/react";
-
 import InvoicePopup from '@/components/sub/invoice';
-import Modal from '@/components/sub/rescheduleFormModal';
 import TermsModal from '@/components/sub/termsModal';
 import Footer from '@/components/main/Footer';
 import Navbar from '@/components/main/NavbarAfter';
-import Lokasi from '@/components/sub/about/Lokasi';
-
-import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { TextField } from '@mui/material';
+import PemesananHeader from '@/components/sub/pemesananHeader';
+import DetailKontak from '@/components/sub/detailContact';
+import DetailPemesanan from '@/components/sub/detailPemesanan';
+import DetailHarga from '@/components/sub/detailHarga';
+import EmergencyContact from '@/components/sub/emergencyContact';
+import KebijakanDetails from '@/components/sub/kebijakanReschedule';
+import KebijakanDetails1 from '@/components/sub/kebijakanReschedule1';
+import { fetchDetailMotor } from '@/utils/formService/motorService';
+import { fetchMotor } from '@/utils/formService/motorService';
+import { fetchDiskons } from '@/utils/formService/diskonService';
+import { fetchUserPoint } from '@/utils/formService/userService';
+import { handleBookingSubmit } from '@/utils/formService/bookingService';
+import { fetchBookedDates } from '@/utils/formService/bookedDates';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
@@ -54,6 +45,7 @@ export default function page({ params: { motorId } }) {
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
     const [motor_id, setMotorId] = useState('');
+    const [stok_motor, setStokMotor] = useState(0);
     const [nama_motor, setNamaMotor] = useState('');
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
@@ -62,7 +54,7 @@ export default function page({ params: { motorId } }) {
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
     const [nomor_kontak_darurat, setNomorKontakDarurat] = useState('');
     const [hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat] = useState('');
-    const [diskon_id, setDiskonId] = useState('');
+    const [diskon_id, setDiskonId] = useState(diskons.length > 0 ? diskons[0].id : null);
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [point, setPoint] = useState(0);
     const [usePoint, setUsePoint] = useState(false);
@@ -79,10 +71,8 @@ export default function page({ params: { motorId } }) {
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
     const [durasi, setDurasi] = useState('');
-    const [disabledDaysMulai, setDisabledDaysMulai] = useState([]);
-    const [disabledDaysSelesai, setDisabledDaysSelesai] = useState([]);
+    const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
-    const defaultMotor = motors.find(motor => motor.id === motorId);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -123,16 +113,23 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const handleCheckboxChange = (e) => {
-        const isChecked = e.target.checked;
-
+    const handleCheckboxChange = () => {
+        const isChecked = !usePoint;
         const updatedTotal = calculateTotalPembayaran(isChecked);
+
         if (updatedTotal === 0) {
             setUsePoint(false);
-            showNotificationWithTimeout('Silahkan pilih motor terlebih dahulu', 'error');
+            setPointValue(0);
+            showNotificationWithTimeout('Silahkan isi data terlebih dahulu', 'error');
             scrollToTarget();
         } else {
-            setUsePoint(isChecked);
+            if (usePoint) {
+                setUsePoint(false);
+                setPointValue(0);
+            } else {
+                setUsePoint(isChecked);
+                setPointValue(point);
+            }
         }
     };
 
@@ -144,105 +141,57 @@ export default function page({ params: { motorId } }) {
 
     useEffect(() => {
         if (!detailId) return;
-        const fetchDetailMotor = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${detailId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-
-                if (response.status === 204) {
-                    setError('No content available');
-                } else if (!response.ok) {
-                    setError(`Failed to fetch data: ${response.statusText}`);
-                } else {
-                    const data = await response.json();
-                    console.log('Fetched motor:', data);
-                    setGambarMotor(data.listMotor);
-                }
-            } catch (err) {
-                setError(`An error occurred: ${err.message}`);
+        const fetchData = async () => {
+            const { error, data } = await fetchDetailMotor(detailId, token);
+            if (error) {
+                setError(error);
+            } else {
+                setGambarMotor(data);
+                setStokMotor(data.stok_motor);
+                console.log('Stok Motor:', data.stok_motor);
             }
         };
-        fetchDetailMotor();
-    }, [detailId]);
 
-    useEffect(() => {
-        const fetchMotor = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-
-                if (response.status === 204) {
-                    setError('No content available');
-                } else if (!response.ok) {
-                    setError(`Failed to fetch data: ${response.statusText}`);
-                } else {
-                    const data = await response.json();
-                    console.log('Fetched motor:', data);
-                    setMotors(data.listMotor || []);
-                }
-            } catch (err) {
-                setError(`An error occurred: ${err.message}`);
-            }
-        };
-        fetchMotor();
-    }, []);
+        fetchData();
+    }, [detailId, token]);
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                if (response.status === 204) {
-                    setError('No content available');
-                } else if (!response.ok) {
-                    setError(`Failed to fetch data: ${response.statusText}`);
-                } else {
-                    const data = await response.json();
-                    console.log('Fetched discount:', data);
-                    setDiskons(data.diskon || []);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
+            const { error, data } = await fetchMotor(token);
+            if (error) {
+                setError(error);
+            } else {
+                setMotors(data);
+                console.log('Fetched motor:', data);
             }
         };
         fetchData();
-    }, []);
+    }, [token]);
 
     useEffect(() => {
-        const fetchPoint = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                if (response.status === 204) {
-                    setError('No content available');
-                } else if (!response.ok) {
-                    setError(`Failed to fetch data: ${response.statusText}`);
-                } else {
-                    const data = await response.json();
-                    setPoint(data.user.point);
-                }
-            } catch (error) {
-                console.error('Fetch error:', error);
+        const fetchData = async () => {
+            const { error, data } = await fetchDiskons(token);
+            if (error) {
+                setError(error);
+            } else {
+                setDiskons(data);
+                console.log('Fetched discount:', data);
             }
         };
-        fetchPoint();
-    }, []);
+        fetchData();
+    }, [token]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const { error, data } = await fetchUserPoint(id, token);
+            if (error) {
+                setError(error);
+            } else {
+                setPoint(data);
+            }
+        };
+        fetchData();
+    }, [id, token]);
 
     useEffect(() => {
         const script = document.createElement('script');
@@ -258,159 +207,33 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Use pengguna_id in your API request or logic
-        console.log('Pengguna ID:', pengguna_id);
+        // Construct the bookingData object with the relevant states
+        const bookingData = {
+            pengguna_id: id,
+            nama_lengkap,
+            email,
+            no_telp,
+            akun_sosmed,
+            alamat,
+            penyewa,
+            motor_id,
+            tanggal_mulai,
+            tanggal_selesai,
+            durasi,
+            keperluan_menyewa,
+            penerimaan_motor,
+            nama_kontak_darurat,
+            nomor_kontak_darurat,
+            hubungan_dengan_kontak_darurat,
+            diskon_id,
+            metode_pembayaran,
+            total_pembayaran,
+            point,
+            usePoint
+        };
 
-        if (metode_pembayaran === 'Tunai') {
-            await submitForm('Booking berhasil');
-        } else {
-            setLoading(true);
-
-            try {
-                const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        pengguna_id: id,
-                        nama_lengkap,
-                        email,
-                        no_telp,
-                        akun_sosmed,
-                        alamat,
-                        penyewa,
-                        motor_id,
-                        tanggal_mulai,
-                        tanggal_selesai,
-                        durasi,
-                        keperluan_menyewa,
-                        penerimaan_motor,
-                        nama_kontak_darurat,
-                        nomor_kontak_darurat,
-                        hubungan_dengan_kontak_darurat,
-                        diskon_id,
-                        metode_pembayaran,
-                        total_pembayaran,
-                        status_history: 'Menunggu Pembayaran',
-                    }),
-                });
-
-                if (!historyResponse.ok) {
-                    const errorText = await historyResponse.text();
-                    console.error('Failed to create history:', errorText);
-                    throw new Error(`Failed to create history: ${errorText}`);
-                }
-
-                const historyData = await historyResponse.json();
-                const historyId = historyData.history.id;
-                console.log('History Data:', historyData);
-
-                const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${historyId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-
-                if (!paymentResponse.ok) {
-                    const errorText = await paymentResponse.text();
-                    console.error('Failed to get payment details:', errorText);
-                    throw new Error(`Failed to get payment details: ${errorText}`);
-                }
-
-                const paymentData = await paymentResponse.json();
-                const snapToken = paymentData.snapToken;
-                const orderId = paymentData.order_id;
-                console.log(`Snap Token: ${snapToken}, Order ID: ${historyId}`);
-                Cookies.set('order_id', orderId);
-
-                if (!snapToken || !historyId) {
-                    throw new Error('Snap Token or Order ID missing in the response');
-                }
-
-                window.snap.pay(snapToken, {
-                    onSuccess: async function (result) {
-                        showNotificationWithTimeout('Pembayaran berhasil!', 'success');
-                        console.log('Payment Success:', result);
-                        await updateHistoryStatus(historyData.history.id, 'Dipesan');
-
-                        try {
-                            const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${token}`
-                                },
-                                body: JSON.stringify({
-                                    status_history: 'Dipesan',
-                                    status_pembayaran: 'Lunas',
-                                }),
-                            });
-
-                            if (!updateResponse.ok) {
-                                throw new Error('Failed to update invoice status');
-                            }
-
-                            const updateData = await updateResponse.json();
-                            console.log('Invoice status update response:', updateData);
-
-                        } catch (error) {
-                            console.error('Error updating invoice status:', error);
-                        }
-
-                        if (usePoint) {
-                            const pointsToUse = Math.min(point, total_pembayaran);
-                            try {
-                                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'Authorization': `Bearer ${token}`
-                                    },
-                                    body: JSON.stringify({ point: point - pointsToUse }),
-                                });
-
-                                if (!response.ok) {
-                                    throw new Error('Failed to update points');
-                                }
-
-                                console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
-                            } catch (error) {
-                                console.error('Error updating points:', error);
-                            }
-                        }
-                        setShowInvoice(true);
-                    },
-                    onPending: async function (result) {
-                        showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
-                        console.log(result);
-
-                        await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
-                    },
-                    onError: async function (result) {
-                        showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
-                        console.log(result);
-
-                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
-                    },
-                    onClose: async function () {
-                        showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'error');
-
-                        await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
-                    }
-                });
-
-            } catch (error) {
-                showNotificationWithTimeout('Terjadi kesalahan saat mengirim data.', 'error');
-                console.error('Error:', error);
-                setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
-            } finally {
-                setLoading(false);
-            }
-        }
+        // Now pass this bookingData object to the handleBookingSubmit function
+        await handleBookingSubmit(bookingData, token, setLoading, setShowInvoice, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, setError);
     };
 
     useEffect(() => {
@@ -442,6 +265,7 @@ export default function page({ params: { motorId } }) {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
+                    pengguna_id: id,
                     nama_lengkap,
                     email,
                     no_telp,
@@ -532,33 +356,32 @@ export default function page({ params: { motorId } }) {
     }, [motorId, motors]);
 
     useEffect(() => {
-        const fetchBookedDates = async () => {
-            if (!motor_id) return;
+        const getBookedDates = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-                const data = await response.json();
-
-                const disabledRanges = data.history
-                    .filter(item => item.motor_id === motor_id)
-                    .map(item => ({
-                        from: dayjs(item.tanggal_mulai),
-                        to: dayjs(item.tanggal_selesai),
-                    }));
-                console.log('Disabled Ranges:', disabledRanges);
-
-                setDisabledRanges(disabledRanges);
+                const dates = await fetchBookedDates(motor_id, token, stok_motor);
+                setDisabledRanges(dates);
             } catch (error) {
-                console.error('Error fetching booked dates:', error);
+                console.error('Failed to fetch booked dates:', error);
             }
         };
 
-        fetchBookedDates();
-    }, [motor_id, token]);
+        getBookedDates();
+    }, [motor_id, token, stok_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
+        if (selectedDayDisabled) return true;
+
+        return false;
+    };
 
     const handleDateStart = (date) => {
         if (date) {
@@ -593,36 +416,6 @@ export default function page({ params: { motorId } }) {
                 setTanggalSelesai('');
             }
         }
-    };
-
-    const shouldDisableDate = (date) => {
-        const today = dayjs().startOf('day');
-        if (date.isBefore(today)) return true;
-        for (const range of disabledRanges) {
-            if (date.isSame(range.from, 'day')) {
-                return true; // Disable the start date completely
-            }
-            if (date.isBetween(range.from.startOf('day'), range.to.startOf('day'), 'day', '()')) {
-                return true; // Disable the dates fully within the range, excluding start and end dates
-            }
-        }
-        return false;
-    };
-
-    const shouldDisableTime = (time, selectedDate) => {
-        if (!selectedDate) return false;
-        for (const range of disabledRanges) {
-            const isSameDayStart = selectedDate.isSame(range.from, 'day');
-            const isSameDayEnd = selectedDate.isSame(range.to, 'day');
-
-            if (isSameDayStart) {
-                return true; // Disable all times on the start date
-            }
-            if (isSameDayEnd && time.isBefore(range.to)) {
-                return true; // Disable times up to the end time on the end date
-            }
-        }
-        return false;
     };
 
     const handleClickPenyewaDiriSendiri = () => {
@@ -693,539 +486,86 @@ export default function page({ params: { motorId } }) {
         <>
             <Navbar />
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
-                <div className='text-[#666666] mb-5'>
-                    <span className='font-semibold text-black md:text-xl text-base flex'>
-                        Pemesanan
-                    </span>
-                    <span className='text-sm md:text-base'>
-                        Pastikan semua detail pada halaman ini sudah benar sebelum melanjutkan ke pembayaran.
-                    </span>
-                </div>
+                <PemesananHeader />
                 <form method="post" action="post" onSubmit={handleSubmit}>
                     <div className='flex lg:flex-row flex-col gap-5'>
-                        <div className='flex lg:hidden flex-col rounded-xl mt-14 px-5 py-5 items-center gap-3 bg-white'>
-                            <div className="w-[259px] h-[183px] relative">
-                                {gambarMotor && (
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
-                                        alt={gambarMotor.nama_motor}
-                                        layout="fill"
-                                        objectFit="cover"
-                                        className="absolute inset-0"
-                                    />
-                                )}
-                            </div>
-                            <div className='flex flex-col gap-5 '>
-                                <div className='flex flex-row gap-2 items-center '>
-                                    <PiScroll className='' size='25' color='black' />
-                                    <span className='font-bold text-black text-sm'>
-                                        Kebijakan Pembatalan & Penjadwalan Ulang
-                                    </span>
-                                </div>
-                                <div className='flex flex-row gap-2 items-center justify-start '>
-                                    <MdCancel
-                                        className='' color='grey' size='25'
-                                    />
-                                    <span className='font-bold text-black text-sm'>
-                                        Booking ini tidak dapat di refund
-                                    </span>
-                                </div>
-                                <div className='flex flex-row gap-2 items-center justify-start '>
-                                    <FaCircleCheck
-                                        className='' color='#0BC175' size='22'
-                                    />
-                                    <span className='font-bold text-black text-sm'>
-                                        Dapat dijadwalkan ulang
-                                    </span>
-                                </div>
-                                <div className='cursor-pointer'>
-                                    <a className=" text-[#FF4D30]" onClick={openModal}>Lihat Detail</a>
-                                    <Modal isOpen={isModalOpen} onClose={closeModal} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className='w-full rounded-xl px-5 py-5 bg-white'>
-                            <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
-                                <Label>
-                                    <span className='font-extrabold text-black text-lg'>
-                                        Detail Kontak
-                                    </span>
-                                </Label>
-                                <span className='text-[#FF4D30] text-[14px]'>
-                                    Harap isi semua kolom dengan benar untuk memastikan tidak ada kesalahan dalam booking
-                                </span>
-                            </div>
-                            <div className='mt-10'>
-                                <div className='flex flex-col gap-8 '>
-                                    <div className='flex md:flex-row flex-col gap-5 w-full'>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Nama Lengkap <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                label="Masukkan nama lengkap"
-                                                value={nama_lengkap}
-                                                onChange={(e) => setNamaLengkap(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Akun Sosial Media <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                label="Masukkan akun sosmed"
-                                                value={akun_sosmed}
-                                                onChange={(e) => setAkunSosmed(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='flex md:flex-row flex-col gap-5 '>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Email <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                type='email'
-                                                label="Masukkan email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Nomor Telepon <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                type='number'
-                                                label="Masukkan no telp"
-                                                placeholder='08xxxxxxx'
-                                                value={no_telp}
-                                                onChange={(e) => setNoTelp(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-col md:flex-row gap-5">
-                                        <div className={`flex flex-row items-center cursor-pointer`}>
-                                            <Radio
-                                                checked={clickedPenyewaDiriSendiri}
-                                                onChange={handleClickPenyewaDiriSendiri}
-                                            />
-                                            Diri Sendiri
-                                        </div>
-                                        <div className={`flex flex-row items-center cursor-pointer`}>
-                                            <Radio
-                                                checked={clickedPenyewaOrangLain}
-                                                onChange={handleClickPenyewaOrangLain}
-                                            />
-                                            Orang Lain
-                                        </div>
-                                    </div>
-                                    <span className='text-[#757575] text-[14px]'>
-                                        Anda bisa memesan motor untuk orang lain dengan memilih opsi "Untuk Orang Lain"
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='hidden lg:flex flex-col rounded-xl px-5 py-5 items-center gap-3 bg-white'>
-                            <div className="w-[200px] h-[150px] relative">
-                                {gambarMotor && (
-                                    <Image
-                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${gambarMotor.gambar_motor}`}
-                                        alt={gambarMotor.nama_motor}
-                                        layout="fill"
-                                        objectFit="cover"
-                                        className="absolute inset-0"
-                                    />
-                                )}
-                            </div>
-                            <div className='flex flex-col gap-5 '>
-                                <div className='flex flex-row gap-2 items-center '>
-                                    <PiScroll className='' size='25' color='black' />
-                                    <span className='font-bold text-black text-sm'>
-                                        Kebijakan Pembatalan & Penjadwalan Ulang
-                                    </span>
-                                </div>
-                                <div className='flex flex-row gap-2 items-center justify-start '>
-                                    <MdCancel
-                                        className='' color='grey' size='25'
-                                    />
-                                    <span className='font-bold text-black text-sm'>
-                                        Booking ini tidak dapat di refund
-                                    </span>
-                                </div>
-                                <div className='flex flex-row gap-2 items-center justify-start '>
-                                    <FaCircleCheck
-                                        className='' color='#0BC175' size='22'
-                                    />
-                                    <span className='font-bold text-black text-sm'>
-                                        Dapat dijadwalkan ulang
-                                    </span>
-                                </div>
-                                <div className='cursor-pointer'>
-                                    <a className=" text-[#FF4D30]" onClick={openModal}>Lihat Detail</a>
-                                    <Modal isOpen={isModalOpen} onClose={closeModal} />
-                                </div>
-                            </div>
-                        </div>
+                        <KebijakanDetails1
+                            gambarMotor={gambarMotor}
+                            openModal={openModal}
+                            isModalOpen={isModalOpen}
+                            closeModal={closeModal}
+                        />
+                        <DetailKontak
+                            nama_lengkap={nama_lengkap}
+                            setNamaLengkap={setNamaLengkap}
+                            akun_sosmed={akun_sosmed}
+                            setAkunSosmed={setAkunSosmed}
+                            email={email}
+                            setEmail={setEmail}
+                            no_telp={no_telp}
+                            setNoTelp={setNoTelp}
+                            clickedPenyewaDiriSendiri={clickedPenyewaDiriSendiri}
+                            handleClickPenyewaDiriSendiri={handleClickPenyewaDiriSendiri}
+                            clickedPenyewaOrangLain={clickedPenyewaOrangLain}
+                            handleClickPenyewaOrangLain={handleClickPenyewaOrangLain}
+                        />
+                        <KebijakanDetails
+                            gambarMotor={gambarMotor}
+                            openModal={openModal}
+                            isModalOpen={isModalOpen}
+                            closeModal={closeModal}
+                        />
                     </div>
-                    <div className='flex flex-row gap-5'>
-                        <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
-                            <div className='flex flex-col items-start justify-start gap-3 text-[#666666] '>
-                                <span className='font-extrabold text-black text-lg flex'>
-                                    Detail Booking
-                                </span>
-                                <span className='text-[#FF4D30] text-[14px]'>
-                                    Harap isi semua kolom dengan benar untuk memastikan tidak ada kesalahan dalam booking
-                                </span>
-                            </div>
-                            <div className='mt-10 '>
-                                <div className='flex flex-col gap-5'>
-                                    <div className='flex flex-col md:flex-row gap-4'>
-                                        <div className="w-full flex flex-col gap-2">
-                                            <span className="text-black">
-                                                Nama Motor <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <div className='text-sm w-full max-w-[473px]'>
-                                                {motors.length > 0 && (
-                                                    <Select
-                                                        label="Pilih nama motor"
-                                                        value={selectedMotor} // Ensure value is set
-                                                        onChange={(value) => handleSelectChangeNamaMotor(value)}
-                                                    >
-                                                        {motors.map((motor) => (
-                                                            <Option
-                                                                key={motor.id}
-                                                                value={motor.nama_motor}
-                                                                disabled={motor.status_motor !== 'Tersedia'}
-                                                                className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}
-                                                            >
-                                                                <div className="flex items-center">
-                                                                    <Image
-                                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
-                                                                        alt={motor.nama_motor}
-                                                                        width={40}
-                                                                        height={40}
-                                                                        className="w-10 h-10 rounded-full mr-2"
-                                                                    />
-                                                                    <span>{motor.nama_motor}</span>
-                                                                </div>
-                                                            </Option>
-                                                        ))}
-                                                    </Select>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <div className='flex md:flex-row flex-col gap-5'>
-                                            <div className='w-full flex flex-col gap-2'>
-                                                <span className="text-black">
-                                                    Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
-                                                </span>
-                                                <DateTimePicker
-                                                    label="Pilih Tanggal Mulai"
-                                                    value={tanggal_mulai ? dayjs(tanggal_mulai) : null}
-                                                    onChange={handleDateStart}
-                                                    shouldDisableDate={shouldDisableDate}
-                                                    shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai))}
-                                                    renderInput={(params) => <TextField {...params} required />}
-                                                />
-                                            </div>
-                                            <div className="w-full flex flex-col gap-2">
-                                                <span className="text-black">
-                                                    Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
-                                                </span>
-                                                <DateTimePicker
-                                                    label="Pilih Tanggal Selesai"
-                                                    value={tanggal_selesai ? dayjs(tanggal_selesai) : null}
-                                                    onChange={handleDateEnd}
-                                                    minDateTime={minEndDate}
-                                                    shouldDisableDate={shouldDisableDate}
-                                                    shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai))}
-                                                    renderInput={(params) => <TextField {...params} required />}
-                                                />
-                                            </div>
-                                        </div>
-                                    </LocalizationProvider>
-
-                                    <div className='flex md:flex-row flex-col gap-5 '>
-                                        <div className='text-black w-full text-sm'>
-                                            Durasi
-                                            <Input
-                                                label="Durasi (hari)"
-                                                value={`${durasi} hari`}
-                                                disabled
-                                            />
-                                        </div>
-                                        <div className='text-black w-full text-sm'>
-                                            Fasilitas
-                                            <ul className="list-disc ml-5">
-                                                <li>2 Helm</li>
-                                                <li>2 Jas Hujan</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div className='text-black w-full'>
-                                        <div className="grid w-full gap-1.5">
-                                            <span className="text-black">
-                                                Keperluan Menyewa <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Textarea
-                                                label="Keperluan menyewa"
-                                                value={keperluan_menyewa}
-                                                onChange={(e) => setKeperluanMenyewa(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='text-black w-full'>
-                                        <div className="grid w-full gap-1.5">
-                                            <span className="text-black">
-                                                Alamat <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Textarea
-                                                label="Masukkan alamat"
-                                                value={alamat}
-                                                onChange={(e) => setAlamat(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='flex flex-row gap-5'>
-                                        <div className={`flex flex-row items-center cursor-pointer ${clickedAmbil ? 'clicked' : ''}`} onClick={handleClickAmbil}>
-                                            <Radio
-                                                checked={clickedAmbil}
-                                                onChange={handleClickAmbil}
-                                            />
-                                            Diambil
-                                        </div>
-                                        <div className={`flex flex-row items-center cursor-pointer ${clickedDiantar ? 'clicked' : ''}`} onClick={handleClickDiantar}>
-                                            <Radio
-                                                checked={clickedDiantar}
-                                                onChange={handleClickDiantar}
-                                            />
-                                            Diantar
-                                        </div>
-                                    </div>
-                                    <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
-                                        <div className='relative'>
-                                            <div className='mt-5 mb-6'>
-                                                <p className="text-black text-2xl font-bold text-center">Lokasi Kami</p>
-                                            </div>
-                                            <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
-                                                <iframe
-                                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3961.872378039436!2d110.89978167475574!3d-6.785381493211696!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e70db4255192741%3A0x6e1d151b0d52676c!2sSewa%20Motor%20Kudus!5e0!3m2!1sid!2sid!4v1722223502208!5m2!1sid!2sid"
-                                                    className="absolute top-0 left-0 w-full h-full"
-                                                    allowFullScreen=""
-                                                    loading="eager"
-                                                    referrerPolicy="no-referrer-when-downgrade"
-                                                ></iframe>
-                                            </div>
-                                            <Label>
-                                                <div className='flex flex-row gap-1 items-center mt-4 mb-10'>
-                                                    <IoLocationSharp size='30' color='red' />
-                                                    <Link href="https://maps.app.goo.gl/xFp83TkWAVgps3No7" target='_blank'>
-                                                        <span className='font-semibold text-[#0194F3] text-base hover:underline'>
-                                                            Trengguluh, Honggosoco, Kec. Jekulo, Kabupaten Kudus, Jawa Tengah
-                                                        </span>
-                                                    </Link>
-                                                </div>
-                                            </Label>
-                                        </div>
-                                    </div>
-                                    <div className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
-                                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp- / km</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='flex'>
-                        <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
-                            <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
-                                <Label>
-                                    <span className='font-extrabold text-black text-lg'>
-                                        Kontak Darurat
-                                    </span>
-                                </Label>
-                                <span className='text-[#FF4D30] text-[14px]'>
-                                    Untuk mengatasi masalah seperti kecelakaan dibutuhkan kontak selain pemesan
-                                </span>
-                            </div>
-                            <div className='mt-10'>
-                                <div className='flex flex-col gap-8 '>
-                                    <div className='flex md:flex-row flex-col gap-5 '>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Nama Kontak Darurat <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                label="Masukkan nama kontak darurat"
-                                                value={nama_kontak_darurat}
-                                                onChange={(e) => setNamaKontakDarurat(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Nomor Kontak Darurat <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                type='number'
-                                                label="Masukkan nomor kontak darurat"
-                                                value={nomor_kontak_darurat}
-                                                onChange={(e) => setNomorKontakDarurat(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='flex flex-row gap-5 '>
-                                        <div className='w-full flex flex-col gap-2'>
-                                            <span className="text-black">
-                                                Hubungan Kontak Darurat <span className="text-[#FF4D33] font-semibold">*</span>
-                                            </span>
-                                            <Input
-                                                label="Masukkan hubungan kontak darurat"
-                                                value={hubungan_dengan_kontak_darurat}
-                                                onChange={(e) => setHubunganDenganKontakDarurat(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='flex flex-col w-full'>
-                        <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
-                            <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
-                                <Label>
-                                    <span className='font-extrabold text-black text-lg'>
-                                        Detail Harga
-                                    </span>
-                                </Label>
-                                <span className='text-[#00875A] text-[14px]'>
-                                    Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
-                                </span>
-                            </div>
-                            <div className='mt-10'>
-                                <div className='flex flex-col gap-8 '>
-                                    <div className='flex flex-col gap-5 '>
-                                        <div className='flex flex-row gap-5 justify-between'>
-                                            <Label>
-                                                <span className='font-medium text-base'>
-                                                    Harga Sewa
-                                                </span>
-                                            </Label>
-                                            <Label>
-                                                <span className='font-medium text-sm'>
-                                                    Rp. {hargaRental.toLocaleString()} (x{durasi})
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className='flex flex-row justify-between'>
-                                            <Label>
-                                                <span className='font-medium text-sm text-[#757575]'>
-                                                    {nama_motor} ( {durasi} - Hari )
-                                                </span>
-                                            </Label>
-                                            <Label>
-                                                <span className='font-medium text-sm'>
-                                                    Rp. {(hargaRental * durasi).toLocaleString()}
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className='flex flex-row justify-end'>
-                                            <div className='w-full max-w-[368px] flex flex-col gap-2'>
-                                                <span className="text-black">
-                                                    Diskon
-                                                </span>
-                                                {diskons.length > 0 && (
-                                                    <div className="w-full">
-                                                        <Select
-                                                            label={`Pilih diskon`}
-                                                            onChange={handleSelectChangeDiskon}
-                                                            value={diskons[0].id}
-                                                        >
-                                                            {diskons.map((diskon) => (
-                                                                <Option key={diskon.id} value={diskon.id}>
-                                                                    {diskon.nama_diskon} - Potongan: {diskon.potongan_harga}%
-                                                                </Option>
-                                                            ))}
-                                                        </Select>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <div className='flex flex-row justify-end mt-2'>
-                                            <Label>
-                                                <span className='font-medium md:text-base text-xs'>
-                                                    Rp. {total_pembayaran.toLocaleString()}
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className='flex flex-row gap-2 mt-2 items-center'>
-                                            <Radio
-                                                id="points"
-                                                color='orange'
-                                                checked={usePoint}
-                                                onChange={handleCheckboxChange}
-                                            />
-                                            <div className='flex flex-row gap-1 items-center'>
-                                                <AiOutlineDollarCircle color='#FF4D30' size='23px' />
-                                                <Label>
-                                                    <span className='font-medium text-[14px] text-[#FF4D30]'>
-                                                        {point} Gunakan Poin
-                                                    </span>
-                                                </Label>
-                                            </div>
-                                        </div>
-                                        <div className="border-t border-[#757575] mt-2"></div>
-                                        <div className='flex flex-row justify-between'>
-                                            <Label>
-                                                <span className='font-medium text-base'>
-                                                    Total Harga
-                                                </span>
-                                            </Label>
-                                            <Label>
-                                                <span className='font-medium text-base text-[#FF4D30]'>
-                                                    Rp. {total_pembayaran.toLocaleString()}
-                                                </span>
-                                            </Label>
-                                        </div>
-                                        <div className='flex flex-row gap-12 mt-2 '>
-                                            <div className={`flex flex-row items-center cursor-pointer`}>
-                                                <Radio
-                                                    checked={clickedPaymentTunai}
-                                                    onChange={handleClickPaymentTunai}
-                                                />
-                                                Tunai
-                                            </div>
-                                            <div className={`flex flex-row items-center cursor-pointer`}>
-                                                <Radio
-                                                    checked={clickedPaymentCashless}
-                                                    onChange={handleClickPaymentCashless}
-                                                />
-                                                Non-Tunai
-                                            </div>
-                                        </div>
-                                        {clickedPaymentTunai && (
-                                            <span className='text-[#FF4D33]'>Booking dengan pembayaran tunai hanya bisa dilakukan hari ini!</span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
-                            <MdOutlineTimer size='22px' color='#149CF3' />
-                            <span className='text-[#149CF3] text-sm font-medium'>
-                                Gunakan diskon di halaman pembayaran untuk harga yang lebih murah
-                            </span>
-                        </div>
+                    <DetailPemesanan
+                        motors={motors}
+                        selectedMotor={selectedMotor}
+                        handleSelectChangeNamaMotor={handleSelectChangeNamaMotor}
+                        tanggal_mulai={tanggal_mulai}
+                        handleDateStart={handleDateStart}
+                        shouldDisableDate={shouldDisableDate}
+                        shouldDisableTime={shouldDisableTime}
+                        tanggal_selesai={tanggal_selesai}
+                        handleDateEnd={handleDateEnd}
+                        minEndDate={minEndDate}
+                        durasi={durasi}
+                        keperluan_menyewa={keperluan_menyewa}
+                        setKeperluanMenyewa={setKeperluanMenyewa}
+                        alamat={alamat}
+                        setAlamat={setAlamat}
+                        clickedAmbil={clickedAmbil}
+                        handleClickAmbil={handleClickAmbil}
+                        clickedDiantar={clickedDiantar}
+                        handleClickDiantar={handleClickDiantar}
+                    />
+                    <EmergencyContact
+                        nama_kontak_darurat={nama_kontak_darurat}
+                        setNamaKontakDarurat={setNamaKontakDarurat}
+                        nomor_kontak_darurat={nomor_kontak_darurat}
+                        setNomorKontakDarurat={setNomorKontakDarurat}
+                        hubungan_dengan_kontak_darurat={hubungan_dengan_kontak_darurat}
+                        setHubunganDenganKontakDarurat={setHubunganDenganKontakDarurat}
+                    />
+                    <DetailHarga
+                        hargaRental={hargaRental}
+                        durasi={durasi}
+                        nama_motor={selectedMotor}
+                        usePoint={usePoint}
+                        handleCheckboxChange={handleCheckboxChange}
+                        point={point}
+                        pointValue={pointValue}
+                        diskons={diskons}
+                        handleSelectChangeDiskon={handleSelectChangeDiskon}
+                        total_pembayaran={total_pembayaran}
+                        clickedPaymentTunai={clickedPaymentTunai}
+                        handleClickPaymentTunai={handleClickPaymentTunai}
+                        clickedPaymentCashless={clickedPaymentCashless}
+                        handleClickPaymentCashless={handleClickPaymentCashless}
+                    />
+                    <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
+                        <MdOutlineTimer size='22px' color='#149CF3' />
+                        <span className='text-[#149CF3] text-sm font-medium'>
+                            Gunakan diskon di halaman pembayaran untuk harga yang lebih murah
+                        </span>
                     </div>
                     <div className='flex flex-col w-full'>
                         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
@@ -1237,17 +577,17 @@ export default function page({ params: { motorId } }) {
                                 >
                                     {loading ? 'Loading...' : 'Lanjut Pembayaran'}
                                 </Button>
-                            </div>
-                            <div className='flex md:flex-row flex-col gap-1 px-5 mt-3 justify-center items-center'>
-                                <Label>
-                                    <span className='font-medium text-sm'>
-                                        Dengan melanjutkan pembayaran, Anda telah menyetujui
-                                    </span>
-                                </Label>
-                                <Label>
-                                    <a className="cursor-pointer text-[#149CF3]" onClick={openTermsModal}>Syarat & Ketentuan <span className='text-black'>dan</span> Kebijakan Privasi</a>
-                                </Label>
-                                <TermsModal isOpen={isTermsModalOpen} onClose={closeTermsModal} />
+                                <div className='flex md:flex-row flex-col gap-1 px-5 mt-3 justify-center items-center'>
+                                    <Label>
+                                        <span className='font-medium text-sm'>
+                                            Dengan melanjutkan pembayaran, Anda telah menyetujui
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <a className="cursor-pointer text-[#149CF3]" onClick={openTermsModal}>Syarat & Ketentuan <span className='text-black'>dan</span> Kebijakan Privasi</a>
+                                    </Label>
+                                    <TermsModal isOpen={isTermsModalOpen} onClose={closeTermsModal} />
+                                </div>
                             </div>
                         </div>
                     </div>

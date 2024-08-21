@@ -2,17 +2,20 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button as TailwindButton } from '@material-tailwind/react';
+import Cookies from 'js-cookie';
+import { ButtonLoading } from '@/components/ui/buttonLoading';
 
 const RegisterPage = () => {
   const router = useRouter();
-
   const [formData, setFormData] = useState({
     nama_pengguna: '',
     email: '',
-    password: ''
+    password: '',
+    kode_referensi: '',
   });
-
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,9 +23,11 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/create`, {
+      const createUserResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -30,36 +35,54 @@ const RegisterPage = () => {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
+      if (createUserResponse.ok) {
+        const responseData = await createUserResponse.json();
+        const user = responseData.user;
+        const token = responseData.access_token;
+        const id = user.id;
+        const role = user.peran;
+
+        Cookies.set('token', token);
+        Cookies.set('id', id);
+        Cookies.set('role', role);
+
         router.push('/');
       } else {
-        const errorData = await response.json();
+        const errorData = await createUserResponse.json();
         setError(errorData.message || 'Registration failed');
       }
     } catch (error) {
       console.error('Registration failed:', error);
       setError('An unexpected error occurred');
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleGoogleLogin = () => {
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google`);
+  };
+
+  const handleFacebookLogin = () => {
+    router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`);
+  };
+
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white px-4">
-      <div className="flex flex-col md:flex-row bg-white w-full max-w-5xl">
-        <img
-          src="/images/register.png"
-          alt="register"
-          className="w-full md:w-1/2 object-cover mb-4 md:mb-0 md:mr-4"
-        />
-        <div className="flex flex-col w-full md:w-1/2">
-          <h1 className="text-3xl md:text-4xl font-bold mb-3 text-black text-center md:text-left">Register</h1>
-          <form onSubmit={handleSubmit} className="flex flex-col items-center md:items-start">
+    <div className="flex items-center justify-center min-h-screen bg-cover bg-center p-4 bg-gray-300">
+      <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-12 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col md:flex-row">
+
+        {/* Form Section */}
+        <div className="flex flex-col w-full md:w-1/2 pr-0 md:pr-4">
+          <h1 className="text-lg md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 text-black">Create Your Account</h1>
+          {error && <div className="text-red-500 mb-2 md:mb-4">{error}</div>}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
             <input
               type="text"
               name="nama_pengguna"
               value={formData.nama_pengguna}
               onChange={handleChange}
               placeholder="Nama Pengguna"
-              className="bg-white text-black mt-2 md:mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
+              className="input-animated bg-white text-black mt-2 md:mt-3 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
             <input
               type="email"
@@ -67,7 +90,7 @@ const RegisterPage = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Email"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
+              className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
             <input
               type="password"
@@ -75,55 +98,86 @@ const RegisterPage = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Kata Sandi"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
+              className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
-            {error && <p className="text-red-500 mt-2">{error}</p>}
-            <button
-              type="submit"
-              className="bg-[#FF4D30] mt-4 text-white font-bold py-2 px-4 rounded-lg h-10 md:h-12 shadow hover:bg-red-600 w-full max-w-sm"
-            >
-              Register
-            </button>
-          </form>
-          <div className="flex justify-center md:justify-start mt-4 text-black">
-            <input type="checkbox" id="ingat-saya" className="mr-2" />
-            <label htmlFor="ingat-saya">Ingat Saya</label>
-          </div>
-          <div className="flex justify-center md:justify-start mt-4 text-base text-black">
-            <span>Sudah Punya Akun? </span>
-            <a href="/login" className="ml-1 hover:underline">
-              Bergabung Disini
-            </a>
-          </div>
-          <div className="flex items-center justify-center md:justify-start mt-4 text-base">
-            <span className='text-black'>Masukkan kode referal untuk reward! </span>
-          </div>
-          <div className="flex flex-col md:flex-row gap-2 items-center mt-3">
             <input
               type="text"
-              placeholder="Masukkan Kode"
-              className="bg-white text-black mt-3 p-2 border border-black focus:outline-none focus:ring-1 focus:ring-black rounded-lg w-full max-w-sm h-10 md:h-12 shadow"
+              name="kode_referensi"
+              value={formData.kode_referensi}
+              onChange={handleChange}
+              placeholder="Kode Referensi (Optional)"
+              className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
+            <div className="flex items-center mt-2 md:mt-4 text-black bg-white">
+              <input
+                type="checkbox"
+                id="ingat-saya"
+                className="checkbox-animated mr-2"
+              />
+              <label htmlFor="ingat-saya">Ingat Saya</label>
+              <span className="flex-grow"></span>
+            </div>
+            {loading ? (
+              <ButtonLoading />
+            ) : (
+              <TailwindButton type="submit" className="mt-5 w-full before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-full md:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
+                <span className="relative text-base z-10">Register</span>
+              </TailwindButton>
+            )}
+          </form>
+          <div className="flex justify-center mt-2 md:mt-4 text-sm md:text-base text-black">
+            <span>Already have an account?</span>
+            <a href="/login" className="hover:underline hover:text-[#ff4d33] ml-1 md:ml-2">Login here</a>
           </div>
-          <div className="flex justify-center items-center md:justify-start mt-4 text-base">
-            <span>Atau</span>
+          <div className="flex justify-center items-center mt-2 md:mt-4 text-sm md:text-base">
+            <span>Or</span>
           </div>
-          <div className="flex justify-center md:justify-start items-center mt-2 gap-2">
-            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
+          <div className="flex items-center justify-center gap-2 md:gap-4 mt-1 md:mt-2">
+            <button onClick={handleGoogleLogin} className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">
               <img
                 src="/images/google.png"
                 alt="Google"
               />
-            </a>
-            <a href="#" className="flex md:px-6 md:py-3 items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg p-2 shadow ">
+            </button>
+            <button onClick={handleFacebookLogin} className="flex items-center justify-center bg-blue-900 hover:bg-blue-700 rounded-lg px-4 py-2 md:px-6 md:py-3 shadow">
               <img
                 src="/images/facebook.png"
                 alt="Facebook"
               />
-            </a>
+            </button>
           </div>
         </div>
+
+        {/* Image Section */}
+        <div className="w-full md:w-full mt-6 md:mt-0">
+          <img
+            src="/images/register.png"
+            alt="Register"
+            className="object-cover md:h-full w-full rounded-lg md:rounded-r-lg"
+          />
+        </div>
       </div>
+
+      <style jsx>{`
+        .input-animated {
+          transition: border-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .input-animated:hover,
+        .input-animated:focus {
+          transform: scale(1.05);
+          border-color: #FF4D33;
+        }
+
+        .checkbox-animated {
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .checkbox-animated:hover,
+        .checkbox-animated:focus {
+          transform: scale(1.1);
+        }
+      `}</style>
     </div>
   );
 };

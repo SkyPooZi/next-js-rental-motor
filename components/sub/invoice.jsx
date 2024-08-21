@@ -6,6 +6,7 @@ import 'jspdf-autotable';
 
 import { AiOutlineClose } from 'react-icons/ai';
 import { AiOutlineFilePdf } from 'react-icons/ai';
+import { fetchInvoice } from '@/utils/services/invoiceServices';
 
 const InvoicePopup = ({ onClose, orderId }) => {
     const [invoiceData, setInvoiceData] = useState(null);
@@ -15,26 +16,17 @@ const InvoicePopup = ({ onClose, orderId }) => {
     const token = Cookies.get('token');
 
     useEffect(() => {
-        const fetchInvoice = async () => {
+        const getInvoiceData = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/detail/${orderId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
+                const data = await fetchInvoice(orderId, token);
                 setInvoiceData(data);
             } catch (error) {
                 console.error('Error fetching invoice data:', error);
             }
         };
 
-        fetchInvoice();
-    }, [orderId]);
+        getInvoiceData();
+    }, [orderId, token]);
 
     const {
         midtrans
@@ -168,7 +160,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
 
 
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75">
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50">
             <div className="bg-[#F6F7F9] p-6 rounded-lg relative mx-4">
                 <div className="flex items-center justify-between mb-4 gap-44">
                     <div className="flex items-center">

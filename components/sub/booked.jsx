@@ -77,7 +77,11 @@ export default function Booked() {
     };
 
     const handleRescheduleSuccess = () => {
-        setChangeTrigger(prev => prev + 1);
+        closeModal();
+
+        setTimeout(() => {
+            setChangeTrigger(prev => prev + 1);
+        }, 300);
     };
 
     const handleInvociePopup = async (historyId) => {

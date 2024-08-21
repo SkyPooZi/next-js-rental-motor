@@ -61,7 +61,7 @@ export default function PaymentWait() {
     return paymentDetails.length > 0 ? (
         paymentDetails.map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
-                <div className="flex flex-col md:flex-row gap-3 justify-between items-center">
+                <div className="flex flex-col md:flex-row gap-3 justify-between">
                     <div className="flex flex-row gap-2">
                         <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
                         <div className="flex flex-col gap-1">
@@ -71,20 +71,20 @@ export default function PaymentWait() {
                                 </span>
                             </Label>
                             <Label>
-                                <span className="text-base">
+                                <span className="text-base lg:text-lg md:text-fz-medium sm:text-sm">
                                     {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
                                 </span>
                             </Label>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end">
+                    <div className="flex flex-col gap-2 items-end">
                         <Label>
                             <span className="font-bold">
                                 {detail.status_history}
                             </span>
                         </Label>
                         <Label>
-                            <span className="text-[#FF4D33] text-lg">
+                            <span className="text-[#FF4D33] lg:text-xl md:text-base">
                                 Batas Pembayaran - {detail.tanggal_mulai}
                             </span>
                         </Label>

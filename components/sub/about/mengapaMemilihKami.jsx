@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import ContactButton from '@/components/ui/ContactButton';
+import { Button } from '@material-tailwind/react';
 import Link from 'next/link';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -84,7 +85,9 @@ export default function MengapaMemilihKami() {
                     >
                         <ContactButton />
                         <Link href={`/catalog`}>
-                            <button className="mt-4 lg:mt-0 lg:ml-4 border border-white text-white py-2 px-4 rounded-full">Lihat Pilihan Motor</button>
+                            <Button className="ml-5 before:ease bg-[#FF4D33] border-2 border-white capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
+                                <span className="relative text-base z-10">Lihat Pilihan Motor</span>
+                            </Button>
                         </Link>
                     </motion.div>
                 </div>
