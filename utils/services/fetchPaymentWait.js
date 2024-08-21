@@ -4,7 +4,6 @@ export const fetchPaymentWait = async (token) => {
     try {
         const id = Cookies.get('id');
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
-            method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
             }

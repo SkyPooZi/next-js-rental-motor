@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { MdOutlineTimer } from "react-icons/md";
 import { MdDone, MdClear } from 'react-icons/md';
@@ -73,6 +74,7 @@ export default function page({ params: { motorId } }) {
     const [durasi, setDurasi] = useState('');
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
+    const router = useRouter();
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -207,7 +209,6 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Construct the bookingData object with the relevant states
         const bookingData = {
             pengguna_id: id,
             nama_lengkap,
@@ -232,7 +233,6 @@ export default function page({ params: { motorId } }) {
             usePoint
         };
 
-        // Now pass this bookingData object to the handleBookingSubmit function
         await handleBookingSubmit(bookingData, token, setLoading, setShowInvoice, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, setError);
     };
 
@@ -294,11 +294,28 @@ export default function page({ params: { motorId } }) {
 
             const data = await response.json();
             console.log('Success', data);
+            console.log('history ID', data.history.id);
             setResponse(data);
+            const historyId = data.history.id;
+
+            const invoiceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/create/${historyId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!invoiceResponse.ok) {
+                throw new Error('Failed to create invoice');
+            }
+
+            const invoiceData = await invoiceResponse.json();
+            console.log('Invoice created', invoiceData);
 
             showNotificationWithTimeout(successMessage, 'success');
 
-            // router.push(`/payment-success?order_id=${data.id}`);
+            router.push(`/setting?component=history`);
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {
