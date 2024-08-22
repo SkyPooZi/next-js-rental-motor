@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button as TailwindButton } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
+import fetchRegister from '@/utils/services/fetchregister'; // Import the fetchRegister function
 import { ButtonLoading } from '@/components/ui/buttonLoading';
 
 const RegisterPage = () => {
@@ -27,33 +28,20 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
-      const createUserResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
+      const responseData = await fetchRegister(formData); // Call the fetchRegister function
+      const user = responseData.user;
+      const token = responseData.access_token;
+      const id = user.id;
+      const role = user.peran;
 
-      if (createUserResponse.ok) {
-        const responseData = await createUserResponse.json();
-        const user = responseData.user;
-        const token = responseData.access_token;
-        const id = user.id;
-        const role = user.peran;
+      Cookies.set('token', token);
+      Cookies.set('id', id);
+      Cookies.set('role', role);
 
-        Cookies.set('token', token);
-        Cookies.set('id', id);
-        Cookies.set('role', role);
-
-        router.push('/');
-      } else {
-        const errorData = await createUserResponse.json();
-        setError(errorData.message || 'Registration failed');
-      }
+      router.push('/');
     } catch (error) {
       console.error('Registration failed:', error);
-      setError('An unexpected error occurred');
+      setError(error.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }

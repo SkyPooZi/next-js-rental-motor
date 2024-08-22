@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
+import { fetchUserIdByEmail, updatePassword } from '@/utils/services/fetchforgotpass'; 
 
 const ForgotPass = () => {
   const router = useRouter();
@@ -26,25 +27,10 @@ const ForgotPass = () => {
 
   const fetchUserId = async (email) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/all`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        const user = data.user.find((user) => user.email === email);
-        if (user) {
-          setUserId(user.id);
-        } else {
-          setMessage('Email tidak ditemukan.');
-        }
-      } else {
-        setMessage('Failed to fetch user data. Please try again.');
-      }
+      const id = await fetchUserIdByEmail(email); // Use the fetch function
+      setUserId(id);
     } catch (error) {
-      setMessage('An error occurred. Please try again.');
+      setMessage(error.message);
     }
   };
 
@@ -62,20 +48,10 @@ const ForgotPass = () => {
     }
     if (userId) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/account/${userId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ password: newPassword }),
-        });
-        if (response.ok) {
-          router.push('/login');
-        } else {
-          alert('Failed to update password. Please try again.');
-        }
+        await updatePassword(userId, newPassword); // Use the updatePassword function
+        router.push('/login');
       } catch (error) {
-        alert('An error occurred. Please try again.');
+        alert(error.message);
       }
     } else {
       alert('User ID not found.');

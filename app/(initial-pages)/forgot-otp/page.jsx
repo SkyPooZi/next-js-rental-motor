@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@material-tailwind/react';
+import { sendOtpEmail } from '@/utils/services/fetchForgotOtp'; // Import the sendOtpEmail function
 
 const ForgotOTP = () => {
   const router = useRouter();
@@ -15,34 +16,21 @@ const ForgotOTP = () => {
     const storedEmail = localStorage.getItem('email');
     if (storedEmail) {
       setEmail(storedEmail);
-      sendOtpEmail(storedEmail);
+      handleSendOtp(storedEmail); // Send OTP when email is retrieved
     } else {
       router.push('/forgot-email'); // Redirect if no email found
     }
   }, [router]);
 
-  const sendOtpEmail = async (email) => {
+  const handleSendOtp = async (email) => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/send-otp`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const otp = data.OTP;
-        setSentOtp(otp);
-        setMessage('OTP sudah terkirim ke email anda.');
-        console.log(otp);
-      } else {
-        setMessage('Gagal untuk mengirim OTP, cek kembali email yang anda isikan.');
-      }
+      const otp = await sendOtpEmail(email); // Call the sendOtpEmail function
+      setSentOtp(otp);
+      setMessage('OTP sudah terkirim ke email anda.');
+      console.log(otp);
     } catch (error) {
       console.error('Error:', error);
-      setMessage('An error occurred. Please try again.');
+      setMessage(error.message || 'An error occurred. Please try again.');
     }
   };
 
@@ -118,7 +106,7 @@ const ForgotOTP = () => {
               </Button>
             </div>
             <div className="flex mt-4 w-full">
-              <Button type="button" onClick={() => sendOtpEmail(email)} className="w-full before:ease bg-[#2196f3] border-2 border-[#2196f3] capitalize relative overflow-hidden shadow-[#2196f3] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#2196f3] hover:border-2 hover:border-[#2196f3] hover:shadow-[#2196f3] hover:before:h-96 hover:before:-translate-y-48">
+              <Button type="button" onClick={() => handleSendOtp(email)} className="w-full before:ease bg-[#2196f3] border-2 border-[#2196f3] capitalize relative overflow-hidden shadow-[#2196f3] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#2196f3] hover:border-2 hover:border-[#2196f3] hover:shadow-[#2196f3] hover:before:h-96 hover:before:-translate-y-48">
                 <span className="relative text-base z-10">Resend OTP</span>
               </Button>
             </div>

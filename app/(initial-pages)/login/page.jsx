@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button as TailwindButton } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
+import fetchLogin from '@/utils/services/fetchlogin'; // Import the fetchLogin function
 import Input from '@/components/ui/input';
 import { ButtonLoading } from '@/components/ui/buttonLoading';
 
@@ -12,7 +13,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -29,30 +30,16 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true); // Set loading state to true when the form is submitted
+    setLoading(true);
 
     if (!email || !password) {
       alert('Email or password cannot be empty');
-      setLoading(false); // Reset loading state if validation fails
+      setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        console.log('Response status:', response.status);
-        console.log('Response body:', await response.text());
-        throw new Error('Login failed');
-      }
-
-      const data = await response.json();
+      const data = await fetchLogin(email, password); // Call the fetchLogin function
       const user = data.user;
       const token = data.access_token;
       const id = user.id;
@@ -87,7 +74,7 @@ const LoginPage = () => {
       console.error('Login failed:', error);
       setError('An error occurred during login. Please try again.');
     } finally {
-      setLoading(false); // Reset loading state after the request is complete
+      setLoading(false);
     }
   };
 
