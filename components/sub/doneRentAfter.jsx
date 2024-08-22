@@ -16,11 +16,12 @@ export default function DoneRentAfter() {
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const token = Cookies.get('token');
+    const id = Cookies.get('id');
 
     useEffect(() => {
         const getDoneRentDetails = async () => {
             try {
-                const data = await fetchDoneRentAfter(token);
+                const data = await fetchDoneRentAfter(token, id);
 
                 if (data) {
                     setDoneRentAfterDetails(data);

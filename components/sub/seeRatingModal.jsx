@@ -1,9 +1,8 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
-
-import { FaStar } from "react-icons/fa";
-import { CiImageOn } from "react-icons/ci";
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,6 @@ const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
     const [userImage, setUserImage] = useState(null);
     const [ulasanId, setUlasanId] = useState(null);
     const [review, setReview] = useState(null);
-    const [loading, setLoading] = useState(false);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -78,7 +76,11 @@ const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
     if (!isOpen) return null;
 
     return seeRatingModalDetails ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, type: 'tween' }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg">
                 <div className='flex flex-col gap-5'>
                     <Label>
@@ -140,7 +142,7 @@ const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
                     Close
                 </button> */}
             </div>
-        </div>
+        </motion.div>
     ) : (
         null
     );

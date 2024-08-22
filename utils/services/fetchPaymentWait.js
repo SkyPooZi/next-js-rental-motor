@@ -1,9 +1,6 @@
-import Cookies from 'js-cookie';
-
-export const fetchPaymentWait = async (token) => {
+export const fetchPaymentWait = async (token, id) => {
     try {
-        const id = Cookies.get('id');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered/status?filter=Menunggu Pembayaran`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             }
@@ -11,9 +8,9 @@ export const fetchPaymentWait = async (token) => {
         const data = await response.json();
 
         const filteredData = data.history.filter(
-            (item) => item.status_history === "Menunggu Pembayaran" && item.pengguna_id === parseInt(id) && item.alasan_pembatalan === null
+            (item) => item.pengguna_id === parseInt(id) && item.alasan_pembatalan === null
         );
-
+        console.log(filteredData);
         return filteredData;
     } catch (error) {
         console.error('Failed to fetch payment details:', error);

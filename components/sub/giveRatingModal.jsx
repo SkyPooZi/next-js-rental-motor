@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import { motion } from 'framer-motion';
 
 import { FaStar, FaRegStar } from "react-icons/fa";
 import { CiImageOn } from "react-icons/ci";
@@ -116,7 +119,11 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     Ulasan berhasil ditambah!
                 </div>
             )}
-            <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, type: 'tween' }}
+                className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
                 <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
                     <form method='POST' action='POST' onSubmit={handleConfirm}>
                         <div className='flex flex-col gap-5'>
@@ -203,7 +210,7 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </div>
                     </form>
                 </div>
-            </div>
+            </motion.div>
         </>
     ) : null;
 };

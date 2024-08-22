@@ -19,12 +19,13 @@ export default function DoneRentBefore() {
     const [loading, setLoading] = useState(true);
     const [historyId, setHistoryId] = useState(null);
     const token = Cookies.get('token');
+    const id = Cookies.get('id');
 
     useEffect(() => {
         const getDoneRentDetails = async () => {
             try {
                 setLoading(true);
-                const data = await fetchDoneRentBefore(token);
+                const data = await fetchDoneRentBefore(token, id);
 
                 if (data) {
                     setDoneRentBeforeDetails(data);

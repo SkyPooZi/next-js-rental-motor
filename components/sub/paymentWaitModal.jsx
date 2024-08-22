@@ -1,5 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+'use client';
+
+import React, { useState } from 'react';
+import {useRouter} from 'next/navigation';
 import Cookies from 'js-cookie';
+import { motion } from 'framer-motion';
 
 import { MdDone, MdClose } from "react-icons/md";
 
@@ -12,6 +16,7 @@ import { handleCancelled } from '@/utils/services/handleCancelled';
 const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
     const [selectedReason, setSelectedReason] = useState('');
     const [showNotification, setShowNotification] = useState(false);
+    const router = useRouter();
     const token = Cookies.get('token');
 
     const handleCheckboxChange = (reason) => {
@@ -26,8 +31,10 @@ const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
             setShowNotification(true);
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
-            onClose();
+                onClose();
+                window.location.reload();
+                router.push('/setting?component=history');
+            }, 1000);
         } else {
             console.error('Failed to update reasons:', result.error);
         }
@@ -43,7 +50,11 @@ const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
                     <MdDone className="ml-2 text-white" />
                 </div>
             )}
-            <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, type: 'tween'}}
+                className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
                 <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg relative">
                     <MdClose
                         className="absolute top-4 right-4 text-gray-600 cursor-pointer"
@@ -91,7 +102,7 @@ const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
                         </Button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </>
     );
 };
