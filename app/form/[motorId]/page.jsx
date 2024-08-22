@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import { MdOutlineTimer } from "react-icons/md";
@@ -209,7 +211,7 @@ export default function page({ params: { motorId } }) {
     const formatPhoneNumber = (phone) => {
         // Ensure that the phone number starts with +62
         if (!phone.startsWith('+62')) {
-            return '+62' + phone.replace(/^0+/, ''); // Remove leading zeros and add +62
+            return '+62' + phone.replace(/^0+/, '');
         }
         return phone;
     };
@@ -232,7 +234,7 @@ export default function page({ params: { motorId } }) {
             keperluan_menyewa,
             penerimaan_motor,
             nama_kontak_darurat,
-            nomor_kontak_darurat,
+            nomor_kontak_darurat: formatPhoneNumber(nomor_kontak_darurat),
             hubungan_dengan_kontak_darurat,
             diskon_id,
             metode_pembayaran,
@@ -287,7 +289,7 @@ export default function page({ params: { motorId } }) {
                     keperluan_menyewa,
                     penerimaan_motor,
                     nama_kontak_darurat,
-                    nomor_kontak_darurat,
+                    nomor_kontak_darurat: formatPhoneNumber(nomor_kontak_darurat),
                     hubungan_dengan_kontak_darurat,
                     diskon_id,
                     metode_pembayaran,
@@ -510,7 +512,21 @@ export default function page({ params: { motorId } }) {
 
     return (
         <>
-            <Navbar />
+            <div className="lg:mx-view-pc">
+                <div className="flex h-16 items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="flex items-center gap-1.5 ml-5 lg:ml-0 cursor-pointer">
+                            <Image src='/images/logo.png' alt='Logo' width='38' height='38' />
+                            <Label>
+                                <span className='font-bold'>Rental Motor Kudus</span>
+                            </Label>
+                        </Link>
+                    </div>
+                    <div className="flex items-center mr-3">
+                        <Link href="/" className={'text-gray-700 hover:text-[#FF4D30]'}>Kembali</Link>
+                    </div>
+                </div>
+            </div>
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <PemesananHeader />
                 <form method="post" action="post" onSubmit={handleSubmit}>
