@@ -16,13 +16,14 @@ export default function PaymentWait() {
     const [selectedDetail, setSelectedDetail] = useState(null);
     const [historyId, setHistoryId] = useState(null);
     const [loading, setLoading] = useState(true);
+    const id = Cookies.get('id');
     const token = Cookies.get('token');
 
     useEffect(() => {
         const getPaymentDetails = async () => {
             try {
                 setLoading(true);
-                const data = await fetchPaymentWait(token);
+                const data = await fetchPaymentWait(token, id);
 
                 if (data) {
                     setPaymentDetails(data);
@@ -106,6 +107,6 @@ export default function PaymentWait() {
             </div>
         ))
     ) : (
-        null
+        <span className="ml-10">Tidak ada</span>
     );
 }

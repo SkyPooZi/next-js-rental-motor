@@ -1,9 +1,6 @@
-import Cookies from 'js-cookie';
-
-export const fetchDoneRentAfter = async (token) => {
+export const fetchDoneRentAfter = async (token, id) => {
     try {
-        const id = Cookies.get('id');
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/filtered/status?filter=Selesai`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -17,7 +14,7 @@ export const fetchDoneRentAfter = async (token) => {
         const data = await response.json();
 
         const filteredData = data.history.filter(
-            (item) => item.status_history === "Selesai" && item.pengguna_id === parseInt(id) && item.ulasan !== null
+            (item) => item.pengguna_id === parseInt(id) && item.ulasan !== null
         );
 
         return filteredData;

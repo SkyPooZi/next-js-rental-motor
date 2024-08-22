@@ -20,13 +20,14 @@ export default function Booked() {
     const [loading, setLoading] = useState(true);
     const [showInvoice, setShowInvoice] = useState(false);
     const [orderNumber, setOrderNumber] = useState(null);
+    const id = Cookies.get('id');
     const token = Cookies.get('token');
 
     useEffect(() => {
         const getBookedDetails = async () => {
             try {
                 setLoading(true);
-                const data = await fetchBooked(token);
+                const data = await fetchBooked(token, id);
                 setBookedDetails(data);
             } catch (error) {
                 console.error('Failed to fetch booked details:', error);
@@ -157,6 +158,6 @@ export default function Booked() {
             </div >
         ))
     ) : (
-        null
+        <span className="ml-10">Tidak ada</span>
     );
 }

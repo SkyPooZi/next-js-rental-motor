@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import { motion } from 'framer-motion';
 
 import { MdDone, MdClear, MdClose } from 'react-icons/md';
 
@@ -212,7 +215,11 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                 </div>
             )}
-            <div className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
+            <motion.div
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, type: 'tween' }}
+                className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
                 <div className="bg-white p-6 rounded-lg shadow-lg relative z-40">
                     <MdClose
                         className="absolute top-4 right-4 text-gray-600 cursor-pointer"
@@ -306,7 +313,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </Button>
                     </div>
                 </div>
-            </div>
+            </motion.div>
         </>
     ) : null;
 };

@@ -17,12 +17,13 @@ export default function Canceled() {
     const [historyId, setHistoryId] = useState(null);
     const [loading, setLoading] = useState(true);
     const token = Cookies.get('token');
+    const id = Cookies.get('id');
 
     useEffect(() => {
         const getCancelledDetails = async () => {
             try {
                 setLoading(true);
-                const data = await fetchCancelled(token);
+                const data = await fetchCancelled(token, id);
 
                 if (data) {
                     setCancelledDetails(data);
@@ -100,6 +101,6 @@ export default function Canceled() {
             </div>
         ))
     ) : (
-        null
+        <span className="ml-10">Tidak ada</span>
     );
 }

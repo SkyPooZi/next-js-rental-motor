@@ -176,7 +176,7 @@ export default function Settings() {
                             </button>
                         </Link>
                     </div>
-                    <div className="flex lg:hidden fixed bottom-5 right-2 z-40">
+                    <div className="flex lg:hidden fixed bottom-28 right-2 z-40">
                         <DefaultSpeedDial activeComponent={activeComponent} handleButtonClick={handleButtonClick} />
                     </div>
                     <div className="w-full content-area">

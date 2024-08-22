@@ -17,13 +17,14 @@ export default function InUse() {
     const [orderNumber, setOrderNumber] = useState(null);
     const [showInvoice, setShowInvoice] = useState(false);
     const [loading, setLoading] = useState(true);
+    const id = Cookies.get('id');
     const token = Cookies.get('token');
 
     useEffect(() => {
         const getInUseDetails = async () => {
             try {
                 setLoading(true);
-                const data = await fetchInUse(token);
+                const data = await fetchInUse(token, id);
                 setInUseDetails(data);
             } catch (error) {
                 console.error('Failed to fetch payment details:', error);
@@ -115,5 +116,5 @@ export default function InUse() {
                 )}
             </div>
         ))
-    ) : null;
+    ) : <span className="ml-10">Tidak ada</span>;
 }

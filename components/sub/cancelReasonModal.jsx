@@ -1,6 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import { motion } from 'framer-motion';
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -40,7 +43,11 @@ const CancelReasonModal = ({ isOpen, onClose, historyId }) => {
     if (!isOpen) return null;
 
     return cancelModalDetails ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-25">
+        <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, type: 'tween' }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-25">
             <div className="bg-white w-full max-w-[700px] p-6 rounded-lg shadow-lg">
                 <div className='flex flex-col gap-5'>
                     <Label>
@@ -81,7 +88,7 @@ const CancelReasonModal = ({ isOpen, onClose, historyId }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     ) : null;
 };
 
