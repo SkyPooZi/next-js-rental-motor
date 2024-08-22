@@ -85,7 +85,7 @@ export default function Navbar() {
                         <Link href="/" className="flex items-center gap-1.5 ml-5 lg:ml-0 cursor-pointer">
                             <Image src='/images/logo.png' alt='Logo' width='38' height='38' />
                             <Label>
-                                <span className='font-bold hidden md:block'>Rental Motor Kudus</span>
+                                <span className='font-bold'>Rental Motor Kudus</span>
                             </Label>
                         </Link>
                     </div>

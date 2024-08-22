@@ -33,13 +33,28 @@ const EmergencyContact = ({ nama_kontak_darurat, setNamaKontakDarurat, nomor_kon
                             <span className="text-black">
                                 Nomor Kontak Darurat <span className="text-[#FF4D33] font-semibold">*</span>
                             </span>
-                            <Input
-                                type='number'
-                                label="Masukkan nomor kontak darurat"
-                                value={nomor_kontak_darurat}
-                                onChange={(e) => setNomorKontakDarurat(e.target.value)}
-                                required
-                            />
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    +62
+                                </span>
+                                <Input
+                                    type="number"
+                                    label="Masukkan nomor kontak darurat"
+                                    placeholder="8892384434"
+                                    value={nomor_kontak_darurat}
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+                                        if (inputValue.startsWith('0')) {
+                                            setNomorKontakDarurat(inputValue.slice(1));
+                                        } else {
+                                            setNomorKontakDarurat(inputValue);
+                                        }
+                                    }}
+                                    required
+                                    className="border rounded-r"
+                                />
+                            </div>
+                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                         </div>
                     </div>
                     <div className='flex flex-row gap-5 '>
