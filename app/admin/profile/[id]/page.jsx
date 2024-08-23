@@ -57,6 +57,14 @@ const Page = ({ params: { id } }) => {
     const [loadData, setLoadData] = useState(true);
     const token = Cookies.get('token');
 
+    const formatPhoneNumber = (phone) => {
+        // Ensure that the phone number starts with +62
+        if (!phone.startsWith('+62')) {
+            return '+62' + phone.replace(/^0+/, '');
+        }
+        return phone;
+    };
+
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -104,7 +112,7 @@ const Page = ({ params: { id } }) => {
                 file,
                 nama_pengguna,
                 nama_lengkap,
-                nomor_hp,
+                nomor_hp: formatPhoneNumber(nomor_hp),
                 alamat,
                 peran,
             });
@@ -272,9 +280,19 @@ const Page = ({ params: { id } }) => {
                                                             Nomor HP
                                                         </span>
                                                         <Input
+                                                            type="number"
                                                             label={`Masukkan no hp (${user.nomor_hp})`}
-                                                            onChange={(e) => setNomorHp(e.target.value)}
+                                                            placeholder="8892384434"
+                                                            onChange={(e) => {
+                                                                const inputValue = e.target.value;
+                                                                if (inputValue.startsWith('0')) {
+                                                                    setNomorHp(inputValue.slice(1));
+                                                                } else {
+                                                                    setNomorHp(inputValue);
+                                                                }
+                                                            }}
                                                         />
+                                                        <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                                                     </div>
                                                 </div>
                                                 <div>

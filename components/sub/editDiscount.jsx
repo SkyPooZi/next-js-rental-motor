@@ -194,6 +194,16 @@ const EditDiscountForm = ({
                                 {loading ? 'Loading...' : 'Ubah Data'}
                             </Button>
                         </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                    type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
+                        </div>
                     </div>
                 </CardHeader>
             </Card>

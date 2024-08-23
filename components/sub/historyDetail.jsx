@@ -241,7 +241,7 @@ const HistoryDetail = ({ history, image }) => {
                             <span className="text-black">
                                 Diskon
                             </span>
-                            <Select label="Masukkan diskon" value={history.diskon.nama_diskon} disabled>
+                            <Select label="Masukkan diskon" value={history.diskon && history.diskon.nama_diskon ? history.diskon.nama_diskon : null} disabled>
                                 <Option className="text-white rounded-md w-full bg-green-400">
                                     Ramadhan
                                 </Option>

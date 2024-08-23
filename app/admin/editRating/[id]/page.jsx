@@ -24,7 +24,7 @@ import Sidebar from '@/components/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
 import Loading from '@/components/ui/loading';
 import EditReviewForm from '@/components/sub/editReviewForm';
-import { fetchReviewData } from '@/utils/services/reviewService';
+import { fetchReviewData } from '@/utils/services/fetchDetailReview';
 import { updateReview } from '@/utils/services/updateReview';
 
 const Page = ({ params: { id } }) => {

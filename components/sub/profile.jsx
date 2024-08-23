@@ -69,6 +69,14 @@ export default function Profile() {
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
+    const formatPhoneNumber = (phone) => {
+        // Ensure that the phone number starts with +62
+        if (!phone.startsWith('+62')) {
+            return '+62' + phone.replace(/^0+/, '');
+        }
+        return phone;
+    };
+
     const handleOtpVerify = async (otp) => {
         await handleVerifyOTP(otp, {
             id: user.id,
@@ -178,7 +186,7 @@ export default function Profile() {
 
             <FormSection
                 title="Data Pribadi"
-                onSubmit={(e) => handleSubmitPersonalData(e, { nomor_hp, alamat, id, token, setIsLoadingPersonalData, setError, setShowNotification, setUser })}
+                onSubmit={(e) => handleSubmitPersonalData(e, { nomor_hp: formatPhoneNumber(nomor_hp), alamat, id, token, setIsLoadingPersonalData, setError, setShowNotification, setUser })}
                 isLoading={isLoadingPersonalData}
                 submitText="Simpan Perubahan"
             >
@@ -187,9 +195,19 @@ export default function Profile() {
                         <span>No. Telepon</span>
                     </Label>
                     <Input
+                        type="number"
                         label={`Masukkan no hp (${user.nomor_hp})`}
-                        onChange={(e) => setNomorHp(e.target.value)}
+                        placeholder="8892384434"
+                        onChange={(e) => {
+                            const inputValue = e.target.value;
+                            if (inputValue.startsWith('0')) {
+                                setNomorHp(inputValue.slice(1));
+                            } else {
+                                setNomorHp(inputValue);
+                            }
+                        }}
                     />
+                    <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                 </div>
                 <div className="flex flex-col gap-5">
                     <div className="flex flex-col gap-2">
