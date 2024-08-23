@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { PiScroll } from "react-icons/pi";
 
 const Modal = ({ isOpen, onClose }) => {
@@ -36,7 +39,12 @@ const Modal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
+        <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, type: 'tween' }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}
+        >
             <div ref={modalRef} className="bg-white p-6 rounded-lg shadow-lg" onClick={(e) => e.stopPropagation()}>
                 <div className='flex flex-col gap-5 bg-white font-medium'>
                     <div className='flex flex-row gap-2 items-center bg-white'>
@@ -63,7 +71,7 @@ const Modal = ({ isOpen, onClose }) => {
                     Close
                 </button> */}
             </div>
-        </div>
+        </motion.div>
     );
 };
 

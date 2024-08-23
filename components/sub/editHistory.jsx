@@ -75,11 +75,28 @@ const EditHistoryForm = ({
                                 <span className="text-black">
                                     Nomor Telp
                                 </span>
-                                <Input
-                                    label={`Masukkan nomor telp (${history.no_telp})`}
-                                    onChange={(e) => setNomorTelp(e.target.value)}
-                                    type='number'
-                                />
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                        +62
+                                    </span>
+
+                                    <Input
+                                        type="number"
+                                        label={`Masukkan nomor telp (${history.no_telp})`}
+                                        placeholder="8892384434"
+                                        onChange={(e) => {
+                                            const inputValue = e.target.value;
+
+                                            // Prevents user from starting the input with "0" after "+62"
+                                            if (inputValue.startsWith('0')) {
+                                                setNomorTelp(inputValue.slice(1));
+                                            } else {
+                                                setNomorTelp(inputValue);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">
@@ -154,6 +171,7 @@ const EditHistoryForm = ({
                                 <Popover placement="bottom">
                                     <PopoverHandler>
                                         <Input
+                                            disabled
                                             label={`Pilih tanggal mulai (${history.tanggal_mulai})`}
                                             onChange={() => null}
                                             value={tanggal_mulai ? format(new Date(tanggal_mulai), "yyyy-MM-dd") : ""}
@@ -208,6 +226,7 @@ const EditHistoryForm = ({
                                 <Popover placement="bottom">
                                     <PopoverHandler>
                                         <Input
+                                            disabled
                                             label={`Pilih tanggal selesai (${history.tanggal_selesai})`}
                                             onChange={() => null}
                                             value={tanggal_selesai ? format(new Date(tanggal_selesai), "yyyy-MM-dd") : ""}
@@ -304,11 +323,29 @@ const EditHistoryForm = ({
                                 <span className="text-black">
                                     Nomor Kontak Darurat
                                 </span>
-                                <Input
-                                    label={`Masukkan nomor kontak darurat (${history.nomor_kontak_darurat})`}
-                                    onChange={(e) => setNomorKontakDarurat(e.target.value)}
-                                    type='number'
-                                />
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                        +62
+                                    </span>
+                                    <Input
+                                        type="number"
+                                        label={`Masukkan nomor kontak darurat (${history.nomor_kontak_darurat})`}
+                                        placeholder="8892384434"
+                                        onChange={(e) => {
+                                            const inputValue = e.target.value;
+
+                                            // Prevents user from starting the input with "0" after "+62"
+                                            if (inputValue.startsWith('0')) {
+                                                setNomorKontakDarurat(inputValue.slice(1));
+                                            } else {
+                                                setNomorKontakDarurat(inputValue);
+                                            }
+                                        }}
+                                        required
+                                        className="border rounded-r"
+                                    />
+                                </div>
+                                <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
@@ -424,6 +461,16 @@ const EditHistoryForm = ({
                             >
                                 {loading ? 'Loading...' : 'Ubah Data'}
                             </Button>
+                        </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                    type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </CardHeader>

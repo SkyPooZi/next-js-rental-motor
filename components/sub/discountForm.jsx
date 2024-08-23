@@ -123,14 +123,20 @@ const DiscountForm = ({ token, setResponse, setShowNotification, setLoading, loa
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Potongan Harga <span className="text-[#FF4D33] font-semibold">*</span></span>
+                                <span className="text-black">
+                                    Potongan Harga <span className="text-[#FF4D33] font-semibold">*</span>
+                                </span>
                                 <Input
                                     type="number"
                                     label="Masukkan potongan harga dalam %"
                                     value={potongan_harga}
-                                    onChange={(e) => setPotonganHarga(e.target.value)}
+                                    onChange={(e) => {
+                                        const value = Math.min(20, Number(e.target.value));
+                                        setPotonganHarga(value);
+                                    }}
                                 />
                             </div>
+
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
@@ -246,6 +252,16 @@ const DiscountForm = ({ token, setResponse, setShowNotification, setLoading, loa
                             >
                                 {loading ? 'Loading...' : 'Tambah Diskon Baru'}
                             </Button>
+                        </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </CardHeader>
