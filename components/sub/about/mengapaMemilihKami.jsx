@@ -78,18 +78,20 @@ export default function MengapaMemilihKami() {
                     </motion.div>
 
                     <motion.div
-                        className="flex flex-col lg:flex-row justify-center lg:justify-start items-center"
+                        className="flex flex-col lg:flex-row lg:justify-start sm:justify-center items-center w-full"
                         initial={{ opacity: 0 }}
                         animate={isInView ? { opacity: 1 } : {}}
                         transition={{ duration: 1, delay: 1 }}
                     >
                         <ContactButton />
                         <Link href={`/catalog`}>
-                            <Button className="ml-5 before:ease bg-[#FF4D33] border-2 border-white capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
-                                <span className="relative text-base z-10">Lihat Pilihan Motor</span>
+                            <Button className="lg:ml-5 lg:mt-0 mt-5 bg-[#FF4D33] border-2 border-white capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 text-white py-2 px-4 rounded-full text-base lg:text-base md:text-sm w-auto">
+                                <span className="relative z-10">Lihat Pilihan Motor</span>
                             </Button>
                         </Link>
                     </motion.div>
+
+
                 </div>
             </div>
         </div>

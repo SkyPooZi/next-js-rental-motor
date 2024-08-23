@@ -5,7 +5,8 @@ import Image from 'next/image';
 import NavbarAfter from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
-import fetchCatalog from 'D:/next-js-rental-motor/utils/services/fetchCatalog';
+import fetchCatalog from '@/utils/services/fetchCatalog';
+import Cookies from 'next-cookies';
 import { Button } from '@material-tailwind/react';
 
 const Motor = ({ motor }) => {
