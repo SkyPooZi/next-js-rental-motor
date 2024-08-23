@@ -104,7 +104,6 @@ export default function Profile() {
             try {
                 const userData = await fetchUserDetail(id, token);
                 setUser(userData);
-                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
             } catch (error) {
                 setError(error.message);
             }
@@ -130,21 +129,30 @@ export default function Profile() {
             >
                 <div className="flex flex-col gap-5">
                     <div className="mr-4">
-                        <img src={imagePreview || image} alt="Image Preview" className="max-w-36 h-auto rounded-md" />
-                    </div>
-                    <div>
-                        <input
-                            type="file"
-                            id="picture"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            ref={fileInputRef}
-                            className="hidden"
+                        <img
+                            src={imagePreview || (user.google_id || user.facebook_id
+                                ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                            )}
+                            alt="Image Preview"
+                            className="max-w-36 h-auto rounded-md"
                         />
-                        <Button type="button" onClick={handleButtonClick}>
-                            <span className="font-medium text-xs">Pilih Foto</span>
-                        </Button>
                     </div>
+                    {!(user.google_id || user.facebook_id) && (
+                        <div>
+                            <input
+                                type="file"
+                                id="picture"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                ref={fileInputRef}
+                                className="hidden"
+                            />
+                            <Button type="button" onClick={handleButtonClick}>
+                                <span className="font-medium text-xs">Pilih Foto</span>
+                            </Button>
+                        </div>
+                    )}
                     <div className="flex flex-col gap-2">
                         <Label className='mb-1'>
                             <span>Nama Lengkap</span>

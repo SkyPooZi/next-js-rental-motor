@@ -35,6 +35,8 @@ export default function page({ params: { motorId } }) {
     const [selectedMotor, setSelectedMotor] = useState(null);
     const [pengguna_id, setPenggunaId] = useState('');
     const [disabledRanges, setDisabledRanges] = useState([]);
+    const [disabledDays, setDisabledDays] = useState([]);
+    const [disabledTimesPerDay, setDisabledTimesPerDay] = useState({});
     const [minEndDate, setMinEndDate] = useState(null);
     const [detailId, setDetailMotorId] = useState(motorId);
     const [hargaRental, setHargaRental] = useState(0);
@@ -386,8 +388,9 @@ export default function page({ params: { motorId } }) {
     useEffect(() => {
         const getBookedDates = async () => {
             try {
-                const dates = await fetchBookedDates(motor_id, token, stok_motor);
-                setDisabledRanges(dates);
+                const { disabledDays, disabledTimesPerDay } = await fetchBookedDates(motor_id, token, stok_motor);
+                setDisabledDays(disabledDays);
+                setDisabledTimesPerDay(disabledTimesPerDay);
             } catch (error) {
                 console.error('Failed to fetch booked dates:', error);
             }
@@ -399,16 +402,25 @@ export default function page({ params: { motorId } }) {
     const shouldDisableDate = (date) => {
         const today = dayjs().startOf('day');
         if (date.isBefore(today)) return true;
-        return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
+
+        const dateStr = date.format('YYYY-MM-DD');
+        return disabledDays.includes(dateStr);
     };
 
     const shouldDisableTime = (time, selectedDate) => {
         if (!selectedDate) return false;
 
-        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
-        if (selectedDayDisabled) return true;
+        const now = dayjs();
+        const dateStr = selectedDate.format('YYYY-MM-DD');
+        const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
-        return false;
+        // Check if the selected date is today and the time is in the past
+        if (selectedDate.isSame(now, 'day') && time.isBefore(now, 'minute')) {
+            return true;
+        }
+
+        // Check if the time is within any of the disabled ranges
+        return disabledTimesPerDay[dateStr]?.has(timeStr);
     };
 
     const handleDateStart = (date) => {
