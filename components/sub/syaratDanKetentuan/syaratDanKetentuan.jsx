@@ -1,17 +1,22 @@
 "use client";
 
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import 'styles/backgroundAnimation.css';
 
 const Section = ({ children, delay }) => {
   const [ref, inView] = useInView({ threshold: 0.1 });
-  
+  const [hasPlayed, setHasPlayed] = useState(false);
+
+  if (inView && !hasPlayed) {
+    setHasPlayed(true);
+  }
+
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : 20 }}
+      animate={{ opacity: hasPlayed ? 1 : 0, y: hasPlayed ? 0 : 20 }}
       transition={{ duration: 0.5, delay }}
       className="mt-4 mb-4"
     >
@@ -27,7 +32,9 @@ const useInView = (options) => {
   React.useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setInView(true);
+        }
       },
       options
     );
@@ -46,7 +53,7 @@ export default function SyaratDanKetentuan() {
     <div className="relative min-h-screen">
       <div className="flex flex-col items-center justify-center bg-[#F6F7F9] min-h-screen relative z-10">
         <div className="backgroundAnimation absolute inset-0 z-0"></div>
-        <div className="w-full h-full p-10 bg-white bg-opacity-80 rounded-lg shadow-lg z-10 max-w-full max-h-full overflow-auto">
+        <div className="w-full h-full p-10 md:py-10 md:px-40 bg-white bg-opacity-80 rounded-lg shadow-lg z-10 max-w-full max-h-full overflow-auto">
 
           <Section delay={0}>
             <h1 className="text-2xl text-black font-bold text-center">Syarat & Ketentuan</h1>
