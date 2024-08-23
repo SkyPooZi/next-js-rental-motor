@@ -90,6 +90,7 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                         </div>
                     </LocalizationProvider>
 
+
                     <div className='flex md:flex-row flex-col gap-5 '>
                         <div className='text-black w-full text-sm'>
                             Durasi
