@@ -1,18 +1,8 @@
-import Cookies from 'js-cookie';
-
 const fetchCatalog = async () => {
-  const token = Cookies.get('token');
-
-  if (!token) {
-    console.error('Token not found');
-    return [];
-  }
-
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
       },
     });
 

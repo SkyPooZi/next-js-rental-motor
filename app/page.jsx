@@ -89,8 +89,6 @@ export default function Home() {
     useEffect(() => {
         const fetchMotors = async () => {
             try {
-                console.log(Cookies.get('token'));
-                console.log(Cookies.get('id'));
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
                     headers: {
                         'Content-Type': 'application/json',
@@ -146,7 +144,6 @@ export default function Home() {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
                     },
                 });
                 const data = await response.json();

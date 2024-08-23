@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import ReviewMotor from '@/components/sub/detail/reviewMotor';
 import DetailMotor from '@/components/sub/detail/detailMotor';
 import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
+import { fetchMotorDetails, fetchMotorReviews } from '@/utils/fetchDetail';
 
 const Detail = () => {
     const { id } = useParams();
@@ -15,49 +16,29 @@ const Detail = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchMotor = async () => {
+        const loadMotorDetails = async () => {
             if (!id) return;
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${id}`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                const data = await response.json();
-                if (data.status === 200) {
-                    setMotor(data.listMotor);
-                } else {
-                    setError('Failed to fetch motor details.');
-                }
+                const motorData = await fetchMotorDetails(id);
+                setMotor(motorData);
             } catch (error) {
                 setError('An error occurred while fetching motor data.');
-                console.error('Error fetching motor data:', error);
             } finally {
                 setLoading(false);
             }
         };
 
-        const fetchReviews = async () => {
+        const loadReviews = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                const data = await response.json();
-                if (data.status === 200) {
-                    const filteredReviews = data.review.filter(review => review.penilaian === 5);
-                    setReviews(filteredReviews);
-                } else {
-                    console.error('Unexpected response status:', data.status);
-                }
+                const reviewData = await fetchMotorReviews();
+                setReviews(reviewData);
             } catch (error) {
                 console.error('Error fetching reviews:', error);
             }
         };
 
-        fetchMotor();
-        fetchReviews();
+        loadMotorDetails();
+        loadReviews();
     }, [id]);
 
     if (loading) {
