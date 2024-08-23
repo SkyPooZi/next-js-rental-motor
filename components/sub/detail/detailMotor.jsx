@@ -4,7 +4,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const DetailMotor = ({ motor }) => {
-    const statusColor = motor.status_motor === 'Tidak Tersedia' ? 'text-red-500' : 'text-green-500';
+    const statusColor = motor.status_motor === 'Tidak Tersedia'
+        ? 'text-red-500'
+        : motor.status_motor === 'Tertunda'
+            ? 'text-yellow-500'
+            : 'text-green-500';
+
 
     return (
         <div className="container mx-auto p-4 md:py-10">
