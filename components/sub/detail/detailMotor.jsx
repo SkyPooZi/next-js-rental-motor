@@ -2,14 +2,24 @@ import React from 'react';
 import { Button } from '@material-tailwind/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const DetailMotor = ({ motor }) => {
+    const router = useRouter();
+
     const statusColor = motor.status_motor === 'Tidak Tersedia'
         ? 'text-red-500'
         : motor.status_motor === 'Tertunda'
             ? 'text-yellow-500'
             : 'text-green-500';
 
+    const isButtonDisabled = motor.status_motor === 'Tidak Tersedia' || motor.status_motor === 'Tertunda';
+
+    const handleButtonClick = () => {
+        if (!isButtonDisabled) {
+            router.push(`/form/${motor.id}`);
+        }
+    };
 
     return (
         <div className="container mx-auto p-4 md:py-10">
@@ -97,11 +107,15 @@ const DetailMotor = ({ motor }) => {
                                     <span className="relative text-base z-10">Cek Motor Lainnya</span>
                                 </Button>
                             </Link>
-                            <Link href={`/form/${motor.id}`}>
-                                <Button className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
+                            <div className="flex flex-col items-center mb-2">
+                                <Button
+                                    disabled={isButtonDisabled}
+                                    onClick={handleButtonClick}
+                                    className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
                                     <span className="relative text-base z-10">Pesan Sekarang!</span>
                                 </Button>
-                            </Link>
+                            </div>
                         </div>
 
                     </div>

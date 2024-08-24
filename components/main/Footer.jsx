@@ -169,7 +169,7 @@ export default function Footer() {
                                         />
                                     </svg>
 
-                                    <span className="flex-1 text-gray-700">rentalmotorkudus@gmail.com</span>
+                                    <span className="flex-1 text-gray-700">sewamotorkuduss@gmail.com</span>
                                 </a>
                             </li>
                             <li>

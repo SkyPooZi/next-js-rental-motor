@@ -104,7 +104,7 @@ export default function Terms() {
             </Label>
             <Label>
                 <span className="leading-5">
-                    Jika Anda memiliki pertanyaan atau kekhawatiran tentang Kebijakan Privasi kami, silakan hubungi kami di <b>rentalmotorkudus@gmail.com</b> atau <span className="text-[#29A71A]">+62-858-7812-3310</span>.
+                    Jika Anda memiliki pertanyaan atau kekhawatiran tentang Kebijakan Privasi kami, silakan hubungi kami di <b>sewamotorkuduss@gmail.com</b> atau <span className="text-[#29A71A]">+62-858-7812-3310</span>.
                 </span>
             </Label>
             <Label>

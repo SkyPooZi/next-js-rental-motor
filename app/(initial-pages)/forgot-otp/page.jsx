@@ -1,30 +1,32 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@material-tailwind/react';
-import { sendOtpEmail } from '@/utils/services/fetchForgotOtp'; // Import the sendOtpEmail function
+import { sendOtpEmail } from '@/utils/services/fetchForgotOtp';
 
 const ForgotOTP = () => {
   const router = useRouter();
   const [otp, setOtp] = useState(Array(5).fill(''));
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
-  const [sentOtp, setSentOtp] = useState(''); // Store the sent OTP for verification
+  const [sentOtp, setSentOtp] = useState('');
+  const [error, setError] = useState('');
+  const inputsRef = useRef([]);
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
     if (storedEmail) {
       setEmail(storedEmail);
-      handleSendOtp(storedEmail); // Send OTP when email is retrieved
+      handleSendOtp(storedEmail);
     } else {
-      router.push('/forgot-email'); // Redirect if no email found
+      router.push('/forgot-email');
     }
   }, [router]);
 
   const handleSendOtp = async (email) => {
     try {
-      const otp = await sendOtpEmail(email); // Call the sendOtpEmail function
+      const otp = await sendOtpEmail(email);
       setSentOtp(otp);
       setMessage('OTP sudah terkirim ke email anda.');
       console.log(otp);
@@ -45,18 +47,38 @@ const ForgotOTP = () => {
     }
   };
 
-  const handleChange = (e, index) => {
-    const value = e.target.value;
-    if (!/^[0-9]$/.test(value) && value !== '') return;
+  const handleOTPChange = (e, index) => {
+    const { value } = e.target;
 
-    const newOtp = [...otp];
-    newOtp[index] = value;
-    console.log('OTP Set:', newOtp);
-    setOtp(newOtp);
+    if (/^\d$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      setError('');
 
-    // Focus on the next input field if it's not the last one
-    if (value !== '' && index < otp.length - 1) {
-      document.getElementById(`otp-input-${index + 1}`).focus();
+      if (index < otp.length - 1) {
+        inputsRef.current[index + 1].focus();
+      }
+    } else if (value === '') {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+    } else {
+      e.target.value = otp[index];
+    }
+  };
+
+  const handleKeyDown = (e, index) => {
+    if (e.key === 'Backspace') {
+      if (otp[index] === '') {
+        if (index > 0) {
+          inputsRef.current[index - 1].focus();
+        }
+      } else {
+        const newOtp = [...otp];
+        newOtp[index] = '';
+        setOtp(newOtp);
+      }
     }
   };
 
@@ -87,19 +109,26 @@ const ForgotOTP = () => {
           <p className="text-md text-black mb-4">{message}</p>
           <div className="flex flex-col gap-4 items-center lg:items-start">
             <div className="flex justify-between w-full max-w-xs space-x-2 mt-4">
-              {otp.map((value, index) => (
+              {otp.map((digit, index) => (
                 <input
                   key={index}
-                  id={`otp-input-${index}`}
+                  ref={(ref) => (inputsRef.current[index] = ref)}
                   type="text"
+                  className="w-12 h-12 overflow-hidden text-4xl text-center border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+                  pattern="\d*"
                   maxLength="1"
-                  value={value}
-                  onChange={(e) => handleChange(e, index)}
-                  className="input-animated border bg-white text-black border-black focus:outline-none rounded-lg text-center shadow w-12 h-12"
-                  required
+                  value={digit}
+                  onChange={(e) => handleOTPChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  onInput={(e) => {
+                    if (e.target.value.length > 1) {
+                      e.target.value = e.target.value[0];
+                    }
+                  }}
                 />
               ))}
             </div>
+            {error && <p className="text-red-500 mt-2">{error}</p>}
             <div className="flex mt-4 w-full">
               <Button type="button" onClick={handleSubmit} className="w-full before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
                 <span className="relative text-base z-10">Berikutnya</span>

@@ -19,6 +19,9 @@ import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
 import OTPPopup from '@/components/sub/admin/sendOTP';
 
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
 const FormSection = ({ title, children, onSubmit, isLoading, submitText }) => (
     <form action="post" method="post" onSubmit={onSubmit}>
         <div className="flex flex-col gap-5 bg-white py-5 px-5 rounded-md">
@@ -66,6 +69,8 @@ export default function Profile() {
     const [loadingOtp, setLoadingOtp] = useState(false);
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -102,6 +107,16 @@ export default function Profile() {
             reader.readAsDataURL(file);
         }
     };
+
+    const toggleShowPassword = () => {
+        setShowPassword((prevShowPassword) => !prevShowPassword);
+    };
+
+    const toggleShowConfirmPassword = () => {
+        setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
+    };
+
+
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
@@ -286,11 +301,20 @@ export default function Profile() {
                                 <span className="text-[#FF4D30]">*</span>
                             </Label>
                         </div>
-                        <Input
-                            type='password'
-                            label={`Masukkan kata sandi baru`}
-                            onChange={(e) => setPassword(e.target.value)}
-                        />
+                        <div className="relative">
+                            <Input
+                                type={showPassword ? 'text' : 'password'}
+                                label={`Masukkan kata sandi baru`}
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={toggleShowPassword}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+                            >
+                                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                            </button>
+                        </div>
                         {error && <span className="text-red-500 text-xs">{error}</span>}
                         <span className="text-[#6B7280] text-xs">
                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
@@ -305,11 +329,20 @@ export default function Profile() {
                                 <span className="text-[#FF4D30]">*</span>
                             </Label>
                         </div>
-                        <Input
-                            type='password'
-                            label={`Konfirmasi password baru`}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
+                        <div className="relative">
+                            <Input
+                                type={showConfirmPassword ? 'text' : 'password'}
+                                label={`Konfirmasi password baru`}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={toggleShowConfirmPassword}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+                            >
+                                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </FormSection>
