@@ -33,6 +33,10 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) { // 2MB
+                alert('File size must be less than 2MB');
+                return;
+            }
             setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -68,7 +72,7 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const handleConfirm = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const result = await handleGiveRating(historyId, token, penilaian, komentar, file);
+        const result = await handleGiveRating(historyId, token, penilaian, komentar, file || null);
 
         if (result.success) {
             setShowNotification(true);

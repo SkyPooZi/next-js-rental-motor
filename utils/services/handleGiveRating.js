@@ -4,7 +4,12 @@ export const handleGiveRating = async (historyId, token, penilaian, komentar, fi
     try {
         const id = Cookies.get('id');
         const formData = new FormData();
-        formData.append('gambar', file);
+
+        // Append the file only if it exists
+        if (file) {
+            formData.append('gambar', file);
+        }
+
         formData.append('komentar', komentar);
         formData.append('penilaian', penilaian);
         formData.append('pengguna_id', id);
@@ -20,7 +25,7 @@ export const handleGiveRating = async (historyId, token, penilaian, komentar, fi
 
         if (reviewResponse.ok) {
             const reviewData = await reviewResponse.json();
-            const ulasanId = reviewData.review.id; // Adjusted to get the review ID correctly
+            const ulasanId = reviewData.review.id; // Get the review ID correctly
 
             // Update the history with the new ulasan_id
             const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${historyId}`, {
