@@ -12,6 +12,7 @@ const EditMotorForm = ({
     motors,
     handleSelectChangeNamaMotor,
     handleSelectChangeType,
+    setNamaMotor,
     setMerkMotor,
     setStokMotor,
     setHargaMotorPer1Hari,
@@ -22,7 +23,7 @@ const EditMotorForm = ({
 }) => {
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
-            <Card className="w-full h-full">
+            <Card className="mb-20 xl:mb-0 w-full h-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">Edit Motor</span>
@@ -55,20 +56,10 @@ const EditMotorForm = ({
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Motor</span>
-                                {motors.length > 0 && (
-                                    <div className="w-full">
-                                        <Select
-                                            label={`Pilih nama motor (${motor.nama_motor})`}
-                                            onChange={handleSelectChangeNamaMotor}
-                                        >
-                                            {motors.map((motor) => (
-                                                <Option key={motor.id} value={motor.nama_motor}>
-                                                    {motor.nama_motor}
-                                                </Option>
-                                            ))}
-                                        </Select>
-                                    </div>
-                                )}
+                                <Input
+                                    onChange={(e) => setNamaMotor(e.target.value)}
+                                    label={`Masukkan nama motor (${motor.nama_motor})`}
+                                />
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Tipe</span>
@@ -222,6 +213,16 @@ const EditMotorForm = ({
                             >
                                 {loading ? 'Loading...' : 'Ubah Data'}
                             </Button>
+                        </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                    type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </CardHeader>

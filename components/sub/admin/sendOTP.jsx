@@ -70,7 +70,7 @@ const OTPPopup = ({
         }
 
         try {
-            await onVerify(enteredOTP, {
+            const isOtpValid = await onVerify(enteredOTP, {
                 id,
                 email,
                 token,
@@ -81,9 +81,14 @@ const OTPPopup = ({
                 setOtpPopupVisible,
                 serverOtp
             });
+
+            if (!isOtpValid) {
+                setError('Incorrect OTP. Please try again.');
+            }
         } catch (error) {
             console.error('Error verifying OTP:', error);
             setError('Error verifying OTP. Please try again later.');
+            alert('Error verifying OTP. Please try again later.');
         }
     };
 

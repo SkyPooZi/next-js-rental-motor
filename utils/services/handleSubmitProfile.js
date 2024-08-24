@@ -31,7 +31,8 @@ export const handleSubmitProfile = async (e, { file, nama_lengkap, id, token, se
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+                window.location.reload();
+            }, 1000);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);

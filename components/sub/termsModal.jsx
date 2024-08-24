@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
+import { Label } from "@/components/ui/label";
 
 const TermsModal = ({ isOpen, onClose }) => {
     const modalRef = useRef(null);
@@ -38,60 +39,34 @@ const TermsModal = ({ isOpen, onClose }) => {
                 >
                     <FaTimes className="w-6 h-6" />
                 </button>
-                <div className='flex flex-col gap-5 font-medium'>
-                    <div className='flex flex-row gap-2 items-center justify-center'>
-                        <span className='font-bold text-black text-xl'>
-                            Syarat & Ketentuan
-                        </span>
+                <div className='flex flex-col gap-5'>
+                    <div className='flex flex-row gap-2 items-center justify-start'>
+                        <Label>
+                            <span className='text-black text-lg'>
+                                Syarat & Ketentuan
+                            </span>
+                        </Label>
                     </div>
                     <div className='flex flex-col gap-2'>
-                        <ol className='list-decimal ml-4 font-semibold text-base w-full max-w-[500px] leading-6'>
-                            <li>
-                                KTP asli penyewa
-                            </li>
-                            <li>
-                                Dokumen tambahan (KK/BPJS/ID Card/lainnya)
-                            </li>
-                            <li>
-                                Menunjukkan AKUN SOSMED asli yang aktif, bisa Facebook/Instagram
-                            </li>
-                            <li>
-                                Bisa menunjukkan SIM C (tidak memiliki SIM C berisiko ditanggung sendiri)
-                            </li>
-                            <li>
-                                Lokasi pengambilan motor: Jekulo. Motor akan diantar ke tempat penyewa untuk penyewa pertama. Tidak melayani pengambilan di tempat atau COD. (Tarif antar menyesuaikan lokasi)
-                            </li>
-                            <li>
-                                BBM disi sendiri sesuai dengan saat menerima motor
-                            </li>
-                            <li>
-                                Pengembalian motor harus dalam kondisi yang sama seperti saat diterima, dan motor harus dikembalikan ke tempat persewaan di Jekulo. Jika tidak dapat mengembalikan ke tempat persewaan, dikenai biaya pengambilan motor ke tempat penyewa sesuai dengan tarif Grab/Gojek.
-                            </li>
-                            <li>
-                                Kerusakan/kecelakaan sepenuhnya ditanggung penyewa.
-                            </li>
-                            <li>
-                                Helm dan jas hujan disediakan sesuai permintaan.
-                            </li>
-                            <li>
-                                Pembayaran dilakukan di awal saat serah terima motor.
-                            </li>
-                            <li>
-                                Perpanjangan waktu sewa di pagi/siang hari akan dikenakan biaya setara dengan 12 jam.
-                            </li>
-                            <li>
-                                Pembayaran perpanjangan waktu sewa kendaraan harus dilakukan sebelum waktu sewa sebelumnya habis.
-                            </li>
-                            <li>
-                                Bersedia didokumentasikan saat serah terima motor.
-                            </li>
-                            <li>
-                                Keterlambatan pengembalian akan dikenakan denda sebesar 10% dari harga sewa per 24 jam.
-                            </li>
-                            <li>
-                                Segala tindak kejahatan dan penggelapan akan diproses secara hukum yang berlaku.
-                            </li>
-                        </ol>
+                        <Label>
+                            <ol className='list-decimal ml-4 text-base w-full max-w-[500px] leading-6'>
+                                <li className="mb-2">KTP asli penyewa</li>
+                                <li className="mb-2">Dokumen tambahan (KK/BPJS/ID Card/lainnya)</li>
+                                <li className="mb-2">Menunjukkan AKUN SOSMED asli yang aktif, bisa Facebook/Instagram</li>
+                                <li className="mb-2">Bisa menunjukkan SIM C (tidak memiliki SIM C berisiko ditanggung sendiri)</li>
+                                <li className="mb-2">Lokasi pengambilan motor: Jekulo. Motor akan diantar ke tempat penyewa untuk penyewa pertama. Tidak melayani pengambilan di tempat atau COD. (Tarif antar menyesuaikan lokasi)</li>
+                                <li className="mb-2">BBM disi sendiri sesuai dengan saat menerima motor</li>
+                                <li className="mb-2">Pengembalian motor harus dalam kondisi yang sama seperti saat diterima, dan motor harus dikembalikan ke tempat persewaan di Jekulo. Jika tidak dapat mengembalikan ke tempat persewaan, dikenai biaya pengambilan motor ke tempat penyewa sesuai dengan tarif Grab/Gojek.</li>
+                                <li className="mb-2">Kerusakan/kecelakaan sepenuhnya ditanggung penyewa.</li>
+                                <li className="mb-2">Helm dan jas hujan disediakan sesuai permintaan.</li>
+                                <li className="mb-2">Pembayaran dilakukan di awal saat serah terima motor.</li>
+                                <li className="mb-2">Perpanjangan waktu sewa di pagi/siang hari akan dikenakan biaya setara dengan 12 jam.</li>
+                                <li className="mb-2">Pembayaran perpanjangan waktu sewa kendaraan harus dilakukan sebelum waktu sewa sebelumnya habis.</li>
+                                <li className="mb-2">Bersedia didokumentasikan saat serah terima motor.</li>
+                                <li className="mb-2">Keterlambatan pengembalian akan dikenakan denda sebesar 10% dari harga sewa per 24 jam.</li>
+                                <li className="mb-2">Segala tindak kejahatan dan penggelapan akan diproses secara hukum yang berlaku.</li>
+                            </ol>
+                        </Label>
                     </div>
                 </div>
             </div>

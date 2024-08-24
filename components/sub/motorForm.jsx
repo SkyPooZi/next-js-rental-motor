@@ -27,6 +27,10 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
         }
     };
 
+    const handleSelectChangeType = (value) => {
+        setMotorType(value);
+    }
+
     const handleSelectChange = (value) => {
         setMotorStatus(value);
     };
@@ -79,7 +83,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
     };
     return (
         <form method="post" action="post" onSubmit={handleSubmit}>
-            <Card className="w-full h-full">
+            <Card className="mb-20 xl:mb-0 w-full h-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">
@@ -129,12 +133,23 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                 <span className="text-black">
                                     Tipe <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
-                                <Input
-                                    label="Masukkan tipe motor"
-                                    value={tipe_motor}
-                                    onChange={(e) => setMotorType(e.target.value)}
-                                    required
-                                />
+                                <Select
+                                    onChange={handleSelectChangeType}
+                                    label={`Masukkan tipe motor`}
+                                >
+                                    <Option className="rounded-md w-full" value="Matic">
+                                        Matic
+                                    </Option>
+                                    <Option className="my-2 rounded-md w-full" value="Manual">
+                                        Manual
+                                    </Option>
+                                    <Option className="my-2 rounded-md w-full" value="Premium Matic">
+                                        Premium Matic
+                                    </Option>
+                                    <Option className="my-2 rounded-md w-full" value="Sport">
+                                        Sport
+                                    </Option>
+                                </Select>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
@@ -284,6 +299,16 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                             >
                                 {loading ? 'Loading...' : 'Tambah Motor Baru'}
                             </Button>
+                        </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                    type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </CardHeader>

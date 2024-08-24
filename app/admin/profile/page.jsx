@@ -27,10 +27,8 @@ import { fetchUserData } from '@/utils/services/userService';
 import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handleEmailChange } from '@/utils/services/handleEmailChange';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
-const Page = ({ params: { id } }) => {
+const Page = () => {
     const [nama_pengguna, setNamaPengguna] = useState('');
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
@@ -53,20 +51,19 @@ const Page = ({ params: { id } }) => {
     const [errorNotification, setErrorNotification] = useState(false);
     const [otpPopupVisible, setOtpPopupVisible] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [loadingOtp, setLoadingOtp] = useState(false);
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
     const [loadData, setLoadData] = useState(true);
+    const id = Cookies.get('id');
     const token = Cookies.get('token');
 
-    const toggleShowPassword = () => {
-        setShowPassword((prevShowPassword) => !prevShowPassword);
-    };
-
-    const toggleShowConfirmPassword = () => {
-        setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
+    const formatPhoneNumber = (phone) => {
+        // Ensure that the phone number starts with +62
+        if (!phone.startsWith('+62')) {
+            return '+62' + phone.replace(/^0+/, '');
+        }
+        return phone;
     };
 
     const handleImageChange = (event) => {
@@ -116,7 +113,7 @@ const Page = ({ params: { id } }) => {
                 file,
                 nama_pengguna,
                 nama_lengkap,
-                nomor_hp,
+                nomor_hp: formatPhoneNumber(nomor_hp),
                 alamat,
                 peran,
             });
@@ -207,7 +204,7 @@ const Page = ({ params: { id } }) => {
                     {loadData && (
                         <Loading />
                     )}
-                    <div className="mt-12">
+                    <div className="mb-20 xl:mb-0 mt-12">
                         {user ? (
                             <>
                                 <Card className="w-full h-full mb-10">
@@ -283,10 +280,25 @@ const Page = ({ params: { id } }) => {
                                                         <span className="text-black">
                                                             Nomor HP
                                                         </span>
-                                                        <Input
-                                                            label={`Masukkan no hp (${user.nomor_hp})`}
-                                                            onChange={(e) => setNomorHp(e.target.value)}
-                                                        />
+                                                        <div className="flex items-center">
+                                                            <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                                                +62
+                                                            </span>
+                                                            <Input
+                                                                type="number"
+                                                                label={`Masukkan no hp (${user.nomor_hp})`}
+                                                                placeholder="8892384434"
+                                                                onChange={(e) => {
+                                                                    const inputValue = e.target.value;
+                                                                    if (inputValue.startsWith('0')) {
+                                                                        setNomorHp(inputValue.slice(1));
+                                                                    } else {
+                                                                        setNomorHp(inputValue);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                                                     </div>
                                                 </div>
                                                 <div>
@@ -383,20 +395,11 @@ const Page = ({ params: { id } }) => {
                                                         <span className="text-black">
                                                             Password Baru
                                                         </span>
-                                                        <div className="relative">
-                                                            <Input
-                                                                type={showPassword ? 'text' : 'password'}
-                                                                label={`Masukkan password baru`}
-                                                                onChange={(e) => setPassword(e.target.value)}
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={toggleShowPassword}
-                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
-                                                            >
-                                                                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                                                            </button>
-                                                        </div>
+                                                        <Input
+                                                            type='password'
+                                                            label={`Masukkan password baru`}
+                                                            onChange={(e) => setPassword(e.target.value)}
+                                                        />
                                                         {error && <span className="text-red-500 text-xs">{error}</span>}
                                                         <span className="text-[#6B7280] text-xs">
                                                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
@@ -408,20 +411,11 @@ const Page = ({ params: { id } }) => {
                                                         <span className="text-black">
                                                             Konfirmasi Password Baru
                                                         </span>
-                                                        <div className="relative">
-                                                            <Input
-                                                                type={showConfirmPassword ? 'text' : 'password'}
-                                                                label={`Konfirmasi password baru`}
-                                                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                onClick={toggleShowConfirmPassword}
-                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
-                                                            >
-                                                                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
-                                                            </button>
-                                                        </div>
+                                                        <Input
+                                                            type='password'
+                                                            label={`Konfirmasi password baru`}
+                                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                                        />
                                                     </div>
                                                 </div>
                                                 <div>

@@ -202,6 +202,7 @@ const Page = ({ params: { id } }) => {
                                 motors={motors}
                                 handleSelectChangeNamaMotor={handleSelectChangeNamaMotor}
                                 handleSelectChangeType={handleSelectChangeType}
+                                setNamaMotor={setNamaMotor}
                                 setMerkMotor={setMerkMotor}
                                 setStokMotor={setStokMotor}
                                 setHargaMotorPer1Hari={setHargaMotorPer1Hari}

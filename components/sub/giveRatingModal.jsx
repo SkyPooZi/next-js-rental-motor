@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
@@ -190,13 +190,6 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                     <Label>
                                         <span className='cursor-pointer text-xs text-[#FF4D33]'>
                                             Nanti Saja
-                                        </span>
-                                    </Label>
-                                </Button>
-                                <Button type='submit'>
-                                    <Label>
-                                        <span className='cursor-pointer text-xs'>
-                                            Tambah Ulasan
                                         </span>
                                     </Label>
                                 </Button>

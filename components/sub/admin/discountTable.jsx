@@ -1,15 +1,10 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
-import {
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -22,19 +17,21 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
+import DeleteConfirmationModal from "../deleteConfirmModal";
 
 const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
 
 export function DiscountTable() {
-    const [id, setId] = useState(null); // State to store the id
+    const [id, setId] = useState(null); 
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
     const [diskon, setDiskon] = useState([]);
     const [totalDiskon, setTotalDiskon] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [discountToDelete, setDiscountToDelete] = useState(null); // Discount to delete
     const itemsPerPage = 5;
     const token = Cookies.get('token');
 
@@ -89,14 +86,19 @@ export function DiscountTable() {
         setCurrentPage(page);
     };
 
-    const deleteDiscount = async (discountId) => {
-        if (!discountId) {
+    const confirmDeleteDiscount = (discountId) => {
+        setDiscountToDelete(discountId);
+        setIsModalOpen(true);
+    };
+
+    const deleteDiscount = async () => {
+        if (!discountToDelete) {
             setError('No ID available to delete.');
             return;
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/delete/${discountId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/diskon/delete/${discountToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -106,8 +108,8 @@ export function DiscountTable() {
 
             if (response.ok) {
                 fetchData();
-                setDiskon((prevDiskon) => prevDiskon.filter(m => m.id !== discountId));
-                console.log(`discount with id ${discountId} deleted successfully.`);
+                setDiskon((prevDiskon) => prevDiskon.filter(m => m.id !== discountToDelete));
+                console.log(`Discount with id ${discountToDelete} deleted successfully.`);
                 setError('');
                 setShowNotification(true);
                 setTimeout(() => {
@@ -121,6 +123,9 @@ export function DiscountTable() {
         } catch (error) {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
+        } finally {
+            setIsModalOpen(false); // Close the modal
+            setDiscountToDelete(null); // Clear the discount to delete
         }
     };
 
@@ -131,7 +136,7 @@ export function DiscountTable() {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="p-4">
+            <div className="mb-20 xl:mb-0 p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
@@ -250,7 +255,7 @@ export function DiscountTable() {
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
-                                                        onClick={() => deleteDiscount(diskonData.id)}
+                                                        onClick={() => confirmDeleteDiscount(diskonData.id)}
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
@@ -284,6 +289,14 @@ export function DiscountTable() {
                     </CardFooter>
                 </Card>
             </div>
+
+            {/* Use the DeleteConfirmationModal component */}
+            <DeleteConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={deleteDiscount}
+                entityName="diskon" // Pass the entity name here
+            />
         </>
     );
 }

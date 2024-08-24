@@ -1,15 +1,10 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
-import {
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -21,19 +16,21 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
+import DeleteConfirmationModal from "../deleteConfirmModal";
 
 const TABLE_HEAD = ["No", "Nama Pengguna", "Email", "Peran", ""];
 
 export function UserListTable() {
-    const [id, setId] = useState(null); // State to store the id
+    const [id, setId] = useState(null);
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
     const [user, setUser] = useState([]);
     const [totalUser, setTotalUser] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [userToDelete, setUserToDelete] = useState(null); // User to delete
     const itemsPerPage = 5;
     const token = Cookies.get('token');
 
@@ -87,14 +84,19 @@ export function UserListTable() {
         setCurrentPage(page);
     };
 
-    const deleteUser = async (userId) => {
-        if (!userId) {
+    const confirmDeleteUser = (userId) => {
+        setUserToDelete(userId);
+        setIsModalOpen(true);
+    };
+
+    const deleteUser = async () => {
+        if (!userToDelete) {
             setError('No ID available to delete.');
             return;
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/delete/${userId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/delete/${userToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -104,8 +106,8 @@ export function UserListTable() {
 
             if (response.ok) {
                 fetchData();
-                setUser((prevUser) => prevUser.filter(m => m.id !== userId));
-                console.log(`user with id ${userId} deleted successfully.`);
+                setUser((prevUser) => prevUser.filter(m => m.id !== userToDelete));
+                console.log(`User with id ${userToDelete} deleted successfully.`);
                 setError('');
                 setShowNotification(true);
                 setTimeout(() => {
@@ -119,6 +121,9 @@ export function UserListTable() {
         } catch (error) {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
+        } finally {
+            setIsModalOpen(false); // Close the modal
+            setUserToDelete(null); // Clear the user to delete
         }
     };
 
@@ -129,7 +134,7 @@ export function UserListTable() {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="p-4">
+            <div className="mb-20 xl:mb-0 p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
@@ -240,7 +245,7 @@ export function UserListTable() {
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
-                                                        onClick={() => deleteUser(userData.id)}
+                                                        onClick={() => confirmDeleteUser(userData.id)}
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
@@ -275,6 +280,14 @@ export function UserListTable() {
                     </CardFooter>
                 </Card>
             </div>
+
+            {/* Use the DeleteConfirmationModal component */}
+            <DeleteConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={deleteUser}
+                entityName="pengguna" // Pass the entity name here
+            />
         </>
     );
 }

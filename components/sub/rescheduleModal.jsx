@@ -44,6 +44,8 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [notificationType, setNotificationType] = useState('');
     const [showNotification, setShowNotification] = useState(false);
     const [daysAgoText, setDaysAgoText] = useState('');
+    const [originalStartTime, setOriginalStartTime] = useState('');
+    const [originalEndTime, setOriginalEndTime] = useState('');
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -118,6 +120,13 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         }
     };
 
+    const validateTimeMatch = () => {
+        if (!tanggal_mulai || !tanggal_selesai) return false;
+        const startTime = dayjs(tanggal_mulai).format('HH:mm:ss');
+        const endTime = dayjs(tanggal_selesai).format('HH:mm:ss');
+        return startTime === originalStartTime && endTime === originalEndTime;
+    };
+
     useEffect(() => {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
@@ -127,7 +136,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         } else {
             setDurasi(0);
         }
-    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
+    }, [tanggal_mulai, tanggal_selesai]);
 
     useEffect(() => {
         const getCancelledDetails = async () => {
@@ -145,6 +154,10 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     const endDate = dayjs(data.tanggal_selesai);
                     const initialDuration = endDate.diff(startDate, 'day');
                     setInitialDuration(initialDuration);
+
+                    // Extract and set original times
+                    setOriginalStartTime(startDate.format('HH:mm:ss'));
+                    setOriginalEndTime(endDate.format('HH:mm:ss'));
                 } else {
                     console.log('No data received or incorrect status');
                 }
@@ -307,10 +320,15 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </div>
                         <Button
                             onClick={onConfirm}
-                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration}
+                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration || !validateTimeMatch()}
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}
                         </Button>
+                        {!validateTimeMatch() && (
+                            <div className='text-red-500 text-sm mt-2'>
+                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>

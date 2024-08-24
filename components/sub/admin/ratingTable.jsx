@@ -1,14 +1,9 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
-import {
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -20,8 +15,8 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
-
 import Link from "next/link";
+import DeleteConfirmationModal from "../deleteConfirmModal";
 
 const TABLE_HEAD = ["No", "Pengguna", "Penilaian", "Comment", ""];
 
@@ -29,12 +24,13 @@ export function RatingTable() {
     const [id, setId] = useState(null);
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
     const [review, setReview] = useState([]);
     const [totalReview, setTotalReview] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [reviewToDelete, setReviewToDelete] = useState(null); // Review to delete
     const itemsPerPage = 5;
     const token = Cookies.get('token');
 
@@ -87,14 +83,19 @@ export function RatingTable() {
         setCurrentPage(page);
     };
 
-    const deleteReview = async (reviewId) => {
-        if (!reviewId) {
+    const confirmDeleteReview = (reviewId) => {
+        setReviewToDelete(reviewId);
+        setIsModalOpen(true);
+    };
+
+    const deleteReview = async () => {
+        if (!reviewToDelete) {
             setError('No ID available to delete.');
             return;
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/delete/${reviewId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/delete/${reviewToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -104,8 +105,8 @@ export function RatingTable() {
 
             if (response.ok) {
                 fetchData();
-                setReview((prevMotor) => prevMotor.filter(m => m.id !== reviewId));
-                console.log(`Motor with id ${reviewId} deleted successfully.`);
+                setReview((prevReview) => prevReview.filter(r => r.id !== reviewToDelete));
+                console.log(`Review with id ${reviewToDelete} deleted successfully.`);
                 setError('');
                 setShowNotification(true);
                 setTimeout(() => {
@@ -113,21 +114,16 @@ export function RatingTable() {
                 }, 3000);
             } else {
                 const errorMessage = await response.text();
-                console.error('Failed to delete the motor:', errorMessage);
-                setError(`Failed to delete the motor: ${errorMessage}`);
+                console.error('Failed to delete the review:', errorMessage);
+                setError(`Failed to delete the review: ${errorMessage}`);
             }
         } catch (error) {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
+        } finally {
+            setIsModalOpen(false); // Close the modal
+            setReviewToDelete(null); // Clear the review to delete
         }
-    };
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-    };
-
-    const handleShowPupup = () => {
-        setShowPopup(true);
     };
 
     return (
@@ -137,7 +133,7 @@ export function RatingTable() {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="p-4">
+            <div className="mb-20 xl:mb-0 p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
@@ -246,7 +242,7 @@ export function RatingTable() {
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
-                                                        onClick={() => deleteReview(reviewData.id)}
+                                                        onClick={() => confirmDeleteReview(reviewData.id)}
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
@@ -281,6 +277,14 @@ export function RatingTable() {
                     </CardFooter>
                 </Card>
             </div>
+
+            {/* Use the DeleteConfirmationModal component */}
+            <DeleteConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={deleteReview}
+                entityName="ulasan" // Pass the entity name here
+            />
         </>
     );
 }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
+import { motion } from 'framer-motion';
 
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -122,9 +123,15 @@ const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
                                 </span>
                             </Label>
                             <div className='flex flex-row gap-3'>
-                                {review?.gambar && (
-                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${review.gambar}`} height={1000} width={1000} className='max-w-[100px]' />
-                                )}
+                                {review?.gambar ? (
+                                    <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${review.gambar}`}
+                                        height={1000}
+                                        width={1000}
+                                        className='max-w-[100px]'
+                                        alt="Review Image" // Adding alt text for accessibility
+                                    />
+                                ) : null}
                             </div>
                         </div>
                     </div>

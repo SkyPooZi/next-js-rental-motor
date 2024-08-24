@@ -19,7 +19,7 @@ const EditUserForm = ({
 }) => {
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
-            <Card className="w-full h-full">
+            <Card className="mb-20 xl:mb-0 w-full h-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">Edit Pengguna</span>
@@ -114,6 +114,16 @@ const EditUserForm = ({
                             >
                                 {loading ? 'Loading...' : 'Ubah Data'}
                             </Button>
+                        </div>
+                        <div>
+                            <a href="/admin">
+                                <button
+                                    type='button'
+                                    className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                >
+                                    Kembali
+                                </button>
+                            </a>
                         </div>
                     </div>
                 </CardHeader>

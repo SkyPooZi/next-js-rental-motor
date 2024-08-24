@@ -1,13 +1,8 @@
 "use client";
 
-import React from "react";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
-import {
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -20,11 +15,9 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
-
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns"
 import { MdDone } from "react-icons/md";
-
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,7 +27,6 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils"
 import { Calendar } from "@/components/ui/calendar";
@@ -44,21 +36,23 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import Link from "next/link";
+import DeleteConfirmationModal from "../deleteConfirmModal";
 
 const TABLE_HEAD = ["No", "Pengguna", "Jenis Motor", "Tanggal Booking", "Status", ""];
 
 export function HistoryTable({ onSelectRange }) {
     const [date, setDate] = useState(null);
-    const [id, setId] = useState(null); // State to store the id
+    const [id, setId] = useState(null);
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
     const [history, setHistory] = useState([]);
     const [totalHistory, setTotalHistory] = useState(0);
     const [activeComponent, setActiveComponent] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [historyToDelete, setHistoryToDelete] = useState(null); // History to delete
     const itemsPerPage = 5;
     const token = Cookies.get("token");
 
@@ -142,14 +136,19 @@ export function HistoryTable({ onSelectRange }) {
         setCurrentPage(page);
     };
 
-    const deleteHistory = async (historyId) => {
-        if (!historyId) {
+    const confirmDeleteHistory = (historyId) => {
+        setHistoryToDelete(historyId);
+        setIsModalOpen(true);
+    };
+
+    const deleteHistory = async () => {
+        if (!historyToDelete) {
             setError('No ID available to delete.');
             return;
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -159,10 +158,10 @@ export function HistoryTable({ onSelectRange }) {
 
             if (response.ok) {
                 fetchData();
-                setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyId));
-                console.log(`history with id ${historyId} deleted successfully.`);
+                setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyToDelete));
+                console.log(`History with id ${historyToDelete} deleted successfully.`);
                 setError('');
-                setShowNotification(true); // Show notification
+                setShowNotification(true);
                 setTimeout(() => {
                     setShowNotification(false);
                 }, 3000);
@@ -174,14 +173,15 @@ export function HistoryTable({ onSelectRange }) {
         } catch (error) {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
+        } finally {
+            setIsModalOpen(false); // Close the modal
+            setHistoryToDelete(null); // Clear the history to delete
         }
     };
 
     const handleButtonClick = (component) => {
         setActiveComponent(component);
     };
-
-    const [position, setPosition] = React.useState("bottom");
 
     return (
         <>
@@ -190,7 +190,7 @@ export function HistoryTable({ onSelectRange }) {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="p-4">
+            <div className="mb-20 xl:mb-0 p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
@@ -264,7 +264,7 @@ export function HistoryTable({ onSelectRange }) {
                                 <DropdownMenuContent className="w-56">
                                     <DropdownMenuLabel>Pilih Kategori</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuRadioGroup value={position} onValueChange={handleButtonClick}>
+                                    <DropdownMenuRadioGroup value={activeComponent} onValueChange={handleButtonClick}>
                                         <DropdownMenuRadioItem value="all">
                                             <Typography className={`text-sm ${activeComponent === 'all' ? 'text-black' : 'text-[#6B7280]'}`}>
                                                 Semua
@@ -437,7 +437,7 @@ export function HistoryTable({ onSelectRange }) {
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
-                                                        onClick={() => deleteHistory(historyData.id)}
+                                                        onClick={() => confirmDeleteHistory(historyData.id)}
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
@@ -471,7 +471,15 @@ export function HistoryTable({ onSelectRange }) {
                         </div>
                     </CardFooter>
                 </Card>
-            </div >
+            </div>
+
+            {/* Use the DeleteConfirmationModal component */}
+            <DeleteConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={deleteHistory}
+                entityName="riwayat" // Pass the entity name here
+            />
         </>
     );
 }
