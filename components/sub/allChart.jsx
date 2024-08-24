@@ -347,7 +347,7 @@ const AllChart = () => {
     }
 
     return (
-        <Card>
+        <Card className="mb-20 xl:mb-0">
             <CardHeader
                 floated={false}
                 shadow={false}

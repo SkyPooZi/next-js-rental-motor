@@ -203,7 +203,7 @@ const Page = ({ params: { id } }) => {
                     {loadData && (
                         <Loading />
                     )}
-                    <div className="mt-12">
+                    <div className="mb-20 xl:mb-0 mt-12">
                         {user ? (
                             <>
                                 <Card className="w-full h-full mb-10">
