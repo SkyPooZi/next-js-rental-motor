@@ -28,7 +28,7 @@ import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handleEmailChange } from '@/utils/services/handleEmailChange';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
 
-const Page = ({ params: { id } }) => {
+const Page = () => {
     const [nama_pengguna, setNamaPengguna] = useState('');
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
@@ -55,6 +55,7 @@ const Page = ({ params: { id } }) => {
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
     const [loadData, setLoadData] = useState(true);
+    const id = Cookies.get('id');
     const token = Cookies.get('token');
 
     const formatPhoneNumber = (phone) => {
