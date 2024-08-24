@@ -1,15 +1,10 @@
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
-
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
-import {
-    MagnifyingGlassIcon,
-} from "@heroicons/react/24/outline";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -23,7 +18,7 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
-
+import DeleteConfirmationModal from "../deleteConfirmModal";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", ""];
 
@@ -37,6 +32,8 @@ export function MotorListTable() {
     const [showNotification, setShowNotification] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [motorToDelete, setMotorToDelete] = useState(null); // Motor to delete
     const itemsPerPage = 5;
     const token = Cookies.get("token");
 
@@ -88,14 +85,19 @@ export function MotorListTable() {
         setCurrentPage(page);
     };
 
-    const deleteMotor = async (motorId) => {
-        if (!motorId) {
+    const confirmDeleteMotor = (motorId) => {
+        setMotorToDelete(motorId);
+        setIsModalOpen(true);
+    };
+
+    const deleteMotor = async () => {
+        if (!motorToDelete) {
             setError('No ID available to delete.');
             return;
         }
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/delete/${motorId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/delete/${motorToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -105,8 +107,8 @@ export function MotorListTable() {
 
             if (response.ok) {
                 fetchData();
-                setMotor((prevMotor) => prevMotor.filter(m => m.id !== motorId));
-                console.log(`Motor with id ${motorId} deleted successfully.`);
+                setMotor((prevMotor) => prevMotor.filter(m => m.id !== motorToDelete));
+                console.log(`Motor with id ${motorToDelete} deleted successfully.`);
                 setError('');
                 setShowNotification(true); // Show notification
                 setTimeout(() => {
@@ -120,6 +122,9 @@ export function MotorListTable() {
         } catch (error) {
             console.error('Delete error:', error);
             setError(`Delete error: ${error.message}`);
+        } finally {
+            setIsModalOpen(false); // Close the modal
+            setMotorToDelete(null); // Clear the motor to delete
         }
     };
 
@@ -264,7 +269,7 @@ export function MotorListTable() {
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
-                                                        onClick={() => deleteMotor(motorData.id)}
+                                                        onClick={() => confirmDeleteMotor(motorData.id)}
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
@@ -299,6 +304,14 @@ export function MotorListTable() {
                     </CardFooter>
                 </Card>
             </div>
+
+            {/* Use the DeleteConfirmationModal component */}
+            <DeleteConfirmationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={deleteMotor}
+                entityName="motor" // Pass the entity name here
+            />
         </>
     );
 }

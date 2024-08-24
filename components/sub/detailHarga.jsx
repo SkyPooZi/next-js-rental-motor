@@ -84,10 +84,12 @@ const DetailHarga = ({ hargaRental, durasi, nama_motor, usePoint, handleCheckbox
                                         <Select
                                             label={`Pilih diskon`}
                                             onChange={handleSelectChangeDiskon}
-                                            value={diskons[0].id}
+                                            value={diskons[0]?.id}
                                         >
                                             {diskons.map((diskon) => {
+                                                // Check if the discount is correctly applied
                                                 const potonganRupiah = (hargaRental * durasi * diskon.potongan_harga) / 100;
+                                                console.log(`Discount ${diskon.nama_diskon}: Potongan harga=${diskon.potongan_harga}, Potongan rupiah=${potonganRupiah}`);
                                                 return (
                                                     <Option key={diskon.id} value={diskon.id}>
                                                         {diskon.nama_diskon} - Potongan: Rp. {potonganRupiah.toLocaleString()}
