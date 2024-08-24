@@ -6,6 +6,8 @@ import { Button as TailwindButton } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
 import fetchRegister from '@/utils/services/fetchregister'; // Import the fetchRegister function
 import { ButtonLoading } from '@/components/ui/buttonLoading';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -15,6 +17,7 @@ const RegisterPage = () => {
     password: '',
     kode_referensi: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -55,6 +58,10 @@ const RegisterPage = () => {
     router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/facebook`);
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center p-4 bg-gray-300">
       <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-12 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col md:flex-row">
@@ -80,14 +87,23 @@ const RegisterPage = () => {
               placeholder="Email"
               className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Kata Sandi"
-              className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
-            />
+            <div className="relative w-full">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Kata Sandi"
+                className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow pr-10"
+              />
+              <button
+                type="button"
+                onClick={toggleShowPassword}
+                className="absolute right-2 top-1/2 mt-1 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
             <input
               type="text"
               name="kode_referensi"
@@ -114,11 +130,11 @@ const RegisterPage = () => {
             )}
           </form>
           <div className="flex justify-center mt-2 md:mt-4 text-sm md:text-base text-black">
-            <span>Already have an account?</span>
-            <a href="/login" className="hover:underline hover:text-[#ff4d33] ml-1 md:ml-2">Login here</a>
+            <span>Sudah punya akun?</span>
+            <a href="/login" className="hover:underline hover:text-[#ff4d33] ml-1 md:ml-2">Login disini</a>
           </div>
           <div className="flex justify-center items-center mt-2 md:mt-4 text-sm md:text-base">
-            <span>Or</span>
+            <span>Atau</span>
           </div>
           <div className="flex items-center justify-center gap-2 md:gap-4 mt-1 md:mt-2">
             <button onClick={handleGoogleLogin} className="flex md:px-6 md:py-3 items-center justify-center rounded-lg p-2 shadow hover:bg-gray-300">

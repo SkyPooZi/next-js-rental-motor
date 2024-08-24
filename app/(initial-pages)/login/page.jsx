@@ -6,6 +6,8 @@ import Cookies from 'js-cookie';
 import fetchLogin from '@/utils/services/fetchlogin'; // Import the fetchLogin function
 import Input from '@/components/ui/input';
 import { ButtonLoading } from '@/components/ui/buttonLoading';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -14,6 +16,7 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -27,13 +30,17 @@ const LoginPage = () => {
     setRememberMe(e.target.checked);
   };
 
+  const toggleShowPassword = () => {
+    setShowPassword((prevShowPassword) => !prevShowPassword);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     if (!email || !password) {
-      alert('Email or password cannot be empty');
+      setError('Anda harus mengisi email dan passwordnya!');
       setLoading(false);
       return;
     }
@@ -72,7 +79,7 @@ const LoginPage = () => {
 
     } catch (error) {
       console.error('Login failed:', error);
-      setError('An error occurred during login. Please try again.');
+      setError('Email atau Password yang anda isikan salah. Silahkan Coba Lagi');
     } finally {
       setLoading(false);
     }
@@ -109,13 +116,22 @@ const LoginPage = () => {
               onChange={handleEmailChange}
               className="input-animated bg-white text-black mt-2 md:mt-3 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
             />
-            <input
-              type="password"
-              placeholder="Kata Sandi"
-              value={password}
-              onChange={handlePasswordChange}
-              className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Kata Sandi"
+                value={password}
+                onChange={handlePasswordChange}
+                className="input-animated bg-white text-black mt-1 md:mt-2 p-2 border border-black focus:outline-none rounded-lg w-full h-10 md:h-12 shadow pr-10"
+              />
+              <button
+                type="button"
+                onClick={toggleShowPassword}
+                className="absolute right-2 top-1/2 mt-1 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
             <div className="flex items-center mt-2 md:mt-4 text-black bg-white">
               <input
                 type="checkbox"

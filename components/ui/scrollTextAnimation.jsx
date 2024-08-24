@@ -46,7 +46,7 @@ export default function ScrollTextAnimation() {
                         </div>
                         <div className={`item ${visibleItems.includes('item2') ? 'visible' : ''}`} id="item2">
                             <img src="/images/deliv.png" alt="Free Delivery" />
-                            <p>Gratis Pengiriman & Pengambilan Area Kudus</p>
+                            <p>Gratis Pengambilan Area Kudus</p>
                         </div>
                         <div className={`item ${visibleItems.includes('item3') ? 'visible' : ''}`} id="item3">
                             <img src="/images/wallet.png" alt="Best Price" />
