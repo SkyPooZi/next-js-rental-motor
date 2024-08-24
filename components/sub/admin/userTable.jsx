@@ -129,7 +129,7 @@ export function UserListTable() {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="p-4">
+            <div className="mb-20 xl:mb-0 p-4">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">

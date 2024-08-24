@@ -83,7 +83,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
     };
     return (
         <form method="post" action="post" onSubmit={handleSubmit}>
-            <Card className="w-full h-full">
+            <Card className="mb-20 xl:mb-0 w-full h-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">
