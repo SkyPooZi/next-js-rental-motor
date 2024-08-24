@@ -20,6 +20,7 @@ import DetailHarga from '@/components/sub/detailHarga';
 import EmergencyContact from '@/components/sub/emergencyContact';
 import KebijakanDetails from '@/components/sub/kebijakanReschedule';
 import KebijakanDetails1 from '@/components/sub/kebijakanReschedule1';
+import PrivacyModal from '@/components/sub/privacyPolicyModal';
 import { fetchDetailMotor } from '@/utils/formService/motorService';
 import { fetchMotor } from '@/utils/formService/motorService';
 import { fetchDiskons } from '@/utils/formService/diskonService';
@@ -28,8 +29,10 @@ import { handleBookingSubmit } from '@/utils/formService/bookingService';
 import { fetchBookedDates } from '@/utils/formService/bookedDates';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 
 dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
 
 export default function page({ params: { motorId } }) {
     const [selectedMotor, setSelectedMotor] = useState(null);
@@ -180,8 +183,28 @@ export default function page({ params: { motorId } }) {
             if (error) {
                 setError(error);
             } else {
-                setDiskons(data);
-                console.log('Fetched discount:', data);
+                // Get today's date in 'YYYY-MM-DD' format
+                const today = dayjs().format('YYYY-MM-DD');
+
+                // Filter discounts based on the provided conditions
+                const filteredDiskons = data.filter(diskon => {
+                    const startDate = dayjs(diskon.tanggal_mulai).format('YYYY-MM-DD');
+                    const endDate = dayjs(diskon.tanggal_selesai).format('YYYY-MM-DD');
+
+                    // Condition 1: Show discount if today is on or after 'tanggal_mulai'
+                    const isWithinStartDate = dayjs(today).isSameOrAfter(startDate);
+
+                    // Condition 2: Do not show discount if it expired today (unless it continues beyond today)
+                    const isNotExpired = dayjs(today).isBefore(endDate);
+
+                    console.log(`Checking discount ${diskon.id}: start=${startDate}, end=${endDate}, today=${today}`);
+                    console.log(`Within start date: ${isWithinStartDate}, Not expired: ${isNotExpired}`);
+
+                    return isWithinStartDate && isNotExpired;
+                });
+
+                console.log('Filtered discounts:', filteredDiskons);
+                setDiskons(filteredDiskons);
             }
         };
         fetchData();
@@ -221,6 +244,8 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        const adjustedTanggalSelesai = dayjs(tanggal_selesai).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
+
         const bookingData = {
             pengguna_id: id,
             nama_lengkap,
@@ -231,7 +256,7 @@ export default function page({ params: { motorId } }) {
             penyewa,
             motor_id,
             tanggal_mulai,
-            tanggal_selesai,
+            tanggal_selesai: adjustedTanggalSelesai,
             durasi,
             keperluan_menyewa,
             penerimaan_motor,
@@ -268,6 +293,7 @@ export default function page({ params: { motorId } }) {
         } else {
             setDurasi(0);
         }
+        const adjustedTanggalSelesai = dayjs(tanggal_selesai).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
@@ -287,7 +313,7 @@ export default function page({ params: { motorId } }) {
                     motor_id,
                     tanggal_mulai,
                     durasi,
-                    tanggal_selesai,
+                    tanggal_selesai: adjustedTanggalSelesai,
                     keperluan_menyewa,
                     penerimaan_motor,
                     nama_kontak_darurat,
@@ -505,6 +531,7 @@ export default function page({ params: { motorId } }) {
     };
 
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+    const [isPrivacyModalOpen, setPrivacyModalOpen] = useState(false);
 
     const openTermsModal = () => {
         setIsTermsModalOpen(true);
@@ -513,6 +540,10 @@ export default function page({ params: { motorId } }) {
     const closeTermsModal = () => {
         setIsTermsModalOpen(false);
     };
+
+
+    const openPrivacyModal = () => setPrivacyModalOpen(true);
+    const closePrivacyModal = () => setPrivacyModalOpen(false);
 
     if (!motors) {
         return (
@@ -638,9 +669,12 @@ export default function page({ params: { motorId } }) {
                                         </span>
                                     </Label>
                                     <Label>
-                                        <a className="cursor-pointer text-[#149CF3]" onClick={openTermsModal}>Syarat & Ketentuan <span className='text-black'>dan</span> Kebijakan Privasi</a>
+                                        <a className="cursor-pointer text-[#149CF3]" onClick={openTermsModal}>Syarat & Ketentuan</a> <span className='text-black'>dan</span>
+                                        <a className="cursor-pointer text-[#149CF3]" onClick={openPrivacyModal}> Kebijakan Privasi</a>
                                     </Label>
+
                                     <TermsModal isOpen={isTermsModalOpen} onClose={closeTermsModal} />
+                                    <PrivacyModal isOpen={isPrivacyModalOpen} onClose={closePrivacyModal} />
                                 </div>
                             </div>
                         </div>
