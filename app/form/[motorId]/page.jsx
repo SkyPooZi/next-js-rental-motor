@@ -244,8 +244,6 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const adjustedTanggalSelesai = dayjs(tanggal_selesai).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
-
         const bookingData = {
             pengguna_id: id,
             nama_lengkap,
@@ -256,7 +254,7 @@ export default function page({ params: { motorId } }) {
             penyewa,
             motor_id,
             tanggal_mulai,
-            tanggal_selesai: adjustedTanggalSelesai,
+            tanggal_selesai,
             durasi,
             keperluan_menyewa,
             penerimaan_motor,
@@ -293,8 +291,6 @@ export default function page({ params: { motorId } }) {
         } else {
             setDurasi(0);
         }
-        const adjustedTanggalSelesai = dayjs(tanggal_selesai).add(2, 'hour').format('YYYY-MM-DD HH:mm:ss');
-
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
@@ -313,7 +309,7 @@ export default function page({ params: { motorId } }) {
                     motor_id,
                     tanggal_mulai,
                     durasi,
-                    tanggal_selesai: adjustedTanggalSelesai,
+                    tanggal_selesai,
                     keperluan_menyewa,
                     penerimaan_motor,
                     nama_kontak_darurat,
@@ -433,15 +429,28 @@ export default function page({ params: { motorId } }) {
         return disabledDays.includes(dateStr);
     };
 
-    const shouldDisableTime = (time, selectedDate) => {
+    const shouldDisableTime = (time, selectedDate, disableStartHour = 0, disableEndHour = 2) => {
         if (!selectedDate) return false;
 
         const now = dayjs();
         const dateStr = selectedDate.format('YYYY-MM-DD');
+
+        // Add 2 hours to the current time
+        const twoHoursLater = now.add(2, 'hour');
+
+        // Set the selected time based on the input `time` object
         const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
-        // Check if the selected date is today and the time is in the past
-        if (selectedDate.isSame(now, 'day') && time.isBefore(now, 'minute')) {
+        // Check if the selected date is today and the time is within 2 hours of the current time
+        if (selectedDate.isSame(now, 'day') && time.isBefore(twoHoursLater, 'minute')) {
+            return true;
+        }
+
+        // General check for disabling time range on the selected date
+        const start = selectedDate.set('hour', disableStartHour).set('minute', 0).set('second', 0);
+        const end = selectedDate.set('hour', disableEndHour).set('minute', 0).set('second', 0);
+
+        if (time.isAfter(start) && time.isBefore(end)) {
             return true;
         }
 
