@@ -44,7 +44,7 @@ const RegisterPage = () => {
       router.push('/');
     } catch (error) {
       console.error('Registration failed:', error);
-      setError(error.message || 'An unexpected error occurred');
+      setError(error.message || 'Terjadi kesalahan. Coba beberapa saat lagi!');
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ const RegisterPage = () => {
                 onClick={toggleShowPassword}
                 className="absolute right-2 top-1/2 mt-1 transform -translate-y-1/2 text-gray-600 focus:outline-none"
               >
-                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
               </button>
             </div>
             <input

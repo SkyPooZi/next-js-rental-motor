@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@material-tailwind/react';
 import Cookies from 'js-cookie';
-import { fetchUserIdByEmail, updatePassword } from '@/utils/services/fetchforgotpass';
+import { fetchUserIdByEmail, updatePassword } from '@/utils/services/fetchForgotPass';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -15,6 +15,7 @@ const ForgotPass = () => {
   const [email, setEmail] = useState('');
   const [userId, setUserId] = useState(null);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const token = Cookies.get('token');
@@ -34,7 +35,7 @@ const ForgotPass = () => {
       const id = await fetchUserIdByEmail(email); // Use the fetch function
       setUserId(id);
     } catch (error) {
-      setMessage(error.message);
+      setError(error.message);
     }
   };
 
@@ -51,11 +52,11 @@ const ForgotPass = () => {
 
   const handleSubmit = async () => {
     if (!newPassword || !confirmPassword) {
-      alert('Please fill in both fields.');
+      setError('Harap isi semua kolom.');
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert('Passwords do not match.');
+      setError('Kata sandi tidak cocok.');
       return;
     }
     if (userId) {
@@ -63,10 +64,11 @@ const ForgotPass = () => {
         await updatePassword(userId, newPassword); // Use the updatePassword function
         router.push('/login');
       } catch (error) {
-        alert(error.message);
+        setError(error.message);
       }
     } else {
-      alert('User ID not found.');
+      setError('Pengguna tidak ditemukan.');
+      console.log('User ID not found.');
     }
   };
 
@@ -82,6 +84,7 @@ const ForgotPass = () => {
         </div>
         <div className="flex flex-col w-full md:w-1/2 items-center justify-center">
           <h1 className="text-lg md:text-xl lg:text-2xl font-bold mb-4 md:mb-6 text-black text-center">Reset Your Password</h1>
+          {error && <div className="text-red-500 mb-2 md:mb-4">{error}</div>}
           <p className="text-md text-black mb-4 text-center">{message}</p>
 
           <div className="relative w-full max-w-xs justify-start items-center">
@@ -97,7 +100,7 @@ const ForgotPass = () => {
               onClick={toggleShowNewPassword}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none eye-animated"
             >
-              <FontAwesomeIcon icon={showNewPassword ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
             </button>
           </div>
 
@@ -114,7 +117,7 @@ const ForgotPass = () => {
               onClick={toggleShowConfirmPassword}
               className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
             >
-              <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+              <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
             </button>
           </div>
 

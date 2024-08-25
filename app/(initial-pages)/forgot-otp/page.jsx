@@ -16,9 +16,12 @@ const ForgotOTP = () => {
 
   useEffect(() => {
     const storedEmail = localStorage.getItem('email');
+    const storedOTP = localStorage.getItem('otp');
+    const storedMessage = localStorage.getItem('message');
     if (storedEmail) {
       setEmail(storedEmail);
-      handleSendOtp(storedEmail);
+      setSentOtp(storedOTP);
+      setMessage(storedMessage);
     } else {
       router.push('/forgot-email');
     }
@@ -29,10 +32,11 @@ const ForgotOTP = () => {
       const otp = await sendOtpEmail(email);
       setSentOtp(otp);
       setMessage('OTP sudah terkirim ke email anda.');
+      setError('');
       console.log(otp);
     } catch (error) {
       console.error('Error:', error);
-      setMessage(error.message || 'An error occurred. Please try again.');
+      setError(error.message || 'Terjadi kesalahan. Silakan coba lagi.');
     }
   };
 
@@ -43,7 +47,8 @@ const ForgotOTP = () => {
     if (enteredOtp === `${sentOtp}`) {
       router.push('/forgot-pass');
     } else {
-      setMessage('Invalid OTP. Please try again.');
+      setError('OTP tidak valid. Silakan coba lagi.');
+      setMessage('');
     }
   };
 
@@ -86,7 +91,7 @@ const ForgotOTP = () => {
     if (otp.every((num) => num !== '')) {
       verifyOtp();
     } else {
-      alert('Please fill in all fields.');
+      setError('Harap isi semua kolom.');
     }
   };
 
@@ -106,6 +111,7 @@ const ForgotOTP = () => {
         {/* Form Section */}
         <div className="flex flex-col items-center justify-center w-full md:w-1/2">
           <h1 className="text-lg md:text-xl lg:text-2xl font-bold mb-4 md:mb-6 text-black">Konfirmasi Email Dengan OTP</h1>
+          {error && <div className="text-red-500 mb-2 md:mb-4">{error}</div>}
           <p className="text-md text-black mb-4">{message}</p>
           <div className="flex flex-col gap-4 items-center lg:items-start">
             <div className="flex justify-between w-full max-w-xs space-x-2 mt-4">
@@ -128,7 +134,6 @@ const ForgotOTP = () => {
                 />
               ))}
             </div>
-            {error && <p className="text-red-500 mt-2">{error}</p>}
             <div className="flex mt-4 w-full">
               <Button type="button" onClick={handleSubmit} className="w-full before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-96 before:origin-center before:-translate-x-40 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-96 hover:before:-translate-y-48">
                 <span className="relative text-base z-10">Berikutnya</span>

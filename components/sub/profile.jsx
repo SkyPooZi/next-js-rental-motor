@@ -312,7 +312,7 @@ export default function Profile() {
                                 onClick={toggleShowPassword}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
                             >
-                                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                             </button>
                         </div>
                         {error && <span className="text-red-500 text-xs">{error}</span>}
@@ -340,7 +340,7 @@ export default function Profile() {
                                 onClick={toggleShowConfirmPassword}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
                             >
-                                <FontAwesomeIcon icon={showConfirmPassword ? faEyeSlash : faEye} />
+                                <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
                             </button>
                         </div>
                     </div>

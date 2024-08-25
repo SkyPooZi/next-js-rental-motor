@@ -253,7 +253,7 @@ export default function Footer() {
                             </a>
                         </p>
 
-                        <p className="mt-4 text-sm text-gray-500 sm:order-first sm:mt-0">&copy; 2022 Rental Motor Kudus</p>
+                        <p className="mt-4 text-sm text-gray-500 sm:order-first sm:mt-0">&copy; 2024 Rental Motor Kudus</p>
                     </div>
                 </div>
             </div>
