@@ -27,6 +27,8 @@ import { fetchUserData } from '@/utils/services/userService';
 import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handleEmailChange } from '@/utils/services/handleEmailChange';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 const Page = () => {
     const [nama_pengguna, setNamaPengguna] = useState('');
@@ -55,6 +57,8 @@ const Page = () => {
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
     const [loadData, setLoadData] = useState(true);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const id = Cookies.get('id');
     const token = Cookies.get('token');
 
@@ -158,6 +162,14 @@ const Page = () => {
 
     const handleBtnClick = (component) => {
         setActiveComponent(component);
+    };
+
+    const toggleShowNewPassword = () => {
+    setShowNewPassword((prevShowPassword) => !prevShowPassword);
+    };
+    
+    const toggleShowConfirmPassword = () => {
+        setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };
 
     return (
@@ -395,11 +407,20 @@ const Page = () => {
                                                         <span className="text-black">
                                                             Password Baru
                                                         </span>
-                                                        <Input
-                                                            type='password'
-                                                            label={`Masukkan password baru`}
-                                                            onChange={(e) => setPassword(e.target.value)}
-                                                        />
+                                                        <div className="relative w-full">
+                                                            <Input
+                                                                type={showNewPassword ? 'text' : 'password'}
+                                                                label={`Masukkan password baru`}
+                                                                onChange={(e) => setPassword(e.target.value)}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={toggleShowNewPassword}
+                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+                                                            >
+                                                                <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
+                                                            </button>
+                                                        </div>
                                                         {error && <span className="text-red-500 text-xs">{error}</span>}
                                                         <span className="text-[#6B7280] text-xs">
                                                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
@@ -411,11 +432,20 @@ const Page = () => {
                                                         <span className="text-black">
                                                             Konfirmasi Password Baru
                                                         </span>
-                                                        <Input
-                                                            type='password'
-                                                            label={`Konfirmasi password baru`}
-                                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                                        />
+                                                        <div className="relative w-full">
+                                                            <Input
+                                                                type={showConfirmPassword ? 'text' : 'password'}
+                                                                label={`Konfirmasi password baru`}
+                                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={toggleShowConfirmPassword}
+                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 focus:outline-none"
+                                                            >
+                                                                <FontAwesomeIcon icon={showConfirmPassword ? faEye : faEyeSlash} />
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div>

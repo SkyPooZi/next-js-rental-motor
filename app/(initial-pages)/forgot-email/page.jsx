@@ -3,29 +3,46 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button as TailwindButton } from '@material-tailwind/react';
 import Input from '@/components/ui/input';
+import { sendOtpEmail } from '@/utils/services/fetchForgotOtp';
 
 const ForgotEmail = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (!email || !emailRegex.test(email)) {
-      setError('Please enter a valid email address.');
+      setError('Silakan masukkan alamat email yang valid.');
       return;
     }
 
-    localStorage.setItem('email', email); // Store email in localStorage
+    await handleSendOtp(email);
     router.push('/forgot-otp');
+  };
+
+  const handleSendOtp = async (email) => {
+    try {
+      const otp = await sendOtpEmail(email);
+      console.log(otp);
+      setMessage('OTP sudah terkirim ke email anda.');
+      localStorage.setItem('email', email); // Store email in localStorage
+      localStorage.setItem('otp', otp); // Store email in localStorage
+      localStorage.setItem('message', message); // Store email in localStorage
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error.message || 'Terjadi kesalahan. Silakan coba lagi.');
+      localStorage.setItem('message', message); // Store email in localStorage
+    }
   };
 
   return (

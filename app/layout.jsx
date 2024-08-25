@@ -1,6 +1,4 @@
 // layout.tsx
-'use client';
-
 import { Poppins } from 'next/font/google';
 import { ThemeProvider } from "@/components/ui/themes";
 import './globals.css';
@@ -10,6 +8,11 @@ const poppins = Poppins({
   weight: ['400'],
   subsets: ['latin'],
 });
+
+export const metadata = {
+  title: 'Rental Motor Kudus',
+  description: 'Rental Motor Terpercaya di Kudus. Kami menyediakan berbagai jenis motor dengan harga terjangkau.',
+}
 
 export default function RootLayout({ children }) {
   return (

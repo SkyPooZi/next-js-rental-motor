@@ -141,7 +141,7 @@ const MotorList = () => {
                   className={`py-2 px-3 sm:px-4 lg:px-6 border-b-2 border-transparent border-slide hover:text-[#ff4d30] ${selectedFilter === filter ? 'border-slide-active text-[#ff4d30]' : ''}`}
                   onClick={() => setSelectedFilter(filter)}
                 >
-                  <span className="text-sm sm:text-base lg:text-lg text-black">{filter}</span>
+                  <span className="text-sm sm:text-base lg:text-lg">{filter}</span>
                 </button>
               ))}
             </div>

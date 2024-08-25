@@ -40,7 +40,7 @@ const LoginPage = () => {
     setLoading(true);
 
     if (!email || !password) {
-      setError('Anda harus mengisi email dan passwordnya!');
+      setError('Anda harus mengisi email dan password!');
       setLoading(false);
       return;
     }
@@ -74,12 +74,12 @@ const LoginPage = () => {
         }
         router.push(returnUrl);
       } else {
-        setError('Invalid email or password');
+        setError('Email atau password tidak valid');
       }
 
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Email atau Password yang anda isikan salah. Silahkan Coba Lagi');
+      setError(error.message || 'Email atau Password yang anda isi salah. Silahkan Coba Lagi');
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ const LoginPage = () => {
                 onClick={toggleShowPassword}
                 className="absolute right-2 top-1/2 mt-1 transform -translate-y-1/2 text-gray-600 focus:outline-none"
               >
-                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
               </button>
             </div>
             <div className="flex items-center mt-2 md:mt-4 text-black bg-white">
