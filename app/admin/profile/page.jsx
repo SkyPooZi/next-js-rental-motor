@@ -13,16 +13,18 @@ import {
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
-import Sidebar from '@/components/main/sidebar';
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import OTPPopup from '@/components/sub/admin/sendOTP';
-import Loading from '@/components/ui/loading';
+import dynamic from 'next/dynamic';
+
+const Dashboard = dynamic(() => import("@/components/sub/admin/dashboard"), { ssr: false });
+const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
+const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
+const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
+const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
+const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
+const OTPPopup = dynamic(() => import('@/components/sub/admin/sendOTP'), { ssr: false });
+const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });
 import { updateUser } from '@/utils/services/updateUser';
 import { fetchUserData } from '@/utils/services/userService';
 import { handleVerifyOTP } from '@/utils/services/otpService';
@@ -173,6 +175,11 @@ const Page = () => {
     const toggleShowConfirmPassword = () => {
         setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };
+
+    if(typeof window !== 'undefined')
+    {
+        console.log("Window Test");
+    }
 
     return (
         <>

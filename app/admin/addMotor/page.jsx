@@ -2,17 +2,19 @@
 
 import React, { useState } from "react";
 import Cookies from "js-cookie";
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
-import MotorForm from "@/components/sub/motorForm";
-import Notification from "@/components/sub/notification";
-import FormHeader from "@/components/sub/formHeader";
+import dynamic from "next/dynamic";
+
+const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const Dashboard = dynamic(() => import("@/components/sub/admin/dashboard"), { ssr: false });
+const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
+const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
+const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
+const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
+const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
+const MotorForm = dynamic(() => import("@/components/sub/motorForm"), { ssr: false });
+const Notification = dynamic(() => import("@/components/sub/notification"), { ssr: false });
+const FormHeader = dynamic(() => import("@/components/sub/formHeader"), { ssr: false });
 
 export default function AddMotor() {
     const [response, setResponse] = useState(null);
@@ -24,6 +26,11 @@ export default function AddMotor() {
     const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
+
+    if(typeof window !== 'undefined')
+    {
+        console.log("Window Test");
+    }
 
     return (
         <>
