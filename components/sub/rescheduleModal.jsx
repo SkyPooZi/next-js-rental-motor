@@ -47,6 +47,8 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [originalStartTime, setOriginalStartTime] = useState('');
     const [originalEndTime, setOriginalEndTime] = useState('');
     const token = Cookies.get('token');
+    const userId = Cookies.get('id');
+    console.log(historyId)
 
     useEffect(() => {
         if (rescheduleModalDetails?.created_at) {
@@ -78,12 +80,12 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
 
     useEffect(() => {
         const getDisabledDates = async () => {
-            const dates = await fetchBookedDates(motor_id, token, stok_motor);
+            const dates = await fetchBookedDates(motor_id, stok_motor, token, historyId);
             setDisabledRanges(dates);
         };
 
         getDisabledDates();
-    }, [motor_id, token, stok_motor]);
+    }, [motor_id, token, stok_motor, historyId, rescheduleModalDetails]);
 
     const shouldDisableDate = (date) => {
         const today = dayjs().startOf('day');
@@ -121,10 +123,22 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     };
 
     const validateTimeMatch = () => {
-        if (!tanggal_mulai || !tanggal_selesai) return false;
-        const startTime = dayjs(tanggal_mulai).format('HH:mm:ss');
-        const endTime = dayjs(tanggal_selesai).format('HH:mm:ss');
-        return startTime === originalStartTime && endTime === originalEndTime;
+        if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
+
+        // Original booking start and end times
+        const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
+        const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
+
+        // New booking start and end times
+        const newStartTime = dayjs(tanggal_mulai);
+        const newEndTime = dayjs(tanggal_selesai);
+
+        // Calculate durations in seconds
+        const originalDuration = originalEndTime.diff(originalStartTime, 'second');
+        const newDuration = newEndTime.diff(newStartTime, 'second');
+
+        // Check if the new duration matches the original duration
+        return originalDuration === newDuration;
     };
 
     useEffect(() => {

@@ -341,7 +341,6 @@ const EditHistoryForm = ({
                                                 setNomorKontakDarurat(inputValue);
                                             }
                                         }}
-                                        required
                                         className="border rounded-r"
                                     />
                                 </div>

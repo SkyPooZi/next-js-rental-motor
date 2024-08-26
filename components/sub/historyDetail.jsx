@@ -1,6 +1,7 @@
 import React from 'react';
 import { format } from 'date-fns';
-import DayPicker from 'react-day-picker';
+import { Calendar } from "@/components/ui/calendar";
+import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Card, CardHeader, Checkbox, Input, Select, Option, Textarea, Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 
 const HistoryDetail = ({ history, image }) => {
@@ -31,8 +32,29 @@ const HistoryDetail = ({ history, image }) => {
                             <span className="text-black">
                                 Nomor Telp
                             </span>
-                            <Input label="Masukkan No Telp" value={history.no_telp} disabled />
-                        </div>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    +62
+                                </span>
+
+                                <Input
+                                    disabled
+                                    type="number"
+                                    label={`Masukkan nomor telp (${history.no_telp})`}
+                                    placeholder="8892384434"
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+
+                                        // Prevents user from starting the input with "0" after "+62"
+                                        if (inputValue.startsWith('0')) {
+                                            setNomorTelp(inputValue.slice(1));
+                                        } else {
+                                            setNomorTelp(inputValue);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>                        </div>
                         <div className="w-full flex flex-col gap-2">
                             <span className="text-black">
                                 Akun Sosmed
@@ -93,7 +115,7 @@ const HistoryDetail = ({ history, image }) => {
                                     />
                                 </PopoverHandler>
                                 <PopoverContent>
-                                    <DayPicker
+                                    <Calendar
                                         mode="single"
                                         showOutsideDays
                                         className="border-0"
@@ -145,7 +167,7 @@ const HistoryDetail = ({ history, image }) => {
                                     />
                                 </PopoverHandler>
                                 <PopoverContent>
-                                    <DayPicker
+                                    <Calendar
                                         mode="single"
                                         showOutsideDays
                                         className="border-0"
@@ -219,15 +241,31 @@ const HistoryDetail = ({ history, image }) => {
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="w-full flex flex-col gap-2">
                             <span className="text-black">
-                                Nama Kontak Darurat
-                            </span>
-                            <Input label="Masukkan nama kontak darurat" value={history.nama_kontak_darurat} disabled />
-                        </div>
-                        <div className="w-full flex flex-col gap-2">
-                            <span className="text-black">
                                 Nomor Kontak Darurat
                             </span>
-                            <Input label="Masukkan nomor kontak darurat" value={history.nomor_kontak_darurat} disabled />
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    +62
+                                </span>
+
+                                <Input
+                                disabled
+                                    type="number"
+                                    label={`Masukkan nomor telp (${history.no_telp})`}
+                                    placeholder="8892384434"
+                                    onChange={(e) => {
+                                        const inputValue = e.target.value;
+
+                                        // Prevents user from starting the input with "0" after "+62"
+                                        if (inputValue.startsWith('0')) {
+                                            setNomorTelp(inputValue.slice(1));
+                                        } else {
+                                            setNomorTelp(inputValue);
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">
