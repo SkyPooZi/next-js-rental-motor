@@ -13,12 +13,9 @@ import { Spinner, Button } from "@material-tailwind/react";
 import GallerySwiper from '@/components/sub/gallerySwiper';
 import Navbar from '@/components/main/NavbarAfter';
 import Footer from '@/components/main/Footer';
-import SwiperComponent from '@/components/ui/swiper';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
-import ReviewCard from '@/components/sub/ReviewCard';
 import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';
-import HorizontalScroll from '@/components/ui/horizontalScroll';
 import ScrollTextAnimation from '@/components/ui/scrollTextAnimation';
 
 const Motor = ({ motor }) => {
