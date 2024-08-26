@@ -5,7 +5,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-fade';
 import '../../styles/swiper.css';
-import ReviewCard from './ReviewCard';
+import ReviewCard from './reviewCard';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 
 const ReviewSwiper = ({ reviews }) => {

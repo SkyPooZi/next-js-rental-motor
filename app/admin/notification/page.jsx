@@ -11,14 +11,16 @@ import {
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
+import dynamic from 'next/dynamic';
+
+const NavbarAdmin = dynamic(() => import('@/components/sub/admin/navbar'), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const Dashboard = dynamic(() => import('@/components/sub/admin/dashboard'), { ssr: false });
+const MotorList = dynamic(() => import('@/components/sub/admin/motorList'), { ssr: false });
+const User = dynamic(() => import('@/components/sub/admin/user'), { ssr: false });
+const History = dynamic(() => import('@/components/sub/admin/history'), { ssr: false });
+const Rating = dynamic(() => import('@/components/sub/admin/rating'), { ssr: false });
+const Discount = dynamic(() => import('@/components/sub/admin/discount'), { ssr: false });
 
 export default function Notification() {
     const [showNotification, setShowNotification] = useState(false);
@@ -194,6 +196,11 @@ export default function Notification() {
 
     const handleBtnClick = (component) => {
         setActiveComponent(component);
+    }
+
+    if(typeof window !== 'undefined')
+    {
+        console.log("Window Test");
     }
 
     return (
