@@ -162,6 +162,8 @@ export default function AllHistory() {
     };
 
     const openModalReschedule = (detail) => {
+        console.log(detail)
+        console.log(detail.id);
         setHistoryId(detail.id);
         setSelectedDetail(detail);
         setIsModalOpenReschedule(true);

@@ -1,7 +1,6 @@
 'use client';
 import { React, useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
-import Image from "next/image";
 import { MdHistory } from "react-icons/md";
 import { FaStar, FaUserCircle, FaMotorcycle } from "react-icons/fa";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
@@ -16,11 +15,12 @@ import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import NewOrderBookedList from '@/components/sub/admin/newOrderBookedList';
 import Discount from "@/components/sub/admin/discount";
+import Loading from '@/components/ui/loading';
 import { formatToRupiah } from '@/utils/formatToRupiah';
 import { fetchMotorData } from '@/utils/services/fetchMotor';
 import { fetchSewaData } from '@/utils/services/fetchHistoryProfit';
-import { fetchReviewData } from '@/utils/services/reviewService';
-import { fetchUserData } from '@/utils/services/userService';
+import { fetchReview } from '@/utils/services/reviewService';
+import { fetchUser } from '@/utils/services/fetchUser';
 import { fetchStatusMotorData } from '@/utils/services/motorStatusService';
 
 export default function Dashboard() {
@@ -69,29 +69,33 @@ export default function Dashboard() {
     }, [token]);
 
     useEffect(() => {
-        const fetchReview = async () => {
+        const getReviews = async () => {
             try {
-                const { review, totalUlasan } = await fetchReviewData(token);
+                const review = await fetchReview(token);
                 setUlasan(review);
+
+                const totalUlasan = review.length;
                 setTotalUlasan(totalUlasan);
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Error fetching reviews:', error);
             }
         };
-        fetchReview();
+        getReviews();
     }, [token]);
 
     useEffect(() => {
-        const fetchUser = async () => {
+        const getUsers = async () => {
             try {
-                const { user, totalUser } = await fetchUserData(token);
+                const user = await fetchUser(token);
                 setUser(user);
+
+                const totalUser = user.length;
                 setTotalUser(totalUser);
             } catch (error) {
-                console.error('Fetch error:', error);
+                console.error('Error fetching users:', error);
             }
-        }
-        fetchUser();
+        };
+        getUsers();
     }, [token]);
 
     useEffect(() => {
@@ -115,9 +119,7 @@ export default function Dashboard() {
     return (
         <>
             {loading && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/50">
-                    <Spinner color="blue" size="xl" />
-                </div>
+                <Loading />
             )}
             <div>
                 {activeComponent === "list" && <MotorList />}

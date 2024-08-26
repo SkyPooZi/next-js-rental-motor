@@ -93,7 +93,7 @@ export default function Notification() {
 
             const data = await response.json();
             console.log('Updated data:', data);
-            setShowNotificationCancel(true);
+            setShowNotification(true);
             setHistory(prevHistory => prevHistory.map(item =>
                 item.id === id ? { ...item, status_history: 'Dipesan' } : item
             ));
@@ -101,7 +101,7 @@ export default function Notification() {
             setTimeout(() => {
                 setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                 setLoadingCancel(false);
-                setShowNotificationCancel(false);
+                setShowNotification(false);
             }, 1000);
             setSelectedId(null);
 

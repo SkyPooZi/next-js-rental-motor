@@ -1,9 +1,20 @@
 import dayjs from 'dayjs';
+import { fetchCancelledModal } from './fetchCancelledModal';
 
-export const fetchBookedDates = async (motor_id, token, stok_motor) => {
+export const fetchBookedDates = async (motor_id, stok_motor, token, historyId) => {
     if (!motor_id) return [];
-
     try {
+        // Fetch the specific booking details for the current user
+        const userBooking = await fetchCancelledModal(token, historyId);
+
+        // Ensure the userBooking exists and extract the start and end dates
+        const excludeStartDate = userBooking && userBooking.history.tanggal_mulai ? dayjs(userBooking.history.tanggal_mulai) : null;
+        const excludeEndDate = userBooking && userBooking.history.tanggal_selesai ? dayjs(userBooking.history.tanggal_selesai) : null;
+
+        // Log the extracted dates
+        console.log('Exclude Start Date:', excludeStartDate ? excludeStartDate.format('YYYY-MM-DD HH:mm:ss') : 'Not Available');
+        console.log('Exclude End Date:', excludeEndDate ? excludeEndDate.format('YYYY-MM-DD HH:mm:ss') : 'Not Available');
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
             method: 'GET',
             headers: {
@@ -13,7 +24,10 @@ export const fetchBookedDates = async (motor_id, token, stok_motor) => {
 
         const data = await response.json();
 
-        const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
+        // Filter bookings by motor_id
+        const bookingsForMotor = data.history.filter(item => {
+            return item.motor_id === motor_id;
+        });
 
         const bookingCountPerDay = {};
 
@@ -31,11 +45,29 @@ export const fetchBookedDates = async (motor_id, token, stok_motor) => {
             }
         });
 
-        const disabledDates = Object.keys(bookingCountPerDay)
+        // Get all dates that are fully booked
+        let disabledDates = Object.keys(bookingCountPerDay)
             .filter(dateStr => bookingCountPerDay[dateStr] >= stok_motor)
             .map(dateStr => dayjs(dateStr));
 
-        console.log('Disabled Dates:', disabledDates);
+        // Exclude user's current booking dates if they match
+        if (excludeStartDate && excludeEndDate) {
+            // Generate a range of dates between excludeStartDate and excludeEndDate
+            let excludedRange = [];
+            for (let date = excludeStartDate; date.isBefore(excludeEndDate) || date.isSame(excludeEndDate, 'day'); date = date.add(1, 'day')) {
+                excludedRange.push(date.format('YYYY-MM-DD'));
+            }
+
+            // Log the excluded range for debugging
+            console.log('Excluded Range:', excludedRange);
+
+            // Remove the user's booking dates from disabledDates
+            disabledDates = disabledDates.filter(date =>
+                !excludedRange.includes(date.format('YYYY-MM-DD'))
+            );
+        }
+
+        console.log('Final Disabled Dates:', disabledDates);
 
         return disabledDates;
     } catch (error) {

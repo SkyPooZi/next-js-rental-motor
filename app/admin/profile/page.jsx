@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 
@@ -59,6 +60,7 @@ const Page = () => {
     const [loadData, setLoadData] = useState(true);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const router = useRouter();
     const id = Cookies.get('id');
     const token = Cookies.get('token');
 
@@ -126,6 +128,11 @@ const Page = () => {
             setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${updatedUser.gambar}`);
             setShowNotification(true);
 
+            setTimeout(() => {
+                setShowNotification(false);
+                router.refresh();
+            }, 1000);
+
             setUser((prevUser) => ({
                 ...prevUser,
                 ...(nama_pengguna && { nama_pengguna: updatedUser.nama_pengguna }),
@@ -134,11 +141,6 @@ const Page = () => {
                 ...(alamat && { alamat: updatedUser.alamat }),
                 ...(peran && { peran: updatedUser.peran }),
             }));
-
-            setTimeout(() => {
-                setShowNotification(false);
-                window.location.reload();
-            }, 1000);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -165,9 +167,9 @@ const Page = () => {
     };
 
     const toggleShowNewPassword = () => {
-    setShowNewPassword((prevShowPassword) => !prevShowPassword);
+        setShowNewPassword((prevShowPassword) => !prevShowPassword);
     };
-    
+
     const toggleShowConfirmPassword = () => {
         setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };

@@ -429,33 +429,30 @@ export default function page({ params: { motorId } }) {
         return disabledDays.includes(dateStr);
     };
 
-    const shouldDisableTime = (time, selectedDate, disableStartHour = 0, disableEndHour = 2) => {
+    const shouldDisableTime = (time, selectedDate) => {
         if (!selectedDate) return false;
 
         const now = dayjs();
         const dateStr = selectedDate.format('YYYY-MM-DD');
-
-        // Add 2 hours to the current time
-        const twoHoursLater = now.add(2, 'hour');
-
-        // Set the selected time based on the input `time` object
         const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
         // Check if the selected date is today and the time is within 2 hours of the current time
-        if (selectedDate.isSame(now, 'day') && time.isBefore(twoHoursLater, 'minute')) {
+        if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
             return true;
         }
 
-        // General check for disabling time range on the selected date
-        const start = selectedDate.set('hour', disableStartHour).set('minute', 0).set('second', 0);
-        const end = selectedDate.set('hour', disableEndHour).set('minute', 0).set('second', 0);
-
-        if (time.isAfter(start) && time.isBefore(end)) {
-            return true;
+        // Check for the 2-hour buffer around booked times
+        const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
+        for (let bookedTimeStr of bookedTimes) {
+            const bookedTime = dayjs(bookedTimeStr);
+            const startBuffer = bookedTime.subtract(2, 'hour');
+            const endBuffer = bookedTime.add(2, 'hour');
+            if (time.isBetween(startBuffer, endBuffer, null, '[)')) {
+                return true;
+            }
         }
 
-        // Check if the time is within any of the disabled ranges
-        return disabledTimesPerDay[dateStr]?.has(timeStr);
+        return false;
     };
 
     const handleDateStart = (date) => {
