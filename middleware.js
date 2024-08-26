@@ -9,7 +9,7 @@ export function middleware(request) {
 
   // Redirect to login if not authenticated
   if (!token) {
-    const returnUrl = pathname;
+    const returnUrl = request.nextUrl.pathname;
     return NextResponse.redirect(new URL(`/login?returnUrl=${encodeURIComponent(returnUrl)}`, request.url));
   }
 
@@ -35,5 +35,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/setting', '/form', '/form/:path*'],
+  matcher: ['/admin/:path*', '/setting', '/form/:path*'],
 };
