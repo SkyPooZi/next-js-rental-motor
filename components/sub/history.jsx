@@ -120,8 +120,8 @@ export default function History() {
                                         Selesai
                                     </Typography>
                                 </DropdownMenuRadioItem>
-                                <DropdownMenuRadioItem value="cancelled">
-                                    <Typography className={`text-sm ${activeComponent === 'cancelled' ? 'text-black' : 'text-[#6B7280]'}`}>
+                                <DropdownMenuRadioItem value="canceled">
+                                    <Typography className={`text-sm ${activeComponent === 'canceled' ? 'text-black' : 'text-[#6B7280]'}`}>
                                         Dibatalkan
                                     </Typography>
                                 </DropdownMenuRadioItem>

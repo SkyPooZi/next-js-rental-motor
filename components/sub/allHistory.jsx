@@ -140,6 +140,7 @@ export default function AllHistory() {
             console.error('Failed to fetch invoice list:', error);
         }
     };
+
     const [isModalOpenPayment, setIsModalOpenPayment] = useState(false);
     const [isModalOpenReschedule, setIsModalOpenReschedule] = useState(false);
     const [isModalOpenRating, setIsModalOpenRating] = useState(false);
@@ -162,8 +163,6 @@ export default function AllHistory() {
     };
 
     const openModalReschedule = (detail) => {
-        console.log(detail)
-        console.log(detail.id);
         setHistoryId(detail.id);
         setSelectedDetail(detail);
         setIsModalOpenReschedule(true);
@@ -215,7 +214,7 @@ export default function AllHistory() {
         }, 300);
     };
 
-    const handleInvociePopup = async (historyId) => {
+    const handleInvoicePopup = async (historyId) => {
         await fetchInvoiceDetails(historyId);
         setShowInvoice(true);
     };
@@ -290,7 +289,6 @@ export default function AllHistory() {
                                 </Button>
                             </a>
                         </div>
-                        <PaymentWaitModal isOpen={isModalOpenPayment} onClose={closeModalPayment} historyId={historyId} />
                     </motion.div>
                 ))
             )}
@@ -304,16 +302,22 @@ export default function AllHistory() {
                         key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -329,7 +333,7 @@ export default function AllHistory() {
                         <div className="border-t border-[#FF4D30] mt-2"></div>
                         <div className="w-full flex flex-col md:flex-row gap-2 justify-end items-end">
                             <div>
-                                <Button onClick={() => handleInvociePopup(detail.id)} variant='outline'>
+                                <Button onClick={() => handleInvoicePopup(detail.id)} variant='outline'>
                                     <Label>
                                         <span className="text-[#FF4D33] cursor-pointer">
                                             Tampilkan Invoice
@@ -346,15 +350,6 @@ export default function AllHistory() {
                                     </Label>
                                 </Button>
                             </div>
-                            <RescheduleModal
-                                isOpen={isModalOpenReschedule}
-                                onClose={closeModalReschedule}
-                                historyId={historyId}
-                                onSuccess={handleRescheduleSuccess}
-                            />
-                            {showInvoice && (
-                                <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
-                            )}
                         </div>
                     </motion.div >
                 ))
@@ -369,16 +364,22 @@ export default function AllHistory() {
                         key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between items-center">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -393,7 +394,7 @@ export default function AllHistory() {
                         </div>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
                         <div className="w-full flex flex-row gap-2 justify-end">
-                            <Button onClick={() => handleInvociePopup(detail.id)} >
+                            <Button onClick={() => handleInvoicePopup(detail.id)} >
                                 <Label>
                                     <span className="cursor-pointer">
                                         Tampilkan Invoice
@@ -401,9 +402,6 @@ export default function AllHistory() {
                                 </Label>
                             </Button>
                         </div>
-                        {showInvoice && (
-                            <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
-                        )}
                     </motion.div>
                 ))
             )}
@@ -417,16 +415,22 @@ export default function AllHistory() {
                         key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -450,9 +454,6 @@ export default function AllHistory() {
                                     </Label>
                                 </Button>
                             </a>
-                            {selectedDetail && (
-                                <SeeRatingModal isOpen={isModalOpenRating} onClose={closeModalRating} historyId={historyId} detail={selectedDetail} />
-                            )}
                         </div>
                     </motion.div>
                 ))
@@ -467,16 +468,22 @@ export default function AllHistory() {
                         key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -501,9 +508,6 @@ export default function AllHistory() {
                                 </Button>
                             </a>
                         </div>
-                        {selectedDetail && (
-                            <GiveRatingModal isOpen={isModalGiveRAting} onClose={closeModalGiveRating} detail={selectedDetail} historyId={historyId} onSuccess={handleRescheduleSuccess} />
-                        )}
                     </motion.div>
                 ))
             )}
@@ -517,16 +521,22 @@ export default function AllHistory() {
                         key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -550,10 +560,26 @@ export default function AllHistory() {
                                     </Label>
                                 </Button>
                             </a>
-                            <CancelReasonModal isOpen={isModalOpenCancel} onClose={closeModalCancel} historyId={historyId} />
                         </div>
                     </motion.div>
                 ))
+            )}
+            {selectedDetail && (
+                <SeeRatingModal isOpen={isModalOpenRating} onClose={closeModalRating} historyId={historyId} detail={selectedDetail} />
+            )}
+            {selectedDetail && (
+                <GiveRatingModal isOpen={isModalGiveRAting} onClose={closeModalGiveRating} detail={selectedDetail} historyId={historyId} onSuccess={handleRescheduleSuccess} />
+            )}
+            <CancelReasonModal isOpen={isModalOpenCancel} onClose={closeModalCancel} historyId={historyId} />
+            <RescheduleModal
+                isOpen={isModalOpenReschedule}
+                onClose={closeModalReschedule}
+                historyId={historyId}
+                onSuccess={handleRescheduleSuccess}
+            />
+            <PaymentWaitModal isOpen={isModalOpenPayment} onClose={closeModalPayment} historyId={historyId} />
+            {showInvoice && (
+                <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
             )}
         </div>
     );

@@ -86,7 +86,7 @@ export default function Notification() {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formData
+                body: formData,
             });
 
             if (!response.ok) {
@@ -159,7 +159,10 @@ export default function Notification() {
             return;
         };
         const formData = new FormData();
+        const currentDate = new Date().toISOString().split('T')[0];
         formData.append('status_history', 'Dibatalkan');
+        formData.append('tanggal_pembatalan', currentDate);
+        formData.append('alasan_pembatalan', 'Tidak Disetujui oleh Admin');
         setLoadingCancel(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
@@ -167,7 +170,7 @@ export default function Notification() {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formData
+                body: formData,
             });
             if (!response.ok) {
                 setError(`Failed to update data: ${response.statusText}`);
@@ -198,8 +201,7 @@ export default function Notification() {
         setActiveComponent(component);
     }
 
-    if(typeof window !== 'undefined')
-    {
+    if (typeof window !== 'undefined') {
         console.log("Window Test");
     }
 
