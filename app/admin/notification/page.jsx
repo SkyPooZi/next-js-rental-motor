@@ -10,6 +10,7 @@ import {
     Avatar,
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
+import { Label } from "@/components/ui/label";
 
 import dynamic from 'next/dynamic';
 
@@ -270,12 +271,18 @@ export default function Notification() {
                                                     <div className="flex flex-row gap-4">
                                                         <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
                                                         <div className="flex flex-col gap-2">
-                                                            <span className="font-semibold text-black">
+                                                            <span className="font-semibold text-black text-lg">
                                                                 {item.nama_lengkap}
                                                             </span>
                                                             <span className="text-black">
                                                                 {item.nama_lengkap} ingin menyewa motor {item.list_motor.nama_motor}, apakah anda menyetujui pemintaan ini?
                                                             </span>
+                                                            <Label className="flex gap-2">
+                                                                <span>Total pembayaran </span>
+                                                                <span className="font-bold">
+                                                                    {`Rp. ${detail.total_pembayaran}`}
+                                                                </span>
+                                                            </Label>
                                                         </div>
                                                     </div>
                                                     <div className="border-t border-[#969696] w-full"></div>
