@@ -5,7 +5,6 @@ import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 
 const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
-const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
 const Dashboard = dynamic(() => import("@/components/sub/admin/dashboard"), { ssr: false });
 const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
 const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });

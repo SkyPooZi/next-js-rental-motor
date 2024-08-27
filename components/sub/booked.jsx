@@ -85,7 +85,7 @@ export default function Booked() {
         }, 300);
     };
 
-    const handleInvociePopup = async (historyId) => {
+    const handleInvoicePopup = async (historyId) => {
         await fetchInvoiceDetails(historyId);
         setShowInvoice(true);
     };
@@ -98,66 +98,76 @@ export default function Booked() {
         );
     }
 
-    return bookedDetails.length > 0 ? (
-        bookedDetails.map((detail) => (
-            <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
-                <div className="flex flex-col md:flex-row gap-3 justify-between">
-                    <div className="flex flex-row gap-2">
-                        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                        <div className="flex flex-col gap-1">
-                            <Label>
-                                <span className="text-base">
-                                    {detail.list_motor.nama_motor || 'Motor'}
-                                </span>
-                            </Label>
-                            <Label>
-                                <span className="text-base">
-                                    {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
-                                </span>
-                            </Label>
+    return (
+        <div>
+            {bookedDetails.length > 0 ? (
+                bookedDetails.map((detail) => (
+                    <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
+                        <div className="flex flex-col md:flex-row gap-3 justify-between">
+                            <div className="flex flex-row gap-2">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
+                                    <Label>
+                                        <span className="text-lg font-bold">
+                                            {detail.list_motor.nama_motor || 'Motor'}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span className="text-base opacity-80">
+                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
+                                        </span>
+                                    </Label>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1 items-end">
+                                <Label>
+                                    <span className="font-bold">
+                                        {detail.status_history}
+                                    </span>
+                                </Label>
+                            </div>
+                        </div>
+                        <div className="border-t border-[#FF4D30] mt-2"></div>
+                        <div className="w-full flex flex-col md:flex-row gap-2 justify-end items-end">
+                            <div>
+                                <Button onClick={() => handleInvoicePopup(detail.id)} variant='outline'>
+                                    <Label>
+                                        <span className="text-[#FF4D33] cursor-pointer">
+                                            Tampilkan Invoice
+                                        </span>
+                                    </Label>
+                                </Button>
+                            </div>
+                            <div>
+                                <Button className="cursor-pointer" onClick={() => openModal(detail)}>
+                                    <Label>
+                                        <span className="cursor-pointer">
+                                            Atur Penjadwalan Ulang
+                                        </span>
+                                    </Label>
+                                </Button>
+                            </div>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end">
-                        <Label>
-                            <span className="font-bold">
-                                {detail.status_history}
-                            </span>
-                        </Label>
-                    </div>
-                </div>
-                <div className="border-t border-[#FF4D30] mt-2"></div>
-                <div className="w-full flex flex-col md:flex-row gap-2 justify-end items-end">
-                    <div>
-                        <Button onClick={() => handleInvociePopup(detail.id)} variant='outline'>
-                            <Label>
-                                <span className="text-[#FF4D33] cursor-pointer">
-                                    Tampilkan Invoice
-                                </span>
-                            </Label>
-                        </Button>
-                    </div>
-                    <div>
-                        <Button className="cursor-pointer " onClick={() => openModal(detail)}>
-                            <Label>
-                                <span className="cursor-pointer">
-                                    Atur Penjadwalan Ulang
-                                </span>
-                            </Label>
-                        </Button>
-                    </div>
-                    <RescheduleModal
-                        isOpen={isModalOpen}
-                        onClose={closeModal}
-                        historyId={historyId}
-                        onSuccess={handleRescheduleSuccess}
-                    />
-                    {showInvoice && (
-                        <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
-                    )}
-                </div>
-            </div >
-        ))
-    ) : (
-        <span className="ml-10">Tidak ada</span>
+                ))
+            ) : (
+                <span className="ml-10">Tidak ada</span>
+            )}
+            <RescheduleModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                historyId={historyId}
+                onSuccess={handleRescheduleSuccess}
+            />
+            {showInvoice && (
+                <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
+            )}
+        </div>
     );
 }

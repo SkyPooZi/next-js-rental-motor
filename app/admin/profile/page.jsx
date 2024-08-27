@@ -43,7 +43,6 @@ const Page = () => {
     const [alamat, setAlamat] = useState('');
     const [peran, setPeran] = useState('');
     const [error, setError] = useState(null);
-    const [errorOtp, setErrorOtp] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
     const [imagePreview, setImagePreview] = useState('');
@@ -53,10 +52,8 @@ const Page = () => {
     const [loadingPassword, setLoadingPassword] = useState(false);
     const [loadingEmail, setLoadingEmail] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
-    const [errorNotification, setErrorNotification] = useState(false);
     const [otpPopupVisible, setOtpPopupVisible] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
-    const [loadingOtp, setLoadingOtp] = useState(false);
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
     const [loadData, setLoadData] = useState(true);
@@ -88,10 +85,6 @@ const Page = () => {
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
-    };
-
-    const handleSelectChangeRole = (value) => {
-        setPeran(value);
     };
 
     useEffect(() => {

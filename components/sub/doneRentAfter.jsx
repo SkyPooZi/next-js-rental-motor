@@ -47,19 +47,25 @@ export default function DoneRentAfter() {
         <div>
             {doneRentAfterDetails.length > 0 ? (
                 doneRentAfterDetails.map((detail) => (
-                    <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                    <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-lg font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base opacity-80">
                                             {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span>Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
