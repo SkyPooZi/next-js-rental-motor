@@ -280,7 +280,7 @@ export default function Notification() {
                                                             <Label className="flex gap-2">
                                                                 <span>Total pembayaran </span>
                                                                 <span className="font-bold">
-                                                                    {`Rp. ${detail.total_pembayaran}`}
+                                                                    {`Rp. ${item.total_pembayaran}`}
                                                                 </span>
                                                             </Label>
                                                         </div>
