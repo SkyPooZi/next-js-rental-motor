@@ -457,17 +457,44 @@ export function HistoryTable({ onSelectRange }) {
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide max-w-xs">
-                            {Array.from({ length: totalPages }, (_, i) => (
-                                <IconButton
-                                    key={i}
-                                    variant="text"
-                                    size="sm"
-                                    onClick={() => handlePageChange(i + 1)}
-                                    className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
-                                >
-                                    {i + 1}
-                                </IconButton>
-                            ))}
+                            {Array.from({ length: totalPages }, (_, i) => {
+                                let startPage = 0;
+                                let endPage = 0;
+
+                                if (totalPages <= 5) {
+                                    // Show all pages if total pages are 5 or less
+                                    startPage = 0;
+                                    endPage = totalPages;
+                                } else if (currentPage <= 3) {
+                                    // If current page is 3 or less, show the first 5 pages
+                                    startPage = 0;
+                                    endPage = 5;
+                                } else if (currentPage + 2 >= totalPages) {
+                                    // If current page is near the end, show the last 5 pages
+                                    startPage = totalPages - 5;
+                                    endPage = totalPages;
+                                } else {
+                                    // Otherwise, show the current page in the middle
+                                    startPage = currentPage - 3;
+                                    endPage = currentPage + 2;
+                                }
+
+                                if (i >= startPage && i < endPage) {
+                                    return (
+                                        <IconButton
+                                            key={i}
+                                            variant="text"
+                                            size="sm"
+                                            onClick={() => handlePageChange(i + 1)}
+                                            className={currentPage === i + 1 ? 'bg-blue-500 text-white' : ''}
+                                        >
+                                            {i + 1}
+                                        </IconButton>
+                                    );
+                                } else {
+                                    return null;
+                                }
+                            })}
                         </div>
                     </CardFooter>
                 </Card>
