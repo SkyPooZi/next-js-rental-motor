@@ -1,6 +1,6 @@
 import { fetchUser } from './fetchUser';
 
-export const handleEmailChange = async (
+export const handleEmailChangeAdmin = async (
     e,
     {
         email,

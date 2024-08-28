@@ -28,8 +28,8 @@ const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false })
 import { updateUser } from '@/utils/services/updateUser';
 import { fetchUserData } from '@/utils/services/userService';
 import { handleVerifyOTP } from '@/utils/services/otpService';
-import { handleEmailChange } from '@/utils/services/handleEmailChange';
-import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
+import { handleEmailChangeAdmin } from '@/utils/services/handleEmailChangeAdmin';
+import { handlePasswordResetAdmin } from '@/utils/services/handlePasswordResetAdmin';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -38,6 +38,8 @@ const Page = () => {
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nomor_hp, setNomorHp] = useState('');
     const [alamat, setAlamat] = useState('');
@@ -169,8 +171,7 @@ const Page = () => {
         setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };
 
-    if(typeof window !== 'undefined')
-    {
+    if (typeof window !== 'undefined') {
         console.log("Window Test");
     }
 
@@ -332,11 +333,11 @@ const Page = () => {
                                     <form
                                         action='post'
                                         method='post'
-                                        onSubmit={(e) => handleEmailChange(e, {
+                                        onSubmit={(e) => handleEmailChangeAdmin(e, {
                                             email,
                                             token,
                                             setLoadingEmail,
-                                            setError,
+                                            setError: setEmailError,
                                             setOtpSent,
                                             setOtpPopupVisible,
                                             setServerOtp
@@ -362,6 +363,7 @@ const Page = () => {
                                                             Email akan berubah ketika Anda sudah memasukkan kode OTP
                                                             untuk verifikasi yang dikirimkan ke email baru Anda.
                                                         </span>
+                                                        {emailError && <span className="text-red-500 text-xs">{emailError}</span>}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -388,7 +390,7 @@ const Page = () => {
                                             setUser={(user) => console.log(user)}
                                             setShowNotification={setShowNotification}
                                             setOtpPopupVisible={setOtpPopupVisible}
-                                            setErrorOtp={setError}
+                                            setErrorOtp={setEmailError}
                                         />
                                     )}
                                 </Card>
@@ -396,8 +398,16 @@ const Page = () => {
                                     <form
                                         action='post'
                                         method='post'
-                                        onSubmit={(e) => handlePasswordReset(e, { password, confirmPassword, id, token, setError, setLoadingPassword, setShowNotification, setUser })}
-                                    >
+                                        onSubmit={(e) => handlePasswordResetAdmin(e, {
+                                            password,
+                                            confirmPassword,
+                                            id,
+                                            token,
+                                            setError: setPasswordError,
+                                            setLoadingPassword,
+                                            setShowNotification,
+                                            setUser
+                                        })}                                    >
                                         <CardHeader floated={false} shadow={false} className="rounded-none">
                                             <div className="mb-4 flex flex-col justify-between gap-4">
                                                 <span className="text-black font-medium">
@@ -423,7 +433,7 @@ const Page = () => {
                                                                 <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
                                                             </button>
                                                         </div>
-                                                        {error && <span className="text-red-500 text-xs">{error}</span>}
+                                                        {passwordError && <span className="text-red-500 text-xs">{passwordError}</span>}
                                                         <span className="text-[#6B7280] text-xs">
                                                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
                                                         </span>
