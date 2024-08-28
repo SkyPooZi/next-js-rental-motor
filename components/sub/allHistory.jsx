@@ -22,6 +22,29 @@ import { fetchDoneRentAfter } from "@/utils/services/fetchDoneRentAfter";
 import { fetchDoneRentBefore } from "@/utils/services/fetchDoneRentBefore";
 import { fetchCancelled } from "@/utils/services/fetchCancelled";
 
+const formatDate = (dateString) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+    const hour = date.getHours();
+    let timeOfDay = '';
+
+    if (hour >= 0 && hour < 11) {
+        timeOfDay = 'pagi';
+    } else if (hour >= 11 && hour < 15) {
+        timeOfDay = 'siang';
+    } else if (hour >= 15 && hour < 19) {
+        timeOfDay = 'sore';
+    } else {
+        timeOfDay = 'malam';
+    }
+
+    const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+};
+
 export default function AllHistory() {
     const [paymentDetails, setPaymentDetails] = useState([]);
     const [bookedDetails, setBookedDetails] = useState([]);
@@ -243,7 +266,7 @@ export default function AllHistory() {
     return (
         <div className="flex flex-col gap-5 overflow-hidden">
             {paymentDetails && paymentDetails.length > 0 && (
-                paymentDetails.map((detail) => (
+                paymentDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -260,7 +283,7 @@ export default function AllHistory() {
                                     </Label>
                                     <Label>
                                         <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -296,7 +319,7 @@ export default function AllHistory() {
             )}
 
             {bookedDetails && bookedDetails.length > 0 && (
-                bookedDetails.map((detail) => (
+                bookedDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -313,7 +336,7 @@ export default function AllHistory() {
                                     </Label>
                                     <Label>
                                         <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -361,7 +384,7 @@ export default function AllHistory() {
             )}
 
             {inUseDetails && inUseDetails.length > 0 && (
-                inUseDetails.map((detail) => (
+                inUseDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -378,7 +401,7 @@ export default function AllHistory() {
                                     </Label>
                                     <Label>
                                         <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -409,7 +432,7 @@ export default function AllHistory() {
             )}
 
             {doneRentAfterDetails && doneRentAfterDetails.length > 0 && (
-                doneRentAfterDetails.map((detail) => (
+                doneRentAfterDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -426,7 +449,7 @@ export default function AllHistory() {
                                     </Label>
                                     <Label>
                                         <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -459,7 +482,7 @@ export default function AllHistory() {
             )}
 
             {doneRentBeforeDetails && doneRentBeforeDetails.length > 0 && (
-                doneRentBeforeDetails.map((detail) => (
+                doneRentBeforeDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -476,7 +499,7 @@ export default function AllHistory() {
                                     </Label>
                                     <Label>
                                         <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -509,7 +532,7 @@ export default function AllHistory() {
             )}
 
             {cancelledDetails && cancelledDetails.length > 0 && (
-                cancelledDetails.map((detail) => (
+                cancelledDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
                     <motion.div
                         initial={{ opacity: 0, x: 100 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -525,8 +548,8 @@ export default function AllHistory() {
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                        <span className="text-base opacity-80">
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                 </div>
@@ -554,6 +577,24 @@ export default function AllHistory() {
                         </div>
                     </motion.div>
                 ))
+            )}
+
+            {selectedDetail && (
+                <SeeRatingModal isOpen={isModalOpenRating} onClose={closeModalRating} historyId={historyId} detail={selectedDetail} />
+            )}
+            {selectedDetail && (
+                <GiveRatingModal isOpen={isModalGiveRAting} onClose={closeModalGiveRating} detail={selectedDetail} historyId={historyId} onSuccess={handleRescheduleSuccess} />
+            )}
+            <CancelReasonModal isOpen={isModalOpenCancel} onClose={closeModalCancel} historyId={historyId} />
+            <RescheduleModal
+                isOpen={isModalOpenReschedule}
+                onClose={closeModalReschedule}
+                historyId={historyId}
+                onSuccess={handleRescheduleSuccess}
+            />
+            <PaymentWaitModal isOpen={isModalOpenPayment} onClose={closeModalPayment} historyId={historyId} />
+            {showInvoice && (
+                <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
             )}
         </div>
     );

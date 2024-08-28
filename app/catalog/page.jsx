@@ -16,8 +16,6 @@ const Motor = ({ motor }) => {
     router.push(`/detail/${id}`);
   };
 
-  const isButtonDisabled = motor.status_motor === 'Tertunda' || motor.status_motor === 'Tidak Tersedia';
-
   return (
     <div className="border border-gray-300 rounded-lg p-4 shadow-md flex flex-col items-center">
       <div className="flex justify-center mb-4">
@@ -45,22 +43,12 @@ const Motor = ({ motor }) => {
           </div>
         </div>
         <div className="flex flex-col items-center mb-2">
-          {isButtonDisabled ? (
-            <Button
-              disabled
-              className={`my-5 ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 opacity-50 cursor-not-allowed`}
-            >
-              <span className="relative text-base z-10">Pesan Sekarang!</span>
-            </Button>
-          ) : (
-            <Link href={`/form/${motor.id}`} className='my-5 ml-1'>
-              <Button
-                className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32"
-              >
-                <span className="relative text-base z-10">Pesan Sekarang!</span>
-              </Button>
-            </Link>
-          )}
+          <Button
+            disabled
+            className={`my-5 ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 opacity-50 cursor-not-allowed`}
+          >
+            <span className="relative text-base z-10">Pesan Sekarang!</span>
+          </Button>
           <button onClick={() => handleDetailRedirect(motor.id)} className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>
         </div>
 

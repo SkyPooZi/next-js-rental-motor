@@ -11,6 +11,29 @@ import { Button } from "@/components/ui/button";
 import PaymentWaitModal from "@/components/sub/paymentWaitModal";
 import { fetchPaymentWait } from "@/utils/services/fetchPaymentWait";
 
+const formatDate = (dateString) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+    const hour = date.getHours();
+    let timeOfDay = '';
+
+    if (hour >= 0 && hour < 11) {
+        timeOfDay = 'pagi';
+    } else if (hour >= 11 && hour < 15) {
+        timeOfDay = 'siang';
+    } else if (hour >= 15 && hour < 19) {
+        timeOfDay = 'sore';
+    } else {
+        timeOfDay = 'malam';
+    }
+
+    const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+};
+
 export default function PaymentWait() {
     const [paymentDetails, setPaymentDetails] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
@@ -60,7 +83,7 @@ export default function PaymentWait() {
     }
 
     return paymentDetails.length > 0 ? (
-        paymentDetails.map((detail) => (
+        paymentDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                 <div className="flex flex-col md:flex-row gap-3 justify-between">
                     <div className="flex flex-row gap-2">
@@ -73,7 +96,7 @@ export default function PaymentWait() {
                             </Label>
                             <Label>
                                 <span className="text-base lg:text-lg md:text-fz-medium sm:text-sm">
-                                    {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                    {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                 </span>
                             </Label>
                         </div>
