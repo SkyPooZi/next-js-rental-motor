@@ -77,10 +77,25 @@ const EditUserForm = ({
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nomor HP</span>
-                                <Input
-                                    label={`Masukkan no hp (${user.nomor_hp || ''})`}
-                                    onChange={(e) => setNomorHp(e.target.value)}
-                                />
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                        +62
+                                    </span>
+                                    <Input
+                                        type="number"
+                                        label={`Masukkan no hp (${user.nomor_hp || ''})`}
+                                        placeholder="8892384434"
+                                        onChange={(e) => {
+                                            const inputValue = e.target.value;
+                                            if (inputValue.startsWith('0')) {
+                                                setNomorHp(inputValue.slice(1));
+                                            } else {
+                                                setNomorHp(inputValue);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">

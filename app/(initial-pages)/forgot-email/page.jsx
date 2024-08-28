@@ -40,7 +40,7 @@ const ForgotEmail = () => {
       localStorage.setItem('message', message); // Store email in localStorage
     } catch (error) {
       console.error('Error:', error);
-      setError(error.message || 'Terjadi kesalahan. Silakan coba lagi.');
+      setError('Terjadi kesalahan. Silakan coba lagi.');
       localStorage.setItem('message', message); // Store email in localStorage
     }
   };

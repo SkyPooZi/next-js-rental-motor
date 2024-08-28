@@ -52,7 +52,11 @@ export default function DoneRentBefore() {
     };
 
     const handleRescheduleSuccess = () => {
-        setChangeTrigger(prev => prev + 1);
+        closeModal();
+
+        setTimeout(() => {
+            setChangeTrigger(prev => prev + 1);
+        }, 300);
     };
 
     if (loading) {

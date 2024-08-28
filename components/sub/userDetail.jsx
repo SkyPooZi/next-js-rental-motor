@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, Input, Select, Option, Textarea } from "@material-tailwind/react";
 
-const UserDetail = ({image, userData}) => {
+const UserDetail = ({ image, userData }) => {
     return (
         <Card className="mb-20 xl:mb-0 w-full h-full">
             <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -45,7 +45,18 @@ const UserDetail = ({image, userData}) => {
                             <span className="text-black">
                                 Nomor HP
                             </span>
-                            <Input label="Masukkan nomor HP" type="number" value={userData.nomor_hp} disabled />
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    +62
+                                </span>
+                                <Input
+                                    disabled
+                                    type="number"
+                                    label="Masukkan nomor HP"
+                                    value={userData.nomor_hp}
+                                    placeholder="8892384434"
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">

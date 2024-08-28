@@ -456,7 +456,7 @@ export function HistoryTable({ onSelectRange }) {
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide max-w-xs">
                             {Array.from({ length: totalPages }, (_, i) => (
                                 <IconButton
                                     key={i}

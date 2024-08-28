@@ -44,7 +44,7 @@ const RegisterPage = () => {
       router.push('/');
     } catch (error) {
       console.error('Registration failed:', error);
-      setError(error.message || 'Terjadi kesalahan. Coba beberapa saat lagi!');
+      setError('Terjadi kesalahan. Coba beberapa saat lagi!');
     } finally {
       setLoading(false);
     }

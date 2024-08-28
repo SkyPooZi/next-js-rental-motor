@@ -79,7 +79,7 @@ const LoginPage = () => {
 
     } catch (error) {
       console.error('Login failed:', error);
-      setError(error.message || 'Email atau Password yang anda isi salah. Silahkan Coba Lagi');
+      setError('Email atau Password yang anda isi salah. Silahkan Coba Lagi');
     } finally {
       setLoading(false);
     }
