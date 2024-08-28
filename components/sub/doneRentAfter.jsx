@@ -10,6 +10,29 @@ import { Button } from "@/components/ui/button";
 import SeeRatingModal from "@/components/sub/seeRatingModal";
 import { fetchDoneRentAfter } from "@/utils/services/fetchDoneRentAfter";
 
+const formatDate = (dateString) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+    const hour = date.getHours();
+    let timeOfDay = '';
+
+    if (hour >= 0 && hour < 11) {
+        timeOfDay = 'pagi';
+    } else if (hour >= 11 && hour < 15) {
+        timeOfDay = 'siang';
+    } else if (hour >= 15 && hour < 19) {
+        timeOfDay = 'sore';
+    } else {
+        timeOfDay = 'malam';
+    }
+
+    const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+};
+
 export default function DoneRentAfter() {
     const [doneRentAfterDetails, setDoneRentAfterDetails] = useState([]);
     const [historyId, setHistoryId] = useState(null);
@@ -46,8 +69,8 @@ export default function DoneRentAfter() {
     return (
         <div>
             {doneRentAfterDetails.length > 0 ? (
-                doneRentAfterDetails.map((detail) => (
-                    <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
+                doneRentAfterDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
+                    <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
                                 <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
@@ -59,7 +82,7 @@ export default function DoneRentAfter() {
                                     </Label>
                                     <Label>
                                         <span className="text-base opacity-80">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
+                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                         </span>
                                     </Label>
                                     <Label>

@@ -12,6 +12,29 @@ import InvoicePopup from "./invoice";
 import RescheduleModal from "@/components/sub/rescheduleModal";
 import { fetchBooked } from "@/utils/services/fetchBooked";
 
+const formatDate = (dateString) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = new Date(dateString);
+    const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+    const hour = date.getHours();
+    let timeOfDay = '';
+
+    if (hour >= 0 && hour < 11) {
+        timeOfDay = 'pagi';
+    } else if (hour >= 11 && hour < 15) {
+        timeOfDay = 'siang';
+    } else if (hour >= 15 && hour < 19) {
+        timeOfDay = 'sore';
+    } else {
+        timeOfDay = 'malam';
+    }
+
+    const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+    return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+};
+
 export default function Booked() {
     const [bookedDetails, setBookedDetails] = useState([]);
     const [selectedDetail, setSelectedDetail] = useState(null);
@@ -101,61 +124,63 @@ export default function Booked() {
     return (
         <div>
             {bookedDetails.length > 0 ? (
-                bookedDetails.map((detail) => (
-                    <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
-                        <div className="flex flex-col md:flex-row gap-3 justify-between">
-                            <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
-                                <div className="flex flex-col gap-2.5">
+                bookedDetails
+                    .sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai))
+                    .map((detail) => (
+                        <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
+                            <div className="flex flex-col md:flex-row gap-3 justify-between">
+                                <div className="flex flex-row gap-2">
+                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                    <div className="flex flex-col gap-2.5">
+                                        <Label>
+                                            <span className="text-lg font-bold">
+                                                {detail.list_motor.nama_motor || 'Motor'}
+                                            </span>
+                                        </Label>
+                                        <Label>
+                                            <span className="text-base opacity-80">
+                                                {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
+                                            </span>
+                                        </Label>
+                                        <Label>
+                                            <span>Total pembayaran </span>
+                                            <span className="font-bold">
+                                                {`Rp. ${detail.total_pembayaran}`}
+                                            </span>
+                                        </Label>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1 items-end">
                                     <Label>
-                                        <span className="text-lg font-bold">
-                                            {detail.list_motor.nama_motor || 'Motor'}
-                                        </span>
-                                    </Label>
-                                    <Label>
-                                        <span className="text-base opacity-80">
-                                            {`${detail.tanggal_mulai} - ${detail.tanggal_selesai}`}
-                                        </span>
-                                    </Label>
-                                    <Label>
-                                        <span>Total pembayaran </span>
                                         <span className="font-bold">
-                                            {`Rp. ${detail.total_pembayaran}`}
+                                            {detail.status_history}
                                         </span>
                                     </Label>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-1 items-end">
-                                <Label>
-                                    <span className="font-bold">
-                                        {detail.status_history}
-                                    </span>
-                                </Label>
+                            <div className="border-t border-[#FF4D30] mt-2"></div>
+                            <div className="w-full flex flex-col md:flex-row gap-2 justify-end items-end">
+                                <div>
+                                    <Button onClick={() => handleInvoicePopup(detail.id)} variant='outline'>
+                                        <Label>
+                                            <span className="text-[#FF4D33] cursor-pointer">
+                                                Tampilkan Invoice
+                                            </span>
+                                        </Label>
+                                    </Button>
+                                </div>
+                                <div>
+                                    <Button className="cursor-pointer" onClick={() => openModal(detail)}>
+                                        <Label>
+                                            <span className="cursor-pointer">
+                                                Atur Penjadwalan Ulang
+                                            </span>
+                                        </Label>
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <div className="border-t border-[#FF4D30] mt-2"></div>
-                        <div className="w-full flex flex-col md:flex-row gap-2 justify-end items-end">
-                            <div>
-                                <Button onClick={() => handleInvoicePopup(detail.id)} variant='outline'>
-                                    <Label>
-                                        <span className="text-[#FF4D33] cursor-pointer">
-                                            Tampilkan Invoice
-                                        </span>
-                                    </Label>
-                                </Button>
-                            </div>
-                            <div>
-                                <Button className="cursor-pointer" onClick={() => openModal(detail)}>
-                                    <Label>
-                                        <span className="cursor-pointer">
-                                            Atur Penjadwalan Ulang
-                                        </span>
-                                    </Label>
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                ))
+                    ))
             ) : (
                 <span className="ml-10">Tidak ada</span>
             )}
