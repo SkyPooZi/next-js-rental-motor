@@ -36,7 +36,7 @@ const ForgotOTP = () => {
       console.log(otp);
     } catch (error) {
       console.error('Error:', error);
-      setError(error.message || 'Terjadi kesalahan. Silakan coba lagi.');
+      setError('Terjadi kesalahan. Silakan coba lagi.');
     }
   };
 

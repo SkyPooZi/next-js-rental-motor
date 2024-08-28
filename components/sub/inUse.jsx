@@ -96,7 +96,6 @@ export default function InUse() {
             </div>
         );
     }
-
     return inUseDetails.length > 0 ? (
         inUseDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
@@ -116,28 +115,11 @@ export default function InUse() {
                             </Label>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end">
-                        <Label>
-                            <span className="font-bold">
-                                {detail.status_history}
-                            </span>
-                        </Label>
-                    </div>
-                </div>
-                <div className="border-t border-[#FF4D30] mt-2"></div>
-                <div className="w-full flex flex-row gap-2 justify-end">
-                    <Button onClick={() => handleInvociePopup(detail.id)} >
-                        <Label>
-                            <span className="cursor-pointer">
-                                Tampilkan Invoice
-                            </span>
-                        </Label>
-                    </Button>
-                </div>
-                {showInvoice && (
-                    <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
-                )}
-            </div>
-        ))
-    ) : <span className="ml-10">Tidak ada</span>;
+                ))
+            ) : <span className="ml-10">Tidak ada</span>}
+            {showInvoice && (
+                <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
+            )}
+        </div>
+    )
 }

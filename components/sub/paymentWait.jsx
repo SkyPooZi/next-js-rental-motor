@@ -81,7 +81,6 @@ export default function PaymentWait() {
             </div>
         );
     }
-
     return paymentDetails.length > 0 ? (
         paymentDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
@@ -101,35 +100,11 @@ export default function PaymentWait() {
                             </Label>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-2 items-end">
-                        <Label>
-                            <span className="font-bold">
-                                {detail.status_history}
-                            </span>
-                        </Label>
-                        <Label>
-                            <span className="text-[#FF4D33] lg:text-xl md:text-base">
-                                Batas Pembayaran - {detail.tanggal_mulai}
-                            </span>
-                        </Label>
-                    </div>
-                </div>
-                <div className="border-t border-[#FF4D30] mt-2"></div>
-                <div className="w-full flex flex-row justify-end">
-                    <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
-                        <Button>
-                            <Label>
-                                <span>
-                                    Batalkan
-                                </span>
-                            </Label>
-                        </Button>
-                    </a>
-                </div>
-                <PaymentWaitModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
-            </div>
-        ))
-    ) : (
-        <span className="ml-10">Tidak ada</span>
+                ))
+            ) : (
+                <span className="ml-10">Tidak ada</span>
+            )}
+            <PaymentWaitModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
+        </div>
     );
 }

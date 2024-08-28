@@ -177,7 +177,7 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                         </div>
                     </div>
                     <div className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
-                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp 25.000</span>
+                        <span className='text-[#ff4d30]'>Biaya Pengantaran Rp 25.000 <br />Dibayar ketika motor sudah sampai ditempat tujuan.</span>
                     </div>
                 </div>
             </div>

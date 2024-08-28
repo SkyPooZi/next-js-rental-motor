@@ -1,16 +1,17 @@
 'use client';
 
 import React, { useState } from "react";
+import dynamic from 'next/dynamic';
 import Cookies from "js-cookie";
-import FormHeader from "@/components/sub/formHeader";
-import DiscountForm from "@/components/sub/discountForm";
-import Notification from "@/components/sub/notification";
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
+const FormHeader = dynamic(() => import("@/components/sub/formHeader"), { ssr: false });
+const DiscountForm = dynamic(() => import("@/components/sub/discountForm"), { ssr: false });
+const Notification = dynamic(() => import("@/components/sub/notification"), { ssr: false });
+const Dashboard = dynamic(() => import("@/components/sub/admin/dashboard"), { ssr: false });
+const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
+const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
+const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
+const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
+const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
 
 export default function AddDiscount() {
     const [activeComponent, setActiveComponent] = useState("addDiscount");
@@ -22,6 +23,11 @@ export default function AddDiscount() {
     const handleBtnClick = (component) => {
         setActiveComponent(component);
     };
+
+    if(typeof window !== 'undefined')
+    {
+        console.log("Window Test");
+    }
 
     return (
         <>

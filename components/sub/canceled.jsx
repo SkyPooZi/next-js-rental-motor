@@ -80,7 +80,6 @@ export default function Canceled() {
             </div>
         );
     }
-
     return cancelledDetails.length > 0 ? (
         cancelledDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
             <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
@@ -100,30 +99,11 @@ export default function Canceled() {
                             </Label>
                         </div>
                     </div>
-                    <div className="flex flex-col gap-1 items-end">
-                        <Label>
-                            <span className="font-bold">
-                                {detail.status_history}
-                            </span>
-                        </Label>
-                    </div>
-                </div>
-                <div className="border-t border-[#FF4D30] mt-2"></div>
-                <div className="w-full flex flex-row gap-2 justify-end">
-                    <a className="hover:underline cursor-pointer " onClick={() => openModal(detail)}>
-                        <Button>
-                            <Label>
-                                <span className="cursor-pointer">
-                                    Tampilkan Rincian Pembatalan
-                                </span>
-                            </Label>
-                        </Button>
-                    </a>
-                    <CancelReasonModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
-                </div>
-            </div>
-        ))
-    ) : (
-        <span className="ml-10">Tidak ada</span>
-    );
+                ))
+            ) : (
+                <span className="ml-10">Tidak ada</span>
+            )}
+            <CancelReasonModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
+        </div>
+    )
 }
