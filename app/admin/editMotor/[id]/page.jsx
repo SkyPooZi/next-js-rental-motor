@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Image from "next/image";
 import { MdDone } from "react-icons/md";
@@ -51,6 +52,7 @@ const Page = ({ params: { id } }) => {
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
+    const router = useRouter();
     const token = Cookies.get("token");
 
     const handleImageChange = (event) => {
@@ -102,6 +104,8 @@ const Page = ({ params: { id } }) => {
                 setHargaMotorPer1Hari(motorData.harga_motor_per_1_hari); // Initialize harga_motor_per_1_hari state
                 setHargaMotorPer1Minggu(motorData.harga_motor_per_1_minggu); // Initialize harga_motor_per_1_minggu state
                 setStatusMotor(motorData.status_motor); // Initialize status_motor state
+                setTanggalMulai(motorData.tanggal_mulai_tidak_tersedia); // Initialize tanggal_mulai_tidak_tersedia state
+                setTanggalSelesai(motorData.tanggal_selesai_tidak_tersedia); // Initialize tanggal_selesai_tidak_tersedia state
             }
             setLoadData(false);
         };
@@ -174,24 +178,27 @@ const Page = ({ params: { id } }) => {
         const getBookedDates = async () => {
             try {
                 const { disabledDays, disabledTimesPerDay } = await fetchBookedDatesAdmin(motor_id, token, stok_motor);
-                setDisabledDays(disabledDays);
+                setDisabledDays(disabledDays || []); // Default to empty array if undefined
+                setDisabledTimesPerDay(disabledTimesPerDay || {}); // Default to empty object if undefined
                 console.log('disabledDays:', disabledDays);
                 console.log('disabledTimesPerDay:', disabledTimesPerDay);
-                setDisabledTimesPerDay(disabledTimesPerDay);
             } catch (error) {
                 console.error('Failed to fetch booked dates:', error);
             }
         };
 
-        getBookedDates();
+        if (motor_id && token && stok_motor) {
+            getBookedDates();
+        }
     }, [motor_id, token, stok_motor]);
 
     const shouldDisableDate = (date) => {
         const today = dayjs().startOf('day');
         if (date.isBefore(today)) return true;
 
+        // Ensure disabledDays is defined and is an array
         const dateStr = date.format('YYYY-MM-DD');
-        return disabledDays.includes(dateStr);
+        return Array.isArray(disabledDays) && disabledDays.includes(dateStr);
     };
 
     const shouldDisableTime = (time, selectedDate) => {
@@ -321,8 +328,8 @@ const Page = ({ params: { id } }) => {
                                 harga_motor_per_1_hari={harga_motor_per_1_hari}
                                 harga_motor_per_1_minggu={harga_motor_per_1_minggu}
                                 status_motor={status_motor}
-                                tanggal_mulai={tanggal_mulai_tidak_tersedia}
-                                tanggal_selesai={tanggal_selesai_tidak_tersedia}
+                                tanggal_mulai_tidak_tersedia={tanggal_mulai_tidak_tersedia}
+                                tanggal_selesai_tidak_tersedia={tanggal_selesai_tidak_tersedia}
                                 handleDateStart={handleDateStart}
                                 handleDateEnd={handleDateEnd}
                                 shouldDisableDate={shouldDisableDate}

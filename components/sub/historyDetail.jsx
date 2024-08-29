@@ -2,7 +2,7 @@ import React from 'react';
 import { format } from 'date-fns';
 import { Calendar } from "@/components/ui/calendar";
 import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from "lucide-react";
-import { Card, CardHeader, Checkbox, Input, Select, Option, Textarea, Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
+import { Card, CardHeader, Radio, Input, Select, Option, Textarea, Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 
 const HistoryDetail = ({ history, image }) => {
     const formatDate = (dateString) => {
@@ -103,7 +103,7 @@ const HistoryDetail = ({ history, image }) => {
                             </span>
                             <div className="flex flex-col md:flex-row gap-5">
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Diri Sendiri"
                                         checked={history.penyewa === "Diri Sendiri"}
@@ -111,7 +111,7 @@ const HistoryDetail = ({ history, image }) => {
                                     Diri Sendiri
                                 </div>
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Orang Lain"
                                         checked={history.penyewa === "Orang Lain"}
@@ -248,7 +248,7 @@ const HistoryDetail = ({ history, image }) => {
                             </span>
                             <div className="flex flex-col md:flex-row gap-5">
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Diambil"
                                         checked={history.penerimaan_motor === "Diambil"}
@@ -256,7 +256,7 @@ const HistoryDetail = ({ history, image }) => {
                                     Diambil
                                 </div>
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Diantar"
                                         checked={history.penerimaan_motor === "Diantar"}
@@ -315,7 +315,7 @@ const HistoryDetail = ({ history, image }) => {
                             </span>
                             <div className="flex flex-col md:flex-row gap-5">
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Tunai"
                                         checked={history.metode_pembayaran === "Tunai"}
@@ -323,7 +323,7 @@ const HistoryDetail = ({ history, image }) => {
                                     Tunai
                                 </div>
                                 <div className="flex items-center cursor-not-allowed">
-                                    <Checkbox
+                                    <Radio
                                         disabled
                                         value="Non-Tunai"
                                         checked={history.metode_pembayaran === "Non-Tunai"}

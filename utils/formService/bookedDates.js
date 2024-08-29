@@ -1,24 +1,27 @@
 import dayjs from 'dayjs';
 
 export const fetchBookedDates = async (motor_id, token, stok_motor) => {
-    if (!motor_id) return [];
+    console.log('motor_id:', motor_id);
+    if (!motor_id) return { disabledDays: [], disabledTimesPerDay: {} };
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
+        // Fetch booking history data
+        const responseHistory = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/all`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`
             },
         });
 
-        if (!response.ok) {
+        if (!responseHistory.ok) {
             throw new Error('Failed to fetch booking history');
         }
 
-        const data = await response.json();
+        const dataHistory = await responseHistory.json();
+        console.log('dataHistory:', dataHistory);
 
         // Filter bookings for the specific motorbike
-        const bookingsForMotor = data.history.filter(item => item.motor_id === motor_id);
+        const bookingsForMotor = dataHistory.history.filter(item => item.motor_id === motor_id);
         console.log('bookingsForMotor:', bookingsForMotor);
 
         // Create an object to store disabled dates and times
@@ -58,28 +61,51 @@ export const fetchBookedDates = async (motor_id, token, stok_motor) => {
             }
         });
 
-        // Convert sets to arrays for easier use later (if needed)
-        const disabledDays = [...disabledDaysSet, ...Object.keys(disabledTimesPerDay).filter(dateStr => {
-            // Check if every minute of the day is fully booked
-            let totalBookedMinutes = 0;
+        // Fetch additional unavailable dates from the new endpoint
+        const responseMotor = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        });
 
-            // Check each minute of the day to see if it is fully booked
-            for (let hour = 0; hour < 24; hour++) {
-                for (let minute = 0; minute < 60; minute++) {
-                    const timeStr = `${dateStr} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
-                    if (bookingCounts[dateStr][timeStr] && bookingCounts[dateStr][timeStr] >= stok_motor) {
-                        totalBookedMinutes++;
+        if (!responseMotor.ok) {
+            throw new Error('Failed to fetch motor list');
+        }
+
+        const dataMotor = await responseMotor.json();
+        console.log('dataMotor:', dataMotor);
+
+        // Filter the relevant motor entry based on motor_id
+        const motorData = dataMotor.listMotor.find(motor => motor.id === motor_id);
+        if (motorData) {
+            // Extract unavailable date ranges
+            const unavailableDates = [
+                { start: dayjs(motorData.tanggal_mulai_tidak_tersedia), end: dayjs(motorData.tanggal_selesai_tidak_tersedia) }
+            ];
+
+            unavailableDates.forEach(({ start, end }) => {
+                for (let date = start; date.isBefore(end) || date.isSame(end, 'minute'); date = date.add(1, 'minute')) {
+                    const dateStr = date.format('YYYY-MM-DD');
+                    const timeStr = date.format('YYYY-MM-DD HH:mm:ss');
+
+                    // Automatically disable the day and the times
+                    disabledDaysSet.add(dateStr);
+
+                    if (!disabledTimesPerDay[dateStr]) {
+                        disabledTimesPerDay[dateStr] = new Set();
                     }
+                    disabledTimesPerDay[dateStr].add(timeStr);
                 }
-            }
+            });
+        } else {
+            console.error('Motor data not found');
+        }
 
-            return totalBookedMinutes >= 24 * 60; // All minutes are booked for that day
-        })];
+        // Convert sets to arrays for easier use later (if needed)
+        const disabledDays = [...disabledDaysSet];
 
-        // Remove duplicates if any
-        const uniqueDisabledDays = [...new Set(disabledDays)];
-
-        return { disabledDays: uniqueDisabledDays, disabledTimesPerDay };
+        return { disabledDays, disabledTimesPerDay };
     } catch (error) {
         console.error('Error fetching booked dates:', error);
         throw error;
