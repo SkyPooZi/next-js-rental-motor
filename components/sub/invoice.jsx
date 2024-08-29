@@ -164,13 +164,14 @@ const InvoicePopup = ({ onClose, orderId }) => {
         <motion.div
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, type: 'tween'}}
-            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50">
-            <div className="bg-[#F6F7F9] p-6 rounded-lg relative mx-4">
-                <div className="flex items-center justify-between mb-4 gap-44">
+            transition={{ duration: 0.3, type: 'tween' }}
+            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50 p-4"
+        >
+            <div className="bg-[#F6F7F9] p-6 rounded-lg relative mx-4 w-fit max-w-lg md:max-w-3xl overflow-y-auto max-h-[90vh]">
+                <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                         <Image src='/images/logo.png' alt='Logo' width={38} height={38} className='cursor-pointer' />
-                        <span className='font-bold ml-2 hidden md:block'>
+                        <span className='font-bold ml-2 hidden md:block text-base md:text-lg'>
                             Rental Motor Kudus
                         </span>
                     </div>
@@ -178,76 +179,76 @@ const InvoicePopup = ({ onClose, orderId }) => {
                 </div>
                 <div className="bg-[#FFFFFF] p-4 rounded-lg">
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">No. Pemesanan :</span>
-                        <span className="font-semibold ml-2">{no_pemesanan}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">No. Pemesanan :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{no_pemesanan}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Tgl. Pemesanan :</span>
-                        <span className="font-semibold ml-2">{tanggal_pemesanan}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Tgl. Pemesanan :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{tanggal_pemesanan}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Nama Pemesan :</span>
-                        <span className="font-semibold ml-2">{nama_lengkap}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Nama Pemesan :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{nama_lengkap}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Email :</span>
-                        <span className="font-semibold ml-2">{email}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Email :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{email}</span>
                     </div>
                     <div className='mt-5'>
-                        <span className='font-semibold '>INFO PEMBAYARAN</span>
+                        <span className='font-semibold text-sm md:text-base'>INFO PEMBAYARAN</span>
                     </div>
                     <div className="border-t border-black my-2"></div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Tanggal Pembayaran :</span>
-                        <span className="font-semibold ml-2">{tanggal_pembayaran}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Tanggal Pembayaran :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{tanggal_pembayaran}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Metode Pembayaran :</span>
-                        <span className="font-semibold ml-2">{metode_pembayaran}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Metode Pembayaran :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{metode_pembayaran}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Total Pembayaran :</span>
-                        <span className="font-semibold ml-2">{total_pembayaran}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Total Pembayaran :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{total_pembayaran}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55">Status :</span>
-                        <span className="font-semibold ml-2">{status_pembayaran}</span>
+                        <span className="font-semibold opacity-55 text-sm md:text-base">Status :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{status_pembayaran}</span>
                     </div>
                     <div className='mt-5'>
-                        <span className='font-semibold '>DETAIL PEMBAYARAN</span>
+                        <span className='font-semibold text-sm md:text-base'>DETAIL PEMBAYARAN</span>
                     </div>
                     <div className="border-t border-black my-2"></div>
-                    <div className='flex justify-between'>
+                    <div className='flex flex-col md:flex-row justify-between'>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold'>Keterangan</span>
+                                <span className='font-semibold text-sm md:text-base'>Keterangan</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55'>{nama_motor}</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>{nama_motor}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold'>Hari</span>
+                                <span className='font-semibold text-sm md:text-base'>Hari</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55'>{hari}</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold'>Satuan</span>
+                                <span className='font-semibold text-sm md:text-base'>Satuan</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55'>{harga_motor_per_1_hari}</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>{harga_motor_per_1_hari}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold'>Total</span>
+                                <span className='font-semibold text-sm md:text-base'>Total</span>
                             </div>
                             <div>
-                                <span className='font-semibold opacity-55'>{hari * harga_motor_per_1_hari}</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari * harga_motor_per_1_hari}</span>
                             </div>
                         </div>
                     </div>
@@ -255,13 +256,13 @@ const InvoicePopup = ({ onClose, orderId }) => {
                     <div className='flex justify-end'>
                         <div className='flex-col'>
                             <div className='flex gap-5 mb-2'>
-                                <span className='font-semibold opacity-55'>Total Pemesanan</span>
-                                <span className='font-semibold opacity-55'>{hari * harga_motor_per_1_hari}</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>Total Pemesanan</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari * harga_motor_per_1_hari}</span>
                             </div>
                             <div className='flex gap-5'>
-                                <span className='font-semibold opacity-55'>Diskon</span>
+                                <span className='font-semibold opacity-55 text-sm md:text-base'>Diskon</span>
                                 <div className='w-full text-end'>
-                                    <span className='font-semibold opacity-55'>{discountAmount} | {potongan_harga}%</span>
+                                    <span className='font-semibold opacity-55 text-sm md:text-base'>{discountAmount} | {potongan_harga}%</span>
                                 </div>
                             </div>
                         </div>
@@ -269,20 +270,20 @@ const InvoicePopup = ({ onClose, orderId }) => {
                     <div className="border-t border-black my-2"></div>
                     <div className='flex justify-end gap-5 mb-4'>
                         <div>
-                            <span className='font-semibold'>Total Dibayar</span>
+                            <span className='font-semibold text-sm md:text-base'>Total Dibayar</span>
                         </div>
                         <div>
-                            <span className='font-semibold'>{total_pembayaran}</span>
+                            <span className='font-semibold text-sm md:text-base'>{total_pembayaran}</span>
                         </div>
                     </div>
                     <div className='flex items-center gap-3'>
                         <div>
-                            <span className='italic text-xs'>Terima kasih telah booking di Rental Motor Kudus</span>
+                            <span className='italic text-xs md:text-sm'>Terima kasih telah booking di Rental Motor Kudus</span>
                         </div>
                         <div>
                             <button
                                 onClick={handlePdfDownload}
-                                className="flex items-center border border-black bg-transparent px-2 py-1 rounded-lg font-medium hover:bg-gray-100"
+                                className="flex items-center border border-black bg-transparent px-2 py-1 rounded-lg font-medium hover:bg-gray-100 text-sm md:text-base"
                             >
                                 <AiOutlineFilePdf className="mr-2 h-6 w-6" />
                                 <span>Cetak PDF</span>
@@ -292,6 +293,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
                 </div>
             </div>
         </motion.div>
+
     );
 };
 

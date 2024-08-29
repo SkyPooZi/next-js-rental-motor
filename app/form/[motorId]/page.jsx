@@ -268,7 +268,7 @@ export default function page({ params: { motorId } }) {
             usePoint,
         };
 
-        await handleBookingSubmit(bookingData, token, router, setLoading, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, setError);
+        await handleBookingSubmit(bookingData, token, router, setLoading, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, id);
     };
 
     useEffect(() => {
@@ -348,9 +348,28 @@ export default function page({ params: { motorId } }) {
             console.log('Invoice created', invoiceData);
             Cookies.set('orderIdTunai', invoiceData.order_id);
 
-            showNotificationWithTimeout(successMessage, 'success');
+            if (usePoint) {
+                const pointsToUse = Math.min(point, total_pembayaran);
+                console.log(pointsToUse);
+                const pointResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ point: point - pointsToUse }),
+                });
 
-            router.push(`/setting?component=history`);
+                console.log(pointResponse);
+
+                if (!pointResponse.ok) {
+                    throw new Error('Failed to update points');
+                }
+
+                console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
+            }
+
+            showNotificationWithTimeout(successMessage, 'success');
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {

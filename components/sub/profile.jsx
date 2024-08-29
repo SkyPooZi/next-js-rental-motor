@@ -52,6 +52,8 @@ export default function Profile() {
     const [alamat, setAlamat] = useState('');
     const [peran, setPeran] = useState('');
     const [error, setError] = useState(null);
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [errorOtp, setErrorOtp] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
@@ -248,7 +250,7 @@ export default function Profile() {
                     email,
                     token,
                     setLoadingEmail,
-                    setError,
+                    setError: setEmailError,
                     setOtpSent,
                     setOtpPopupVisible,
                     setServerOtp
@@ -261,7 +263,7 @@ export default function Profile() {
                         <span>Email Baru</span>
                     </label>
                     <Input
-                        label={`Masukkan email`}
+                        label={`Masukkan email (${user.email})`}
                         type='email'
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -271,6 +273,7 @@ export default function Profile() {
                         Email akan berubah ketika Anda sudah memasukkan kode OTP
                         untuk verifikasi yang dikirimkan ke email baru Anda.
                     </span>
+                    {emailError && <span className="text-red-500 text-xs">{emailError}</span>}
                 </div>
             </FormSection>
 
@@ -286,13 +289,22 @@ export default function Profile() {
                     setUser={(user) => console.log(user)}
                     setShowNotification={setShowNotification}
                     setOtpPopupVisible={setOtpPopupVisible}
-                    setErrorOtp={setError}
+                    setErrorOtp={setEmailError}
                 />
             )}
 
             <FormSection
                 title="Ubah Kata Sandi"
-                onSubmit={(e) => handlePasswordReset(e, { password, confirmPassword, id, token, setError, setLoadingPassword, setShowNotification, setUser })}
+                onSubmit={(e) => handlePasswordReset(e, {
+                    password,
+                    confirmPassword,
+                    id,
+                    token,
+                    setError: setPasswordError,
+                    setLoadingPassword,
+                    setShowNotification,
+                    setUser
+                })}
                 isLoading={loadingPassword}
                 submitText="Ubah Kata Sandi"
             >
@@ -320,7 +332,7 @@ export default function Profile() {
                                 <FontAwesomeIcon icon={showPassword ? faEye : faEyeSlash} />
                             </button>
                         </div>
-                        {error && <span className="text-red-500 text-xs">{error}</span>}
+                        {passwordError && <span className="text-red-500 text-xs">{passwordError}</span>}
                         <span className="text-[#6B7280] text-xs">
                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
                         </span>

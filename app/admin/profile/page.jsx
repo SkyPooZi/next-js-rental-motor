@@ -13,21 +13,23 @@ import {
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
-import Sidebar from '@/components/main/sidebar';
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import OTPPopup from '@/components/sub/admin/sendOTP';
-import Loading from '@/components/ui/loading';
+import dynamic from 'next/dynamic';
+
+const Dashboard = dynamic(() => import("@/components/sub/admin/dashboard"), { ssr: false });
+const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
+const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
+const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
+const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
+const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
+const OTPPopup = dynamic(() => import('@/components/sub/admin/sendOTP'), { ssr: false });
+const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });
 import { updateUser } from '@/utils/services/updateUser';
 import { fetchUserData } from '@/utils/services/userService';
 import { handleVerifyOTP } from '@/utils/services/otpService';
-import { handleEmailChange } from '@/utils/services/handleEmailChange';
-import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
+import { handleEmailChangeAdmin } from '@/utils/services/handleEmailChangeAdmin';
+import { handlePasswordResetAdmin } from '@/utils/services/handlePasswordResetAdmin';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -36,12 +38,13 @@ const Page = () => {
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [emailError, setEmailError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nomor_hp, setNomorHp] = useState('');
     const [alamat, setAlamat] = useState('');
     const [peran, setPeran] = useState('');
     const [error, setError] = useState(null);
-    const [errorOtp, setErrorOtp] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
     const [imagePreview, setImagePreview] = useState('');
@@ -51,10 +54,8 @@ const Page = () => {
     const [loadingPassword, setLoadingPassword] = useState(false);
     const [loadingEmail, setLoadingEmail] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
-    const [errorNotification, setErrorNotification] = useState(false);
     const [otpPopupVisible, setOtpPopupVisible] = useState(false);
     const [otpSent, setOtpSent] = useState(false);
-    const [loadingOtp, setLoadingOtp] = useState(false);
     const [user, setUser] = useState({ email: '' });
     const [serverOtp, setServerOtp] = useState('');
     const [loadData, setLoadData] = useState(true);
@@ -86,10 +87,6 @@ const Page = () => {
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
-    };
-
-    const handleSelectChangeRole = (value) => {
-        setPeran(value);
     };
 
     useEffect(() => {
@@ -173,6 +170,10 @@ const Page = () => {
     const toggleShowConfirmPassword = () => {
         setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };
+
+    if (typeof window !== 'undefined') {
+        console.log("Window Test");
+    }
 
     return (
         <>
@@ -332,11 +333,11 @@ const Page = () => {
                                     <form
                                         action='post'
                                         method='post'
-                                        onSubmit={(e) => handleEmailChange(e, {
+                                        onSubmit={(e) => handleEmailChangeAdmin(e, {
                                             email,
                                             token,
                                             setLoadingEmail,
-                                            setError,
+                                            setError: setEmailError,
                                             setOtpSent,
                                             setOtpPopupVisible,
                                             setServerOtp
@@ -362,6 +363,7 @@ const Page = () => {
                                                             Email akan berubah ketika Anda sudah memasukkan kode OTP
                                                             untuk verifikasi yang dikirimkan ke email baru Anda.
                                                         </span>
+                                                        {emailError && <span className="text-red-500 text-xs">{emailError}</span>}
                                                     </div>
                                                 </div>
                                                 <div>
@@ -388,7 +390,7 @@ const Page = () => {
                                             setUser={(user) => console.log(user)}
                                             setShowNotification={setShowNotification}
                                             setOtpPopupVisible={setOtpPopupVisible}
-                                            setErrorOtp={setError}
+                                            setErrorOtp={setEmailError}
                                         />
                                     )}
                                 </Card>
@@ -396,8 +398,16 @@ const Page = () => {
                                     <form
                                         action='post'
                                         method='post'
-                                        onSubmit={(e) => handlePasswordReset(e, { password, confirmPassword, id, token, setError, setLoadingPassword, setShowNotification, setUser })}
-                                    >
+                                        onSubmit={(e) => handlePasswordResetAdmin(e, {
+                                            password,
+                                            confirmPassword,
+                                            id,
+                                            token,
+                                            setError: setPasswordError,
+                                            setLoadingPassword,
+                                            setShowNotification,
+                                            setUser
+                                        })}                                    >
                                         <CardHeader floated={false} shadow={false} className="rounded-none">
                                             <div className="mb-4 flex flex-col justify-between gap-4">
                                                 <span className="text-black font-medium">
@@ -423,7 +433,7 @@ const Page = () => {
                                                                 <FontAwesomeIcon icon={showNewPassword ? faEye : faEyeSlash} />
                                                             </button>
                                                         </div>
-                                                        {error && <span className="text-red-500 text-xs">{error}</span>}
+                                                        {passwordError && <span className="text-red-500 text-xs">{passwordError}</span>}
                                                         <span className="text-[#6B7280] text-xs">
                                                             Gunakan minimal 8 karakter dengan kombinasi huruf dan angka.
                                                         </span>

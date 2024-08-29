@@ -10,15 +10,18 @@ import {
     Avatar,
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
+import { Label } from "@/components/ui/label";
 
-import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
-import Dashboard from "@/components/sub/admin/dashboard";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import Discount from "@/components/sub/admin/discount";
+import dynamic from 'next/dynamic';
+
+const NavbarAdmin = dynamic(() => import('@/components/sub/admin/navbar'), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const Dashboard = dynamic(() => import('@/components/sub/admin/dashboard'), { ssr: false });
+const MotorList = dynamic(() => import('@/components/sub/admin/motorList'), { ssr: false });
+const User = dynamic(() => import('@/components/sub/admin/user'), { ssr: false });
+const History = dynamic(() => import('@/components/sub/admin/history'), { ssr: false });
+const Rating = dynamic(() => import('@/components/sub/admin/rating'), { ssr: false });
+const Discount = dynamic(() => import('@/components/sub/admin/discount'), { ssr: false });
 
 export default function Notification() {
     const [showNotification, setShowNotification] = useState(false);
@@ -84,7 +87,7 @@ export default function Notification() {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formData
+                body: formData,
             });
 
             if (!response.ok) {
@@ -157,7 +160,10 @@ export default function Notification() {
             return;
         };
         const formData = new FormData();
+        const currentDate = new Date().toISOString().split('T')[0];
         formData.append('status_history', 'Dibatalkan');
+        formData.append('tanggal_pembatalan', currentDate);
+        formData.append('alasan_pembatalan', 'Tidak Disetujui oleh Admin');
         setLoadingCancel(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
@@ -165,7 +171,7 @@ export default function Notification() {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
-                body: formData
+                body: formData,
             });
             if (!response.ok) {
                 setError(`Failed to update data: ${response.statusText}`);
@@ -194,6 +200,10 @@ export default function Notification() {
 
     const handleBtnClick = (component) => {
         setActiveComponent(component);
+    }
+
+    if (typeof window !== 'undefined') {
+        console.log("Window Test");
     }
 
     return (
@@ -261,12 +271,18 @@ export default function Notification() {
                                                     <div className="flex flex-row gap-4">
                                                         <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
                                                         <div className="flex flex-col gap-2">
-                                                            <span className="font-semibold text-black">
+                                                            <span className="font-semibold text-black text-lg">
                                                                 {item.nama_lengkap}
                                                             </span>
                                                             <span className="text-black">
                                                                 {item.nama_lengkap} ingin menyewa motor {item.list_motor.nama_motor}, apakah anda menyetujui pemintaan ini?
                                                             </span>
+                                                            <Label className="flex gap-2">
+                                                                <span>Total pembayaran </span>
+                                                                <span className="font-bold">
+                                                                    {`Rp. ${item.total_pembayaran}`}
+                                                                </span>
+                                                            </Label>
                                                         </div>
                                                     </div>
                                                     <div className="border-t border-[#969696] w-full"></div>

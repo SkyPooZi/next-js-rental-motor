@@ -7,7 +7,7 @@ export const handleBookingSubmit = async (
     updateHistoryStatus,
     submitForm,
     setResponse,
-    setError
+    id,
 ) => {
     const {
         metode_pembayaran,
@@ -29,7 +29,6 @@ export const handleBookingSubmit = async (
         hubungan_dengan_kontak_darurat,
         diskon_id,
         total_pembayaran,
-        id,
         usePoint,
         point
     } = bookingData;
@@ -132,6 +131,7 @@ export const handleBookingSubmit = async (
                     // Deduct points if applicable
                     if (usePoint) {
                         const pointsToUse = Math.min(point, total_pembayaran);
+                        console.log(pointsToUse);
                         const pointResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
                             method: 'POST',
                             headers: {
@@ -140,6 +140,8 @@ export const handleBookingSubmit = async (
                             },
                             body: JSON.stringify({ point: point - pointsToUse }),
                         });
+
+                        console.log(pointResponse);
 
                         if (!pointResponse.ok) {
                             throw new Error('Failed to update points');

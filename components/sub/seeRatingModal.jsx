@@ -113,9 +113,19 @@ const SeeRatingModal = ({ isOpen, onClose, historyId }) => {
                             </div>
                         </div>
                         <div className='w-full flex flex-row gap-5 border p-5'>
-                            <Avatar>
-                                <AvatarImage src={userImage || 'https://github.com/shadcn.png'} />
-                                <AvatarFallback>CN</AvatarFallback>
+                            <Avatar className="w-10 h-10">
+                                {user?.gambar ? (
+                                    <AvatarImage
+                                        className="w-full h-full object-cover"
+                                        src={
+                                            user.google_id || user.facebook_id
+                                                ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                                : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                                        }
+                                    />
+                                ) : (
+                                    <AvatarFallback>o_o</AvatarFallback>
+                                )}
                             </Avatar>
                             <div className='flex flex-col gap-2'>
                                 <Label>

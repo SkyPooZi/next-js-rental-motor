@@ -34,6 +34,21 @@ export function RatingTable() {
     const itemsPerPage = 5;
     const token = Cookies.get('token');
 
+    const truncateText = (text, wordLimit) => {
+        if (!text) return '';
+        const words = text.split(' ');
+        console.log('Original Text:', text);  // Log the original text
+        console.log('Word Limit:', wordLimit);  // Log the word limit
+        console.log('Words:', words);  // Log the split words
+
+        if (words.length > wordLimit) {
+            const truncated = words.slice(0, wordLimit).join(' ') + ' ......';
+            console.log('Truncated Text:', truncated);  // Log the truncated text
+            return truncated;
+        }
+        return text;
+    };
+
     const fetchData = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/review/all`, {
@@ -220,7 +235,7 @@ export function RatingTable() {
                                                     color="blue-gray"
                                                     className="font-normal"
                                                 >
-                                                    {reviewData.komentar}
+                                                    {truncateText(reviewData.komentar, 2)}
                                                 </Typography>
                                             </td>
                                             <td className="p-4">

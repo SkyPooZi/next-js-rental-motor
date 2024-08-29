@@ -108,7 +108,7 @@ export default function Booked() {
         }, 300);
     };
 
-    const handleInvociePopup = async (historyId) => {
+    const handleInvoicePopup = async (historyId) => {
         await fetchInvoiceDetails(historyId);
         setShowInvoice(true);
     };
