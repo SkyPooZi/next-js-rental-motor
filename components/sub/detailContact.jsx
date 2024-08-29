@@ -2,7 +2,7 @@ import React from 'react';
 import { Input, Radio } from '@material-tailwind/react';
 import { Label } from '@/components/ui/label';
 
-const DetailKontak = ({ nama_lengkap, setNamaLengkap, akun_sosmed, setAkunSosmed, email, setEmail, no_telp, setNoTelp, clickedPenyewaDiriSendiri, handleClickPenyewaDiriSendiri, clickedPenyewaOrangLain, handleClickPenyewaOrangLain }) => {
+const DetailKontak = ({ nama_lengkap, setNamaLengkap, akun_sosmed, setAkunSosmed, email, setEmail, nomor_hp, setNoTelp, clickedPenyewaDiriSendiri, handleClickPenyewaDiriSendiri, clickedPenyewaOrangLain, handleClickPenyewaOrangLain }) => {
     return (
         <div className='w-full rounded-xl px-5 py-5 bg-white'>
             <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
@@ -66,16 +66,16 @@ const DetailKontak = ({ nama_lengkap, setNamaLengkap, akun_sosmed, setAkunSosmed
                                     type="number"
                                     label="Masukkan no telp"
                                     placeholder="8892384434"
-                                    value={no_telp}
+                                    value={nomor_hp}
                                     onChange={(e) => {
-                                        const inputValue = e.target.value;
+                                        let inputValue = e.target.value;
 
-                                        // Prevents user from starting the input with "0" after "+62"
+                                        // Check if input starts with "0" after "+62"
                                         if (inputValue.startsWith('0')) {
-                                            setNoTelp(inputValue.slice(1));
-                                        } else {
-                                            setNoTelp(inputValue);
+                                            inputValue = inputValue.slice(1); // Remove the leading "0"
                                         }
+
+                                        setNoTelp(inputValue); // Update the state
                                     }}
                                     required
                                     className="border rounded-r"

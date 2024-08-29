@@ -1,3 +1,5 @@
+// utils/formService/userService.js
+
 export const fetchUserData = async ({ id, token }) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/${id}`, {
@@ -19,3 +21,36 @@ export const fetchUserData = async ({ id, token }) => {
         throw new Error(`An error occurred: ${err.message}`);
     }
 };
+
+export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp }) => {
+    try {
+        const payload = {
+            nama_lengkap: nama_lengkap,
+            nomor_hp: nomor_hp,
+            // Include other fields if needed
+        };
+
+        console.log('Payload being sent to update user:', payload); // Log the payload
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to update user data');
+        }
+
+        const updatedUser = await response.json();
+        console.log('User data updated successfully:', updatedUser);
+        return updatedUser; // Return the updated user data if needed
+    } catch (error) {
+        console.error('Error updating user data:', error);
+        throw error; // Re-throw the error so that it can be handled by the caller
+    }
+};
+
