@@ -13,12 +13,8 @@ const DetailMotor = ({ motor }) => {
             ? 'text-yellow-500'
             : 'text-green-500';
 
-    const isButtonDisabled = motor.status_motor === 'Tidak Tersedia' || motor.status_motor === 'Tertunda';
-
     const handleButtonClick = () => {
-        if (!isButtonDisabled) {
             router.push(`/form/${motor.id}`);
-        }
     };
 
     return (
@@ -109,9 +105,8 @@ const DetailMotor = ({ motor }) => {
                             </Link>
                             <div className="flex flex-col items-center mb-2">
                                 <Button
-                                    disabled={isButtonDisabled}
                                     onClick={handleButtonClick}
-                                    className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32`}
                                 >
                                     <span className="relative text-base z-10">Pesan Sekarang!</span>
                                 </Button>

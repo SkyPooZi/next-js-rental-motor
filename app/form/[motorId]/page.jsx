@@ -27,6 +27,7 @@ import { fetchDiskons } from '@/utils/formService/diskonService';
 import { fetchUserPoint } from '@/utils/formService/userService';
 import { handleBookingSubmit } from '@/utils/formService/bookingService';
 import { fetchBookedDates } from '@/utils/formService/bookedDates';
+import { fetchUserData, updateUserData } from '@/utils/services/userService';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -48,7 +49,7 @@ export default function page({ params: { motorId } }) {
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
-    const [no_telp, setNoTelp] = useState('');
+    const [nomor_hp, setNoTelp] = useState('');
     const [akun_sosmed, setAkunSosmed] = useState('');
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
@@ -81,9 +82,30 @@ export default function page({ params: { motorId } }) {
     const [durasi, setDurasi] = useState('');
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
-    const router = useRouter();
+    const [userId, setUserId] = useState(null);
+
     const token = Cookies.get('token');
+    const userIdFromCookie = Cookies.get('id'); // Assuming user ID is stored in a cookie
+    const router = useRouter();
     const id = Cookies.get('id');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const user = await fetchUserData({ id: userIdFromCookie, token }); // Fetch user data using the API
+                if (user) {
+                    setNamaLengkap(user.nama_lengkap);
+                    setEmail(user.email);
+                    setNoTelp(user.nomor_hp);
+                    setUserId(user.id); // Set user ID
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchData();
+    }, [token, userIdFromCookie]);
 
     useEffect(() => {
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
@@ -248,7 +270,7 @@ export default function page({ params: { motorId } }) {
             pengguna_id: id,
             nama_lengkap,
             email,
-            no_telp: formatPhoneNumber(no_telp),
+            nomor_hp: formatPhoneNumber(nomor_hp),
             akun_sosmed,
             alamat,
             penyewa,
@@ -302,7 +324,7 @@ export default function page({ params: { motorId } }) {
                     pengguna_id: id,
                     nama_lengkap,
                     email,
-                    no_telp: formatPhoneNumber(no_telp),
+                    nomor_hp: formatPhoneNumber(nomor_hp),
                     akun_sosmed,
                     alamat,
                     penyewa,
@@ -509,10 +531,18 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const handleClickPenyewaDiriSendiri = () => {
+    const handleClickPenyewaDiriSendiri = async () => {
         setClickedPenyewaDiriSendiri(true);
         setClickedPenyewaOrangLain(false);
         setPenyewa('Diri Sendiri');
+
+        if (userId) { // Check if userId is available
+            try {
+                await updateUserData(userId, token, { nama_lengkap, nomor_hp }); // Call the updateUserData function
+            } catch (error) {
+                console.error('Error updating user data:', error);
+            }
+        }
     };
 
     const handleClickPenyewaOrangLain = () => {
@@ -612,7 +642,7 @@ export default function page({ params: { motorId } }) {
                             setAkunSosmed={setAkunSosmed}
                             email={email}
                             setEmail={setEmail}
-                            no_telp={no_telp}
+                            nomor_hp={nomor_hp}
                             setNoTelp={setNoTelp}
                             clickedPenyewaDiriSendiri={clickedPenyewaDiriSendiri}
                             handleClickPenyewaDiriSendiri={handleClickPenyewaDiriSendiri}
