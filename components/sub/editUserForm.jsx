@@ -16,6 +16,12 @@ const EditUserForm = ({
     handleButtonClick,
     fileInputRef,
     loading,
+    nama_pengguna,
+    nama_lengkap,
+    email,
+    nomor_hp,
+    alamat,
+    peran,
 }) => {
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
@@ -53,14 +59,16 @@ const EditUserForm = ({
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Pengguna</span>
                                 <Input
-                                    label={`Masukkan nama pengguna (${user.nama_pengguna || ''})`}
+                                    label={`Masukkan nama pengguna`}
+                                    value={nama_pengguna || ''}
                                     onChange={(e) => setNamaPengguna(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Lengkap</span>
                                 <Input
-                                    label={`Masukkan nama lengkap (${user.nama_lengkap || ''})`}
+                                    label={`Masukkan nama lengkap`}
+                                    value={nama_lengkap || ''}
                                     onChange={(e) => setNamaLengkap(e.target.value)}
                                 />
                             </div>
@@ -70,7 +78,8 @@ const EditUserForm = ({
                                 <span className="text-black">Email</span>
                                 <Input
                                     disabled
-                                    label={`Masukkan email (${user.email || ''})`}
+                                    label={`Masukkan email`}
+                                    value={email || ''}
                                     onChange={(e) => setEmail(e.target.value)}
                                     type='email'
                                 />
@@ -82,8 +91,10 @@ const EditUserForm = ({
                                         +62
                                     </span>
                                     <Input
+                                        disabled
                                         type="number"
-                                        label={`Masukkan no hp (${user.nomor_hp || ''})`}
+                                        label={`Masukkan no hp`}
+                                        value={nomor_hp || ''}
                                         placeholder="8892384434"
                                         onChange={(e) => {
                                             const inputValue = e.target.value;
@@ -102,14 +113,17 @@ const EditUserForm = ({
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Alamat</span>
                                 <Textarea
-                                    label={`Masukkan alamat (${user.alamat || ''})`}
+                                    disabled
+                                    value={alamat || ''}
+                                    label={`Masukkan alamat`}
                                     onChange={(e) => setAlamat(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Peran</span>
                                 <Select
-                                    label={`Masukkan peran (${user.peran || ''})`}
+                                    label={`Masukkan peran`}
+                                    value={peran || ''}
                                     onChange={handleSelectChangeRole}
                                 >
                                     <Option className="text-white rounded-md w-full bg-blue-400" value='admin'>

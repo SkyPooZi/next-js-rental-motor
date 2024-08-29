@@ -370,6 +370,7 @@ export default function page({ params: { motorId } }) {
             }
 
             showNotificationWithTimeout(successMessage, 'success');
+            router.push('/setting?component=history');
         } catch (error) {
             setResponse({ message: 'Terjadi kesalahan saat mengirim data.', error: error.message });
         } finally {

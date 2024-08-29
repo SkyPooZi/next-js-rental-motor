@@ -59,6 +59,10 @@ const Page = ({ params: { id } }) => {
             } else {
                 setDiskon(result.data);
                 setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${result.data.gambar}`);
+                setNamaDiskon(result.data.nama_diskon);
+                setPotonganHarga(result.data.potongan_harga);
+                setTanggalMulai(result.data.tanggal_mulai);
+                setTanggalSelesai(result.data.tanggal_selesai);
             }
             setLoadData(false);
         };
@@ -82,6 +86,8 @@ const Page = ({ params: { id } }) => {
             setLoading,
             setError
         });
+
+        window.location.reload();
     };
 
     const handleBtnClick = (component) => {
@@ -103,6 +109,10 @@ const Page = ({ params: { id } }) => {
         } else {
             setTanggalSelesai('');
         }
+    }
+
+    if (typeof window !== 'undefined') {
+        console.log("Window Test");
     }
 
     return (
@@ -172,6 +182,8 @@ const Page = ({ params: { id } }) => {
                                 tanggal_selesai={tanggal_selesai}
                                 handleDateEnd={handleDateEnd}
                                 loading={loading}
+                                nama_diskon={nama_diskon}
+                                potongan_harga={potongan_harga}
                             />
                         ) : (
                             <p>Loading...</p>

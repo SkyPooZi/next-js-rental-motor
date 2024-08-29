@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -22,7 +22,7 @@ import DeleteConfirmationModal from "../deleteConfirmModal";
 const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
 
 export function DiscountTable() {
-    const [id, setId] = useState(null); 
+    const [id, setId] = useState(null);
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
     const [diskon, setDiskon] = useState([]);
@@ -240,7 +240,7 @@ export function DiscountTable() {
                                                 <Link href={`/admin/detailDiscount/${diskonData.id}`}>
                                                     <Tooltip content="Detail">
                                                         <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
+                                                            <EyeIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>

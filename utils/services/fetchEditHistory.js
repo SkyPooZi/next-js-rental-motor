@@ -19,6 +19,7 @@ export const EditHistory = async ({
     metode_pembayaran,
     total_pembayaran,
     status_history,
+    selectedMotor,
     setHistory,
     setShowNotification,
     setError,
@@ -32,6 +33,7 @@ export const EditHistory = async ({
     if (alamat) formData.append('alamat', alamat);
     if (penyewa) formData.append('penyewa', penyewa);
     if (motor_id) formData.append('motor_id', motor_id);
+    if (selectedMotor) formData.append('motor_id', selectedMotor);
     if (tanggal_mulai) formData.append('tanggal_mulai', tanggal_mulai);
     if (tanggal_selesai) formData.append('tanggal_selesai', tanggal_selesai);
     if (keperluan_menyewa) formData.append('keperluan_menyewa', keperluan_menyewa);
@@ -71,6 +73,7 @@ export const EditHistory = async ({
                 ...(alamat && { alamat: data.history.alamat }),
                 ...(penyewa && { penyewa: data.history.penyewa }),
                 ...(motor_id && { motor_id: data.history.motor_id }),
+                ...(selectedMotor && { selectedMotor: data.history.nama_motor }),
                 ...(tanggal_mulai && { tanggal_mulai: data.history.tanggal_mulai }),
                 ...(tanggal_selesai && { tanggal_selesai: data.history.tanggal_selesai }),
                 ...(keperluan_menyewa && { keperluan_menyewa: data.history.keperluan_menyewa }),

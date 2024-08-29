@@ -1,4 +1,4 @@
-export const fetchHistoryDetail = async (id, token, setHistory, setError) => {
+export const fetchHistoryDetail = async (id, token, setHistory, setError, setSelectedMotor) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/detail/${id}`, {
             method: 'GET',
@@ -8,13 +8,14 @@ export const fetchHistoryDetail = async (id, token, setHistory, setError) => {
         });
 
         if (response.status === 204) {
-            setError('No content available for the provided ID');
+            return { error: 'No content available for the provided ID' };
         } else if (!response.ok) {
-            setError(`Failed to fetch data: ${response.statusText}`);
+            return { error: `Failed to fetch data: ${response.statusText}` };
         } else {
             const data = await response.json();
-            console.log('Fetched data:', data);
+            console.log('Fetched data:', data.history);
             setHistory(data.history);
+            setSelectedMotor(data.history.list_motor.nama_motor);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);

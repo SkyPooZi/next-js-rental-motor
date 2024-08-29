@@ -8,7 +8,7 @@ export default function DeleteConfirmationModal({ isOpen, onClose, onConfirm, en
             <DialogBody divider>
                 Apakah Anda yakin ingin menghapus {entityName} ini? Tindakan ini tidak dapat diurungkan.
             </DialogBody>
-            <DialogFooter>
+            <DialogFooter className="flex gap-3">
                 <Button variant="text" color="red" onClick={onClose}>
                     Batal
                 </Button>

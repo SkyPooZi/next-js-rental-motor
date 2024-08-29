@@ -1,4 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TextField } from '@mui/material';
 import { Card, CardHeader, Select, Option, Input, Textarea, Button, Typography } from '@material-tailwind/react';
 
 const EditMotorForm = ({
@@ -17,10 +22,30 @@ const EditMotorForm = ({
     setStokMotor,
     setHargaMotorPer1Hari,
     setHargaMotorPer1Minggu,
-    setFasilitasMotor,
     handleSelectChangeStatus,
-    loading
+    loading,
+    nama_motor,
+    tipe_motor,
+    merk_motor,
+    stok_motor,
+    harga_motor_per_1_hari,
+    harga_motor_per_1_minggu,
+    status_motor,
+    tanggal_mulai_tidak_tersedia,
+    tanggal_selesai_tidak_tersedia,
+    handleDateStart,
+    handleDateEnd,
+    shouldDisableDate,
+    shouldDisableTime,
+    minEndDate,
+    setStatusMotor,
 }) => {
+    const [isChecked, setIsChecked] = useState(false);
+
+    const handleClick = () => {
+        setIsChecked(!isChecked);
+        setStatusMotor(!isChecked ? 'Tidak Tersedia' : 'Tersedia');
+    };
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
             <Card className="mb-20 xl:mb-0 w-full h-full">
@@ -55,17 +80,21 @@ const EditMotorForm = ({
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Nama Motor</span>
+                                <span className="text-black text-lg">Nama Motor</span>
                                 <Input
-                                    onChange={(e) => setNamaMotor(e.target.value)}
-                                    label={`Masukkan nama motor (${motor.nama_motor})`}
+                                    onChange={(e) => {
+                                        setNamaMotor(e.target.value);
+                                    }}
+                                    label={`Masukkan nama motor`}
+                                    value={nama_motor}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Tipe</span>
+                                <span className="text-black text-lg">Tipe</span>
                                 <Select
                                     onChange={handleSelectChangeType}
-                                    label={`Masukkan tipe motor (${motor.tipe_motor})`}
+                                    value={tipe_motor}
+                                    label={`Masukkan tipe motor`}
                                 >
                                     <Option className="rounded-md w-full" value="Matic">
                                         Matic
@@ -84,17 +113,19 @@ const EditMotorForm = ({
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Merk</span>
+                                <span className="text-black text-lg">Merk</span>
                                 <Input
                                     onChange={(e) => setMerkMotor(e.target.value)}
-                                    label={`Masukkan merk motor (${motor.merk_motor})`}
+                                    value={merk_motor}
+                                    label={`Masukkan merk motor`}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Stok</span>
+                                <span className="text-black text-lg">Stok</span>
                                 <Input
                                     onChange={(e) => setStokMotor(e.target.value)}
-                                    label={`Masukkan stok motor (${motor.stok_motor})`}
+                                    value={stok_motor}
+                                    label={`Masukkan stok motor`}
                                     type="number"
                                 />
                                 <Typography
@@ -120,12 +151,18 @@ const EditMotorForm = ({
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Harga Motor Per 1 Hari</span>
-                                <Input
-                                    onChange={(e) => setHargaMotorPer1Hari(e.target.value)}
-                                    label={`Masukkan harga motor perhari (${motor.harga_motor_per_1_hari})`}
-                                    type="number"
-                                />
+                                <span className="text-black text-lg">Harga Motor Per 1 Hari</span>
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                        Rp
+                                    </span>
+                                    <Input
+                                        onChange={(e) => setHargaMotorPer1Hari(e.target.value)}
+                                        value={harga_motor_per_1_hari}
+                                        label={`Masukkan harga motor perhari`}
+                                        type="number"
+                                    />
+                                </div>
                                 <Typography
                                     variant="small"
                                     color="gray"
@@ -147,12 +184,18 @@ const EditMotorForm = ({
                                 </Typography>
                             </div>
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">Harga Motor Per 1 Minggu</span>
-                                <Input
-                                    onChange={(e) => setHargaMotorPer1Minggu(e.target.value)}
-                                    label={`Masukkan harga motor perminggu (${motor.harga_motor_per_1_minggu})`}
-                                    type="number"
-                                />
+                                <span className="text-black text-lg">Harga Motor Per 1 Minggu</span>
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                        Rp
+                                    </span>
+                                    <Input
+                                        onChange={(e) => setHargaMotorPer1Minggu(e.target.value)}
+                                        value={harga_motor_per_1_minggu}
+                                        label={`Masukkan harga motor perminggu`}
+                                        type="number"
+                                    />
+                                </div>
                                 <Typography
                                     variant="small"
                                     color="gray"
@@ -176,28 +219,52 @@ const EditMotorForm = ({
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">
-                                    Fasilitas <span className="text-[#FF4D33] font-semibold">*</span>
+                                <span className="text-black text-lg">
+                                    Jadwal Motor Status Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
-                                <Textarea
-                                    onChange={(e) => setFasilitasMotor(e.target.value)}
-                                    label={`Masukkan fasilitas tambahan (${motor.fasilitas_motor})`}
-                                />
+                                <Typography
+                                    variant="small"
+                                    color="gray"
+                                    className="flex items-center gap-1 font-normal"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="-mt-px h-4 w-4"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                    Digunakan pada saat motor tidak tersedia
+                                </Typography>
+                                <div>
+                                    <div
+                                        className={`w-8 h-8 flex items-center justify-center border-2 rounded-full cursor-pointer ${isChecked ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'}`}
+                                        onClick={handleClick}
+                                    >
+                                        {isChecked && (
+                                            <div className="w-3 h-3 bg-white rounded-full"></div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">
+                                <span className="text-black text-lg">
                                     Status <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
                                 <Select
-                                    label={`Masukkan status motor (${motor.status_motor})`}
+                                    disabled
+                                    label={`Masukkan status motor`}
                                     onChange={handleSelectChangeStatus}
+                                    value={status_motor}
                                     name="motorStatus"
                                 >
-                                    <Option className="text-white rounded-md w-full bg-green-400" value="Tersedia">
+                                    <Option className="text-white mb-2 rounded-md w-full bg-green-400" value="Tersedia">
                                         Tersedia
-                                    </Option>
-                                    <Option className="text-white my-2 rounded-md w-full bg-orange-400" value="Tertunda">
-                                        Tertunda
                                     </Option>
                                     <Option className="text-white rounded-md w-full bg-red-400" value="Tidak Tersedia">
                                         Tidak Tersedia
@@ -205,6 +272,50 @@ const EditMotorForm = ({
                                 </Select>
                             </div>
                         </div>
+                        {isChecked && (
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className='flex md:flex-row flex-col gap-5'
+                                >
+                                    <div className='w-full flex flex-col gap-2'>
+                                        <span className="text-black">
+                                            Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
+                                        </span>
+                                        <DateTimePicker
+                                            label="Pilih Tanggal Mulai"
+                                            value={tanggal_mulai_tidak_tersedia
+                                                ? dayjs(tanggal_mulai_tidak_tersedia
+                                                ) : null}
+                                            onChange={handleDateStart}
+                                            shouldDisableDate={shouldDisableDate}
+                                            shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai_tidak_tersedia
+                                            ))}
+                                            renderInput={(params) => <TextField {...params} required />}
+                                        />
+                                    </div>
+                                    <div className="w-full flex flex-col gap-2">
+                                        <span className="text-black">
+                                            Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
+                                        </span>
+                                        <DateTimePicker
+                                            label="Pilih Tanggal Selesai"
+                                            value={tanggal_selesai_tidak_tersedia
+                                                ? dayjs(tanggal_selesai_tidak_tersedia
+                                                ) : null}
+                                            onChange={handleDateEnd}
+                                            minDateTime={minEndDate}
+                                            shouldDisableDate={shouldDisableDate}
+                                            shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai_tidak_tersedia
+                                            ))}
+                                            renderInput={(params) => <TextField {...params} required />}
+                                        />
+                                    </div>
+                                </motion.div>
+                            </LocalizationProvider>
+                        )}
                         <div>
                             <Button
                                 type="submit"

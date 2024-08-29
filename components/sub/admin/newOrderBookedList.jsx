@@ -1,11 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import Cookies from 'js-cookie';
-import { MdHistory } from "react-icons/md";
-import { Spinner } from "@material-tailwind/react";
+import ReactWhatsapp from 'react-whatsapp';
+import { RiMotorbikeFill } from "react-icons/ri";
+import { IoTimeOutline, IoChatboxEllipsesOutline } from "react-icons/io5";
+import {
+    Spinner,
+    Card,
+    Typography,
+    CardBody,
+    CardFooter,
+} from "@material-tailwind/react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Loading from '@/components/ui/loading';
 import InvoicePopup from '../invoice';
+import Image from 'next/image';
 
 const NewOrderBookedList = () => {
     const [newOrders, setNewOrders] = useState([]);
@@ -50,7 +61,11 @@ const NewOrderBookedList = () => {
                 });
                 const responseData = await response.json();
                 const filteredOrders = responseData.history.filter(order => order.status_history === 'Dipesan');
-                setNewOrders(filteredOrders);
+
+                const sortedOrders = filteredOrders.sort((a, b) => b.id - a.id);
+
+                console.log('Sorted orders:', sortedOrders);
+                setNewOrders(sortedOrders);
             } catch (error) {
                 console.error('Fetch error:', error);
             } finally {
@@ -59,12 +74,23 @@ const NewOrderBookedList = () => {
         };
 
         fetchNewOrders();
-    }, []);
+    }, [token]);
 
     const handleInvociePopup = async (historyId) => {
         await fetchInvoiceDetails(historyId);
         setShowInvoice(true);
     };
+
+    const formatTime = (dates) => {
+        const date = new Date(dates);
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        let period = hours >= 12 ? 'Sore' : 'Pagi';
+        hours = hours % 12 || 12;
+        minutes = minutes < 10 ? `0${minutes}` : minutes;
+
+        return `${hours}:${minutes} ${period}`;
+    }
 
     if (loading) {
         return (
@@ -75,48 +101,88 @@ const NewOrderBookedList = () => {
     return (
         <div className="p-4 mb-4">
             <h2 className="text-2xl font-semibold mb-4">Pesanan Baru</h2>
-            <div className="overflow-x-auto">
-                <div className="flex gap-x-4">
-                    {newOrders.map(order => (
-                        <div key={order.id} className="flex-none w-[300px] mb-5 relative flex flex-col bg-clip-border rounded-xl bg-white shadow-md p-4">
-                            <div className="flex-grow">
-                                <div className="flex items-center mb-4">
-                                    <MdHistory size='25' className="mr-4 text-blue-600" />
-                                    <div>
-                                        <p className="font-medium">ID Pesanan: {order.id}</p>
-                                        <p className="text-sm">Nama Lengkap: {order.nama_lengkap}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center mb-4">
-                                    <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} className="w-16 h-16 mr-4 rounded-lg" />
-                                    <div>
-                                        <p className="font-medium">Motor: {order.list_motor.nama_motor} ({order.list_motor.merk_motor})</p>
-                                        <p className="text-sm text-gray-500">Tipe: {order.list_motor.tipe_motor}</p>
-                                    </div>
-                                </div>
-                                <div className='flex flex-col gap-3'>
-                                    <p className="text-sm">No. Telp: {order.no_telp}</p>
-                                    <p className="text-sm">Email: {order.email}</p>
-                                    <p className="text-sm">Keperluan Menyewa: {order.keperluan_menyewa}</p>
-                                    <p className="text-sm">Total Pembayaran: Rp. {order.total_pembayaran}</p>
-                                    <p className="text-sm">Metode Pembayaran: {order.metode_pembayaran}</p>
-                                    <p className="text-sm">Tanggal Mulai: {order.tanggal_mulai}</p>
-                                    <p className="text-sm">Tanggal Selesai: {order.tanggal_selesai}</p>
-                                </div>
+            {newOrders.map(order => (
+                <Card key={order.id} className="mt-6 w-96">
+                    <CardBody>
+                        <Typography variant='h5' color='gray' className='mb-2' >
+                            <span className='opacity-80'>Id Pesanan:</span> <span className='font-semibold'>{order.id}</span>
+                        </Typography>
+                        <div className='flex gap-2'>
+                            <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-500/10'>
+                                <RiMotorbikeFill size='20' className='text-blue-500' />
+                                <Typography>
+                                    <span className='text-blue-500 font-bold'>{order.penerimaan_motor}</span>
+                                </Typography>
                             </div>
-                            <div className='self-end mt-5'>
-                                <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
-                                    <Label>
-                                        <span className="text-[#FF4D33] cursor-pointer">
-                                            Tampilkan Invoice
-                                        </span>
-                                    </Label>
-                                </Button>
+                            <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-gray-50'>
+                                <IoTimeOutline size='20' className='opacity-90' />
+                                <Typography>
+                                    <span className='font-bold opacity-90'>{formatTime(order.tanggal_mulai)}</span>
+                                </Typography>
                             </div>
                         </div>
-                    ))}
-                </div>
-            </div>
+                        <div className='flex items-center mb-2'>
+                            <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} width={100} height={100} className="w-16 h-16 mr-4 rounded-lg" />
+                            <Typography variant="h5" color="blue-gray">
+                                {order.list_motor.nama_motor}
+                            </Typography>
+                        </div>
+                        <div className="border-t border-gray-500 shadow-md mb-4"></div>
+                        <div className='flex justify-between items-center mb-4'>
+                            <div className='flex gap-3'>
+                                <Avatar className="w-12 h-12">
+                                    {order.user.gambar ? (
+                                        <AvatarImage
+                                            className="w-full h-full object-cover"
+                                            src={
+                                                order.user.google_id || order.user.facebook_id
+                                                    ? order.user.gambar
+                                                    : `${process.env.NEXT_PUBLIC_API_URL}/storage/${order.user.gambar}`
+                                            }
+                                        />
+                                    ) : (
+                                        <AvatarFallback>o_o</AvatarFallback>
+                                    )}
+                                </Avatar>
+                                <div className='flex flex-col'>
+                                    <Typography variant='h6' color='gray'>
+                                        <span className='font-semibold opacity-75'>Customer</span>
+                                    </Typography>
+                                    <Typography variant='h5' color='black'>
+                                        <span className='font-bold'>{order.nama_lengkap}</span>
+                                    </Typography>
+                                </div>
+                            </div>
+                            <div className='flex gap-2'>
+                                <motion.div
+                                    whileHover={{
+                                        background: '#000',
+                                        color: '#fff',
+                                        transition: { duration: 0.3, type: 'tween', bounce: 0.25 },
+                                    }}
+                                    className='px-3 py-3 rounded-full bg-blue-500 cursor-pointer'
+                                >
+                                    <ReactWhatsapp number={order.no_telp} message="Hello World!!!" className="flex items-center font-bold text-white wa">
+                                        <IoChatboxEllipsesOutline size='20' color='white' />
+                                    </ReactWhatsapp>
+                                </motion.div>
+                            </div>
+                        </div>
+                        <div className="border-t border-gray-500 shadow-md"></div>
+                    </CardBody>
+                    <CardFooter className="pt-0">
+                        <div className='self-end'>
+                            <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
+                                <Label>
+                                    <span className="text-blue-500 cursor-pointer">
+                                        Tampilkan Invoice
+                                    </span>
+                                </Label>
+                            </Button>
+                        </div>
+                    </CardFooter>
+                </Card>
+            ))}
             {showInvoice && (
                 <InvoicePopup
                     onClose={() => setShowInvoice(false)}

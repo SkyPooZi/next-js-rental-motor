@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -242,18 +242,18 @@ export function RatingTable() {
                                                 <Link href={`/admin/detailRating/${reviewData.id}`}>
                                                     <Tooltip content="Detail">
                                                         <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
+                                                            <EyeIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                <Link href={`/admin/editRating/${reviewData.id}`}>
+                                                {/* <Link href={`/admin/editRating/${reviewData.id}`}>
                                                     <Tooltip content="Edit">
                                                         <IconButton variant="text" className="bg-[#FFC107] mx-2">
                                                             <PencilSquareIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </Link>
-                                                <Tooltip content="Delete">
+                                                </Link> */}
+                                                {/* <Tooltip content="Delete">
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
@@ -261,7 +261,7 @@ export function RatingTable() {
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip> */}
                                             </td>
                                         </tr>
                                     ))

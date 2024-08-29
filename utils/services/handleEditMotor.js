@@ -7,8 +7,9 @@ export const updateMotor = async ({
     stok_motor,
     harga_motor_per_1_hari,
     harga_motor_per_1_minggu,
-    fasilitas_motor,
     status_motor,
+    tanggal_mulai_tidak_tersedia,
+    tanggal_selesai_tidak_tersedia,
     token
 }) => {
     const formData = new FormData();
@@ -19,8 +20,9 @@ export const updateMotor = async ({
     if (stok_motor) formData.append('stok_motor', stok_motor);
     if (harga_motor_per_1_hari) formData.append('harga_motor_per_1_hari', harga_motor_per_1_hari);
     if (harga_motor_per_1_minggu) formData.append('harga_motor_per_1_minggu', harga_motor_per_1_minggu);
-    if (fasilitas_motor) formData.append('fasilitas_motor', fasilitas_motor);
     if (status_motor) formData.append('status_motor', status_motor);
+    if (tanggal_mulai_tidak_tersedia) formData.append('tanggal_mulai_tidak_tersedia', tanggal_mulai_tidak_tersedia);
+    if (tanggal_selesai_tidak_tersedia) formData.append('tanggal_selesai_tidak_tersedia', tanggal_selesai_tidak_tersedia);
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/edit/${id}`, {
