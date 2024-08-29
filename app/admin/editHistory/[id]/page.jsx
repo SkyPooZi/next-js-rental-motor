@@ -16,7 +16,7 @@ import {
     PopoverHandler,
     PopoverContent,
 } from "@material-tailwind/react";
-import { format } from "date-fns";
+import { format, set } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { MdDone } from "react-icons/md";
@@ -46,7 +46,7 @@ const Page = ({ params: { id } }) => {
     const [akun_sosmed, setAkunSosmed] = useState('');
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
-    const [motor_id, setNamaMotor] = useState('');
+    const [motor_id, setMotorId] = useState('');
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [keperluan_menyewa, setKeperluan] = useState('');
@@ -58,6 +58,7 @@ const Page = ({ params: { id } }) => {
     const [metode_pembayaran, setMetodePembayaran] = useState('');
     const [total_pembayaran, setTotalPembayaran] = useState('');
     const [status_history, setStatusHistory] = useState('');
+    const [selectedMotor, setSelectedMotor] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [loading, setLoading] = useState(false);
@@ -70,7 +71,7 @@ const Page = ({ params: { id } }) => {
     }
 
     const handleSelectChangeNamaMotor = (value) => {
-        setNamaMotor(value);
+        setSelectedMotor(value);
     }
 
     useEffect(() => {
@@ -82,7 +83,7 @@ const Page = ({ params: { id } }) => {
     }, []);
 
     useEffect(() => {
-        fetchHistoryDetail(id, token, setHistory, setError);
+        fetchHistoryDetail(id, token, setHistory, setError, setSelectedMotor);
     }, [id]);
 
     const handleSubmit = async (e) => {
@@ -109,6 +110,7 @@ const Page = ({ params: { id } }) => {
             metode_pembayaran,
             total_pembayaran,
             status_history,
+            selectedMotor,
             setHistory,
             setShowNotification,
             setError,
@@ -215,6 +217,7 @@ const Page = ({ params: { id } }) => {
                                 setTotalPembayaran={setTotalPembayaran}
                                 handleSelectChangeStatus={handleSelectChangeStatus}
                                 loading={loading}
+                                selectedMotor={selectedMotor}
                             />
                         ) : (
                             <p>Loading...</p>

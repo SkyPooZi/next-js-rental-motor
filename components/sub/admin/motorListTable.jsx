@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -254,7 +254,7 @@ export function MotorListTable() {
                                                 <Link href={`/admin/detailMotor/${motorData.id}`}>
                                                     <Tooltip content="Detail">
                                                         <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
+                                                            <EyeIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>

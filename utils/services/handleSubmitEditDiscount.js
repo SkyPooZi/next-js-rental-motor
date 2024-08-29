@@ -10,7 +10,7 @@ export const updateDiscount = async ({
     setShowNotification,
     setDiskon,
     setLoading,
-    setError
+    setError,
 }) => {
     const formData = new FormData();
     if (file) formData.append('gambar', file);
@@ -48,7 +48,7 @@ export const updateDiscount = async ({
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+            }, 1000);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);

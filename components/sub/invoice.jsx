@@ -18,6 +18,32 @@ const InvoicePopup = ({ onClose, orderId }) => {
     const [hari, setHari] = useState(0);
     const token = Cookies.get('token');
 
+    const formatDate = (dateString) => {
+        const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+
+        return `${day} ${month} ${year}`;
+    };
+
+    const formatRupiah = (number) => {
+        const stringNumber = number.toString();
+        const split = stringNumber.split(',');
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+        if (ribuan) {
+            const separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+        return 'Rp ' + rupiah;
+    };
+
     useEffect(() => {
         const getInvoiceData = async () => {
             try {
@@ -94,6 +120,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
             setHari(calculateDuration(tanggal_mulai, tanggal_selesai));
         }
     }, [invoiceData]);
+    console.log(discountAmount);
 
     const handlePdfDownload = () => {
         if (!invoiceData) return;
@@ -101,36 +128,55 @@ const InvoicePopup = ({ onClose, orderId }) => {
         const doc = new jsPDF();
 
         // Add logo
-        doc.addImage('/images/logo.png', 'PNG', 10, 10, 38, 38);
+        doc.addImage('/images/logo.png', 'PNG', 10, 10, 18, 18);
 
         // Add title
+        doc.setFont('Helvetica', 'bold');
         doc.setFontSize(16);
-        doc.text('Rental Motor Kudus', 60, 25);
+        doc.text('Rental Motor Kudus', 32, 20);
+        doc.setFont('Helvetica', 'normal');
 
         // Add invoice details
         doc.setFontSize(12);
         const margin = 10;
         const lineSpacing = 7;
-        let cursorY = 60;
+        let cursorY = 40;
 
-        const drawText = (label, text) => {
+        const drawText = (label, text, options = {}) => {
+            doc.setFont('Helvetica', 'bold');
             doc.text(label, margin, cursorY);
-            doc.text(String(text), margin + 50, cursorY);
+            doc.setFont('Helvetica', 'normal');
+
+            const textX = margin + 50;
+            doc.text(String(text), textX, cursorY);
+
+            // Apply strikethrough if specified in options
+            if (options.strikethrough) {
+                const textWidth = doc.getTextWidth(String(text));
+                const lineY = cursorY - 2; // Adjust lineY to place the line through the middle of the text
+                doc.setLineWidth(0.5); // Set line thickness
+                doc.line(textX, lineY, textX + textWidth, lineY);
+            }
+
             cursorY += lineSpacing;
         };
 
         drawText('No. Pemesanan:', invoiceData?.midtrans?.no_pemesanan || '');
-        drawText('Tgl. Pemesanan:', invoiceData?.midtrans?.tanggal_pemesanan || '');
+        drawText('Tgl. Pemesanan:', formatDate(invoiceData?.midtrans?.tanggal_pemesanan) || '');
         drawText('Nama Pemesan:', invoiceData?.midtrans?.history?.nama_lengkap || '');
         drawText('Email:', invoiceData?.midtrans?.history?.email || '');
-        drawText('Tanggal Pembayaran:', invoiceData?.midtrans?.tanggal_pembayaran || '');
+        drawText('Tanggal Pembayaran:', formatDate(invoiceData?.midtrans?.tanggal_pembayaran) || '');
         drawText('Metode Pembayaran:', invoiceData?.midtrans?.metode_pembayaran || '');
-        drawText('Total Pembayaran:', invoiceData?.midtrans?.history?.total_pembayaran || '');
-        drawText('Status:', invoiceData?.midtrans?.status_pembayaran || '');
+        drawText('Total Pembayaran:', formatRupiah(invoiceData?.midtrans?.history?.total_pembayaran) || '');
+        drawText('Status Pembayaran:', invoiceData?.midtrans?.status_pembayaran || '');
 
         cursorY += lineSpacing;
 
+        doc.setFont('Helvetica', 'bold');
+        doc.setTextColor(255, 77, 48);
         doc.text('DETAIL PEMBAYARAN', margin, cursorY);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Helvetica', 'normal');
         cursorY += lineSpacing;
         doc.setDrawColor(0, 0, 0);
         doc.line(margin, cursorY, 200, cursorY);
@@ -139,8 +185,8 @@ const InvoicePopup = ({ onClose, orderId }) => {
         const motorDetails = [
             { label: 'Keterangan', text: invoiceData?.midtrans?.history?.list_motor?.nama_motor || '' },
             { label: 'Hari', text: String(hari) },
-            { label: 'Satuan', text: invoiceData?.midtrans?.history?.list_motor?.harga_motor_per_1_hari || '' },
-            { label: 'Total', text: hari * harga_motor_per_1_hari || '' }
+            { label: 'Satuan', text: formatRupiah(invoiceData?.midtrans?.history?.list_motor?.harga_motor_per_1_hari) || '' },
+            { label: 'Total', text: formatRupiah(hari * harga_motor_per_1_hari) || '' }
         ];
 
         motorDetails.forEach(detail => {
@@ -151,9 +197,9 @@ const InvoicePopup = ({ onClose, orderId }) => {
         doc.line(margin, cursorY, 200, cursorY);
         cursorY += lineSpacing;
 
-        drawText('Total Pemesanan', hari * harga_motor_per_1_hari || '');
-        drawText('Diskon', `${discountAmount} | ${invoiceData?.midtrans?.history?.diskon?.potongan_harga || ''}%`);
-        drawText('Total Dibayar', invoiceData?.midtrans?.history?.total_pembayaran || '');
+        drawText('Total Pemesanan', formatRupiah(hari * harga_motor_per_1_hari) || '');
+        drawText('Diskon', formatRupiah(discountAmount) || '', { strikethrough: true });
+        drawText('Total Dibayar', formatRupiah(invoiceData?.midtrans?.history?.total_pembayaran) || '');
 
         doc.save('invoice.pdf');
     };
@@ -179,76 +225,76 @@ const InvoicePopup = ({ onClose, orderId }) => {
                 </div>
                 <div className="bg-[#FFFFFF] p-4 rounded-lg">
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">No. Pemesanan :</span>
+                        <span className="font-bold text-sm md:text-base">No. Pemesanan :</span>
                         <span className="font-semibold ml-2 text-sm md:text-base">{no_pemesanan}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Tgl. Pemesanan :</span>
-                        <span className="font-semibold ml-2 text-sm md:text-base">{tanggal_pemesanan}</span>
+                        <span className="font-bold text-sm md:text-base">Tgl. Pemesanan :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{formatDate(tanggal_pemesanan)}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Nama Pemesan :</span>
+                        <span className="font-bold text-sm md:text-base">Nama Pemesan :</span>
                         <span className="font-semibold ml-2 text-sm md:text-base">{nama_lengkap}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Email :</span>
+                        <span className="font-bold text-sm md:text-base">Email :</span>
                         <span className="font-semibold ml-2 text-sm md:text-base">{email}</span>
                     </div>
                     <div className='mt-5'>
-                        <span className='font-semibold text-sm md:text-base'>INFO PEMBAYARAN</span>
+                        <span className='font-bold text-primary text-sm md:text-base'>INFO PEMBAYARAN</span>
                     </div>
                     <div className="border-t border-black my-2"></div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Tanggal Pembayaran :</span>
-                        <span className="font-semibold ml-2 text-sm md:text-base">{tanggal_pembayaran}</span>
+                        <span className="font-bold text-sm md:text-base">Tanggal Pembayaran :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{formatDate(tanggal_pembayaran)}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Metode Pembayaran :</span>
+                        <span className="font-bold text-sm md:text-base">Metode Pembayaran :</span>
                         <span className="font-semibold ml-2 text-sm md:text-base">{metode_pembayaran}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Total Pembayaran :</span>
-                        <span className="font-semibold ml-2 text-sm md:text-base">{total_pembayaran}</span>
+                        <span className="font-bold text-sm md:text-base">Total Pembayaran :</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base">{formatRupiah(total_pembayaran)}</span>
                     </div>
                     <div className="mb-2">
-                        <span className="font-semibold opacity-55 text-sm md:text-base">Status :</span>
-                        <span className="font-semibold ml-2 text-sm md:text-base">{status_pembayaran}</span>
+                        <span className="font-bold text-sm md:text-base">Status Pembayaran:</span>
+                        <span className="font-semibold ml-2 text-sm md:text-base text-green-500">{status_pembayaran}</span>
                     </div>
                     <div className='mt-5'>
-                        <span className='font-semibold text-sm md:text-base'>DETAIL PEMBAYARAN</span>
+                        <span className='font-bold text-primary text-sm md:text-base'>DETAIL PEMBAYARAN</span>
                     </div>
                     <div className="border-t border-black my-2"></div>
                     <div className='flex flex-col md:flex-row justify-between'>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold text-sm md:text-base'>Keterangan</span>
+                                <span className='font-bold text-sm md:text-base'>Keterangan</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>{nama_motor}</span>
+                                <span className='font-semibold text-sm md:text-base'>{nama_motor}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold text-sm md:text-base'>Hari</span>
+                                <span className='font-bold text-sm md:text-base'>Hari</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari}</span>
+                                <span className='font-semibold text-sm md:text-base'>{hari}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold text-sm md:text-base'>Satuan</span>
+                                <span className='font-bold text-sm md:text-base'>Satuan</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>{harga_motor_per_1_hari}</span>
+                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(harga_motor_per_1_hari)}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-semibold text-sm md:text-base'>Total</span>
+                                <span className='font-bold text-sm md:text-base'>Total</span>
                             </div>
                             <div>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari * harga_motor_per_1_hari}</span>
+                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(hari * harga_motor_per_1_hari)}</span>
                             </div>
                         </div>
                     </div>
@@ -256,13 +302,15 @@ const InvoicePopup = ({ onClose, orderId }) => {
                     <div className='flex justify-end'>
                         <div className='flex-col'>
                             <div className='flex gap-5 mb-2'>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>Total Pemesanan</span>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>{hari * harga_motor_per_1_hari}</span>
+                                <span className='font-bold text-sm md:text-base'>Total Pemesanan</span>
+                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(hari * harga_motor_per_1_hari)}</span>
                             </div>
                             <div className='flex gap-5'>
-                                <span className='font-semibold opacity-55 text-sm md:text-base'>Diskon</span>
+                                <span className='font-bold text-sm md:text-base'>Diskon</span>
                                 <div className='w-full text-end'>
-                                    <span className='font-semibold opacity-55 text-sm md:text-base'>{discountAmount} | {potongan_harga}%</span>
+                                    <span className='font-semibold text-sm md:text-base' style={{ textDecoration: 'line-through' }}>
+                                        {formatRupiah(discountAmount)}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -270,10 +318,10 @@ const InvoicePopup = ({ onClose, orderId }) => {
                     <div className="border-t border-black my-2"></div>
                     <div className='flex justify-end gap-5 mb-4'>
                         <div>
-                            <span className='font-semibold text-sm md:text-base'>Total Dibayar</span>
+                            <span className='font-bold text-sm md:text-base'>Total Dibayar</span>
                         </div>
                         <div>
-                            <span className='font-semibold text-sm md:text-base'>{total_pembayaran}</span>
+                            <span className='font-semibold text-sm md:text-base'>{formatRupiah(total_pembayaran)}</span>
                         </div>
                     </div>
                     <div className='flex items-center gap-3'>

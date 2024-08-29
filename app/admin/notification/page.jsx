@@ -11,6 +11,7 @@ import {
 } from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 import { Label } from "@/components/ui/label";
+import CancelConfirmationModal from "@/components/sub/cancelConfirmModal";
 
 import dynamic from 'next/dynamic';
 
@@ -36,6 +37,8 @@ export default function Notification() {
     const [activeComponent, setActiveComponent] = useState("notification");
     const [loadData, setLoadData] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+    const [notifToCancel, setNotifToCancel] = useState(null); // User to delete
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -153,26 +156,28 @@ export default function Notification() {
 
     };
 
-    const handleSubmitCancel = async (e, id) => {
-        e.preventDefault();
-        if (!id) {
+    const handleSubmitCancel = async () => {
+        if (!notifToCancel) {
             setError('No ID available to edit.');
             return;
         };
+
         const formData = new FormData();
         const currentDate = new Date().toISOString().split('T')[0];
         formData.append('status_history', 'Dibatalkan');
         formData.append('tanggal_pembatalan', currentDate);
         formData.append('alasan_pembatalan', 'Tidak Disetujui oleh Admin');
         setLoadingCancel(true);
+
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${notifToCancel}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 },
                 body: formData,
             });
+
             if (!response.ok) {
                 setError(`Failed to update data: ${response.statusText}`);
             } else {
@@ -180,14 +185,13 @@ export default function Notification() {
                 console.log('Updated data:', data);
                 setShowNotificationCancel(true);
                 setHistory(prevHistory => prevHistory.map(item =>
-                    item.id === id ? { ...item, status_history: 'Dibatalkan' } : item
+                    item.id === notifToCancel ? { ...item, status_history: 'Dibatalkan' } : item
                 ));
-                setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
+                setHistory(prevHistory => prevHistory.filter(item => item.id !== notifToCancel));
+                setIsModalOpen(false); // Close the modal after the action
                 setTimeout(() => {
-                    setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                     setLoadingCancel(false);
                     setShowNotificationCancel(false);
-                    setTimeout(() => setShowNotificationCancel(false), 3000);
                 }, 1000);
                 setSelectedId(null);
             };
@@ -196,6 +200,11 @@ export default function Notification() {
         } finally {
             setLoadingCancel(false);
         };
+    };
+
+    const confirmCancelNotif = (userId) => {
+        setNotifToCancel(userId);
+        setIsModalOpen(true);
     };
 
     const handleBtnClick = (component) => {
@@ -287,11 +296,13 @@ export default function Notification() {
                                                     </div>
                                                     <div className="border-t border-[#969696] w-full"></div>
                                                     <div className="w-full justify-end flex flex-row gap-4">
-                                                        <form onSubmit={(e) => handleSubmitCancel(e, item.id)} method="post">
-                                                            <Button color="red" type="submit">
-                                                                Batal
-                                                            </Button>
-                                                        </form>
+                                                        <Button
+                                                            color="red"
+                                                            type="button" // Change type to "button" to prevent default form submission behavior
+                                                            onClick={() => confirmCancelNotif(item.id)} // Call the function directly here
+                                                        >
+                                                            Batal
+                                                        </Button>
                                                         <form onSubmit={(e) => handleSubmit(e, item.id)} method="post">
                                                             <Button type="submit" color="green">
                                                                 Konfirmasi
@@ -308,17 +319,22 @@ export default function Notification() {
                             )
                         )}
                         {showNotification && (
-                            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                            <div className="fixed top-4 left-1/2 z-[999] transform -translate-x-1/2 bg-green-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
                                 <span>Konfirmasi Berhasil</span>
                                 <MdDone className="ml-2 text-white" />
                             </div>
                         )}
                         {showNotificationCancel && (
-                            <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-red-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
+                            <div className="fixed top-4 left-1/2 z-[999] transform -translate-x-1/2 bg-red-500 text-white py-2 px-4 rounded-md flex items-center shadow-lg">
                                 <span>Pembatalan Berhasil</span>
                                 <MdDone className="ml-2 text-white" />
                             </div>
                         )}
+                        <CancelConfirmationModal
+                            isOpen={isModalOpen}
+                            onClose={() => setIsModalOpen(false)}
+                            onSubmit={handleSubmitCancel} // No need to pass arguments here
+                        />
                     </div>
                 </div>
             }

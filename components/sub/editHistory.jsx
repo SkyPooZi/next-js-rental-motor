@@ -1,9 +1,10 @@
 import React from 'react';
+import Image from 'next/image';
 import {
     Card,
     CardHeader,
     Button,
-    Checkbox,
+    Radio,
     Input,
     Select,
     Option,
@@ -39,10 +40,40 @@ const EditHistoryForm = ({
     setTotalPembayaran,
     handleSelectChangeStatus,
     loading,
+    selectedMotor,
 }) => {
+    const formatDate = (dateString) => {
+        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        const date = new Date(dateString);
+        const dayOfWeek = days[date.getDay()];
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = date.getMinutes();
+
+        let period = 'pagi';
+        if (hours === 0) {
+            hours = 12;
+        } else if (hours < 12) {
+            period = 'pagi';
+        } else if (hours === 12) {
+            period = 'siang';
+        } else if (hours > 12 && hours < 18) {
+            hours -= 12;
+            period = 'siang';
+        } else if (hours >= 18) {
+            hours -= 12;
+            period = 'malam';
+        }
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        return `${dayOfWeek}, ${day} ${month} ${year}, ${hours}.${formattedMinutes} ${period}`;
+    };
     return (
         <form action='post' method='post' onSubmit={handleSubmit}>
-            <Card className="w-full h-full">
+            <Card className="w-full h-full mb-12 lg:mb-0">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">
@@ -55,8 +86,10 @@ const EditHistoryForm = ({
                                     Nama Lengkap
                                 </span>
                                 <Input
-                                    label={`Masukkan nama lengkap (${history.nama_lengkap})`}
-                                    onChange={(e) => setNamaLengkap(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.nama_lengkap}
+                                // onChange={(e) => setNamaLengkap(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
@@ -64,8 +97,10 @@ const EditHistoryForm = ({
                                     Email
                                 </span>
                                 <Input
-                                    label={`Masukkan email (${history.email})`}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.email}
+                                    // onChange={(e) => setEmail(e.target.value)}
                                     type='email'
                                 />
                             </div>
@@ -76,24 +111,23 @@ const EditHistoryForm = ({
                                     Nomor Telp
                                 </span>
                                 <div className="flex items-center">
-                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
                                         +62
                                     </span>
-
                                     <Input
+                                        disabled
                                         type="number"
-                                        label={`Masukkan nomor telp (${history.no_telp})`}
+                                        value={history.no_telp}
+                                        label={`Tidak ada`}
                                         placeholder="8892384434"
-                                        onChange={(e) => {
-                                            const inputValue = e.target.value;
-
-                                            // Prevents user from starting the input with "0" after "+62"
-                                            if (inputValue.startsWith('0')) {
-                                                setNomorTelp(inputValue.slice(1));
-                                            } else {
-                                                setNomorTelp(inputValue);
-                                            }
-                                        }}
+                                    // onChange={(e) => {
+                                    //     const inputValue = e.target.value;
+                                    //     if (inputValue.startsWith('0')) {
+                                    //         setNomorTelp(inputValue.slice(1));
+                                    //     } else {
+                                    //         setNomorTelp(inputValue);
+                                    //     }
+                                    // }}
                                     />
                                 </div>
                                 <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
@@ -103,8 +137,10 @@ const EditHistoryForm = ({
                                     Akun Sosmed
                                 </span>
                                 <Input
-                                    label={`Masukkan akun sosmed (${history.akun_sosmed})`}
-                                    onChange={(e) => setAkunSosmed(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.akun_sosmed}
+                                // onChange={(e) => setAkunSosmed(e.target.value)}
                                 />
                             </div>
                         </div>
@@ -114,8 +150,10 @@ const EditHistoryForm = ({
                                     Alamat Lengkap
                                 </span>
                                 <Textarea
-                                    label={`Masukkan alamat lengkap (${history.alamat})`}
-                                    onChange={(e) => setAlamat(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.alamat}
+                                // onChange={(e) => setAlamat(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
@@ -124,7 +162,7 @@ const EditHistoryForm = ({
                                 </span>
                                 <div className="flex flex-col md:flex-row gap-5">
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Diri Sendiri"
                                             checked={history.penyewa === "Diri Sendiri"}
                                             disabled
@@ -132,7 +170,7 @@ const EditHistoryForm = ({
                                         Diri Sendiri
                                     </div>
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Orang Lain"
                                             checked={history.penyewa === "Orang Lain"}
                                             disabled
@@ -147,20 +185,40 @@ const EditHistoryForm = ({
                                 <span className="text-black">
                                     Nama Motor
                                 </span>
-                                {motors.length > 0 && (
-                                    <div className="w-full">
+                                <div className='text-sm w-full'>
+                                    {motors.length > 0 && (
                                         <Select
-                                            label={`Pilih nama motor (${history.list_motor.nama_motor})`}
+                                            label="Pilih nama motor"
+                                            // value={selectedMotor}
                                             onChange={handleSelectChangeNamaMotor}
                                         >
                                             {motors.map((motor) => (
-                                                <Option key={motor.id} value={motor.id}>
-                                                    {motor.nama_motor}
+                                                <Option
+                                                    key={motor.id}
+                                                    value={motor.id}
+                                                    disabled={motor.status_motor !== 'Tersedia'}
+                                                    className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <div className='flex gap-2 items-center flex-grow'>
+                                                            <Image
+                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
+                                                                alt={motor.nama_motor}
+                                                                width={40}
+                                                                height={40}
+                                                                className="w-10 h-10 rounded-full mr-2"
+                                                            />
+                                                            <span className='mr-5'>{motor.nama_motor}</span>
+                                                        </div>
+                                                        <span className={motor.status_motor === 'Tersedia' ? 'text-green-500' : 'text-red-500'}>
+                                                            {motor.status_motor}
+                                                        </span>
+                                                    </div>
                                                 </Option>
                                             ))}
                                         </Select>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
@@ -174,7 +232,7 @@ const EditHistoryForm = ({
                                             disabled
                                             label={`Pilih tanggal mulai (${history.tanggal_mulai})`}
                                             onChange={() => null}
-                                            value={tanggal_mulai ? format(new Date(tanggal_mulai), "yyyy-MM-dd") : ""}
+                                            value={formatDate(history.tanggal_mulai)}
                                         />
                                     </PopoverHandler>
                                     <PopoverContent>
@@ -229,7 +287,7 @@ const EditHistoryForm = ({
                                             disabled
                                             label={`Pilih tanggal selesai (${history.tanggal_selesai})`}
                                             onChange={() => null}
-                                            value={tanggal_selesai ? format(new Date(tanggal_selesai), "yyyy-MM-dd") : ""}
+                                            value={formatDate(history.tanggal_selesai)}
                                         />
                                     </PopoverHandler>
                                     <PopoverContent>
@@ -281,8 +339,10 @@ const EditHistoryForm = ({
                                     Keperluan Menyewa
                                 </span>
                                 <Textarea
-                                    label={`Masukkan keperluan menyewa (${history.keperluan_menyewa})`}
-                                    onChange={(e) => setKeperluan(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.keperluan_menyewa}
+                                // onChange={(e) => setKeperluan(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
@@ -291,7 +351,7 @@ const EditHistoryForm = ({
                                 </span>
                                 <div className="flex flex-col md:flex-row gap-5">
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Diambil"
                                             checked={history.penerimaan_motor === "Diambil"}
                                             disabled
@@ -299,7 +359,7 @@ const EditHistoryForm = ({
                                         Diambil
                                     </div>
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Diantar"
                                             checked={history.penerimaan_motor === "Diantar"}
                                             disabled
@@ -315,8 +375,9 @@ const EditHistoryForm = ({
                                     Nama Kontak Darurat
                                 </span>
                                 <Input
-                                    label={`Masukkan nama kontak darurat (${history.nama_kontak_darurat})`}
-                                    onChange={(e) => setNamaKontakDarurat(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                // onChange={(e) => setNamaKontakDarurat(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
@@ -324,23 +385,23 @@ const EditHistoryForm = ({
                                     Nomor Kontak Darurat
                                 </span>
                                 <div className="flex items-center">
-                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
                                         +62
                                     </span>
                                     <Input
+                                        disabled
                                         type="number"
-                                        label={`Masukkan nomor kontak darurat (${history.nomor_kontak_darurat})`}
+                                        label={`Tidak ada`}
+                                        value={history.no_telp_kontak_darurat}
                                         placeholder="8892384434"
-                                        onChange={(e) => {
-                                            const inputValue = e.target.value;
-
-                                            // Prevents user from starting the input with "0" after "+62"
-                                            if (inputValue.startsWith('0')) {
-                                                setNomorKontakDarurat(inputValue.slice(1));
-                                            } else {
-                                                setNomorKontakDarurat(inputValue);
-                                            }
-                                        }}
+                                        // onChange={(e) => {
+                                        //     const inputValue = e.target.value;
+                                        //     if (inputValue.startsWith('0')) {
+                                        //         setNomorKontakDarurat(inputValue.slice(1));
+                                        //     } else {
+                                        //         setNomorKontakDarurat(inputValue);
+                                        //     }
+                                        // }}
                                         className="border rounded-r"
                                     />
                                 </div>
@@ -353,38 +414,29 @@ const EditHistoryForm = ({
                                     Hubungan Dengan Kontak Darurat
                                 </span>
                                 <Input
-                                    label={`Masukkan hubungan dengan kontak darurat (${history.hubungan_dengan_kontak_darurat})`}
-                                    onChange={(e) => setHubunganKontakDarurat(e.target.value)}
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={history.hubungan_kontak_darurat}
+                                // onChange={(e) => setHubunganKontakDarurat(e.target.value)}
                                 />
                             </div>
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">
                                     Diskon
                                 </span>
-                                {diskons && diskons.length > 0 ? (
+                                {diskons.length > 0 && (
                                     <div className="w-full">
                                         <Select
-                                            label={`Pilih diskon (${history.diskon?.nama_diskon || "Tidak ada diskon"})`}
-                                            onChange={handleSelectChangeDiskon}
+                                            label={`Pilih diskon`}
+                                            value={history.diskon?.nama_diskon || 'Tidak ada diskon'}
+                                            // onChange={handleSelectChangeDiskon}
                                             disabled
                                         >
                                             {diskons.map((id_diskon) => (
-                                                <Option key={id_diskon.id} value={id_diskon.id}>
+                                                <Option key={id_diskon.id} value={id_diskon.nama_diskon}>
                                                     {id_diskon.nama_diskon}
                                                 </Option>
                                             ))}
-                                        </Select>
-                                    </div>
-                                ) : (
-                                    <div className="w-full">
-                                        <Select
-                                            label="Pilih diskon"
-                                            onChange={handleSelectChangeDiskon}
-                                            disabled
-                                        >
-                                            <Option key="no-discount" value="">
-                                                Tidak ada diskon
-                                            </Option>
                                         </Select>
                                     </div>
                                 )}
@@ -397,7 +449,7 @@ const EditHistoryForm = ({
                                 </span>
                                 <div className="flex flex-col md:flex-row gap-5">
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Tunai"
                                             checked={history.metode_pembayaran === "Tunai"}
                                             disabled
@@ -405,7 +457,7 @@ const EditHistoryForm = ({
                                         Tunai
                                     </div>
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Radio
                                             value="Non-Tunai"
                                             checked={history.metode_pembayaran === "Non-Tunai"}
                                             disabled
@@ -418,11 +470,18 @@ const EditHistoryForm = ({
                                 <span className="text-black">
                                     Total Pembayaran
                                 </span>
-                                <Input
-                                    label={`Masukkan total pembayaran (${history.total_pembayaran})`}
-                                    onChange={(e) => setTotalPembayaran(e.target.value)}
-                                    type='number'
-                                />
+                                <div className="flex items-center">
+                                    <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                        Rp
+                                    </span>
+                                    <Input
+                                        disabled
+                                        label={`Masukkan total pembayaran`}
+                                        value={history.total_pembayaran}
+                                        onChange={(e) => setTotalPembayaran(e.target.value)}
+                                        type='number'
+                                    />
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
@@ -431,21 +490,9 @@ const EditHistoryForm = ({
                                     Status
                                 </span>
                                 <Select
-                                    label={`Masukkan status (${history.status_history})`}
+                                    label={`Ubah status`}
                                     onChange={handleSelectChangeStatus}
                                 >
-                                    <Option className="text-white rounded-md w-full bg-blue-400" value='Menunggu Pembayaran'>
-                                        Menunggu Pembayaran
-                                    </Option>
-                                    <Option className="text-white my-2 rounded-md w-full bg-yellow-400" value='Dipesan'>
-                                        Dipesan
-                                    </Option>
-                                    <Option className="text-white my-2 rounded-md w-full bg-orange-400" value='Sedang Digunakan'>
-                                        Sedang Digunakan
-                                    </Option>
-                                    <Option className="text-white my-2 rounded-md w-full bg-green-400" value='Selesai'>
-                                        Selesai
-                                    </Option>
                                     <Option className="text-white my-2 rounded-md w-full bg-red-400" value='Dibatalkan'>
                                         Dibatalkan
                                     </Option>

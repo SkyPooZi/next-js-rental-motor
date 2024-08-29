@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 
-export const fetchBookedDates = async (motor_id, token, stok_motor) => {
+export const fetchBookedDatesAdmin = async (motor_id, token, stok_motor) => {
+    console.log('motor_id:', motor_id);
     if (!motor_id) return [];
 
     try {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Cookies from "js-cookie";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -422,7 +422,7 @@ export function HistoryTable({ onSelectRange }) {
                                                 <Link href={`/admin/detailHistory/${historyData.id}`}>
                                                     <Tooltip content="Detail">
                                                         <IconButton variant="text" className="bg-[#0D6EFD]">
-                                                            <MagnifyingGlassIcon color="white" className="h-5 w-5" />
+                                                            <EyeIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
@@ -433,7 +433,7 @@ export function HistoryTable({ onSelectRange }) {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                <Tooltip content="Delete">
+                                                {/* <Tooltip content="Delete">
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
@@ -441,7 +441,7 @@ export function HistoryTable({ onSelectRange }) {
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip> */}
                                             </td>
                                         </tr>
                                     ))

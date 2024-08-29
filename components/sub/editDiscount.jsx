@@ -27,6 +27,8 @@ const EditDiscountForm = ({
     tanggal_selesai,
     handleDateEnd,
     loading,
+    nama_diskon,
+    potongan_harga,
 }) => {
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
@@ -66,7 +68,8 @@ const EditDiscountForm = ({
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Diskon</span>
                                 <Input
-                                    label={`Masukkan nama diskon (${diskon.nama_diskon})`}
+                                    label={`Masukkan nama diskon`}
+                                    value={nama_diskon || ''}
                                     onChange={(e) => setNamaDiskon(e.target.value)}
                                 />
                             </div>
@@ -74,8 +77,12 @@ const EditDiscountForm = ({
                                 <span className="text-black">Potongan Harga</span>
                                 <Input
                                     type="number"
-                                    label={`Masukkan potongan harga (${diskon.potongan_harga})`}
-                                    onChange={(e) => setPotonganHarga(e.target.value)}
+                                    label={`Masukkan potongan harga`}
+                                    value={potongan_harga || ''}
+                                    onChange={(e) => {
+                                        const value = Math.min(20, Number(e.target.value));
+                                        setPotonganHarga(value);
+                                    }}
                                 />
                             </div>
                         </div>
@@ -85,7 +92,7 @@ const EditDiscountForm = ({
                                 <Popover placement="bottom">
                                     <PopoverHandler>
                                         <Input
-                                            label={`Pilih tanggal mulai (${diskon.tanggal_mulai})`}
+                                            label={`Pilih tanggal mulai`}
                                             onChange={() => null}
                                             value={tanggal_mulai ? format(new Date(tanggal_mulai), 'yyyy-MM-dd') : ''}
                                         />
@@ -137,7 +144,7 @@ const EditDiscountForm = ({
                                 <Popover placement="bottom">
                                     <PopoverHandler>
                                         <Input
-                                            label={`Pilih tanggal selesai (${diskon.tanggal_selesai})`}
+                                            label={`Pilih tanggal selesai`}
                                             onChange={() => null}
                                             value={tanggal_selesai ? format(new Date(tanggal_selesai), 'yyyy-MM-dd') : ''}
                                         />

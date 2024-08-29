@@ -5,6 +5,35 @@ import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from
 import { Card, CardHeader, Checkbox, Input, Select, Option, Textarea, Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 
 const HistoryDetail = ({ history, image }) => {
+    const formatDate = (dateString) => {
+        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        const date = new Date(dateString);
+        const dayOfWeek = days[date.getDay()];
+        const day = date.getDate();
+        const month = months[date.getMonth()];
+        const year = date.getFullYear();
+        let hours = date.getHours();
+        const minutes = date.getMinutes();
+
+        let period = 'pagi';
+        if (hours === 0) {
+            hours = 12;
+        } else if (hours < 12) {
+            period = 'pagi';
+        } else if (hours === 12) {
+            period = 'siang';
+        } else if (hours > 12 && hours < 18) {
+            hours -= 12;
+            period = 'siang';
+        } else if (hours >= 18) {
+            hours -= 12;
+            period = 'malam';
+        }
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        return `${dayOfWeek}, ${day} ${month} ${year}, ${hours}.${formattedMinutes} ${period}`;
+    };
     return (
         <Card className="mb-20 xl:mb-0 w-full h-full">
             <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -33,19 +62,17 @@ const HistoryDetail = ({ history, image }) => {
                                 Nomor Telp
                             </span>
                             <div className="flex items-center">
-                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
                                     +62
                                 </span>
-
                                 <Input
                                     disabled
                                     type="number"
-                                    label={`Masukkan nomor telp (${history.no_telp})`}
+                                    label={`Tidak ada`}
+                                    value={history.no_telp}
                                     placeholder="8892384434"
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-
-                                        // Prevents user from starting the input with "0" after "+62"
                                         if (inputValue.startsWith('0')) {
                                             setNomorTelp(inputValue.slice(1));
                                         } else {
@@ -54,7 +81,8 @@ const HistoryDetail = ({ history, image }) => {
                                     }}
                                 />
                             </div>
-                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>                        </div>
+                            <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
+                        </div>
                         <div className="w-full flex flex-col gap-2">
                             <span className="text-black">
                                 Akun Sosmed
@@ -110,7 +138,7 @@ const HistoryDetail = ({ history, image }) => {
                                 <PopoverHandler>
                                     <Input
                                         disabled
-                                        value={format(new Date(history.tanggal_mulai), "dd MMMM yyyy hh:mm:ss")}
+                                        value={formatDate(history.tanggal_mulai)}
                                         onChange={() => null}
                                     />
                                 </PopoverHandler>
@@ -162,7 +190,7 @@ const HistoryDetail = ({ history, image }) => {
                                 <PopoverHandler>
                                     <Input
                                         disabled
-                                        value={format(new Date(history.tanggal_selesai), "dd MMMM yyyy hh:mm:ss")}
+                                        value={formatDate(history.tanggal_selesai)}
                                         onChange={() => null}
                                     />
                                 </PopoverHandler>
@@ -244,19 +272,17 @@ const HistoryDetail = ({ history, image }) => {
                                 Nomor Kontak Darurat
                             </span>
                             <div className="flex items-center">
-                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
                                     +62
                                 </span>
-
                                 <Input
-                                disabled
+                                    disabled
                                     type="number"
-                                    label={`Masukkan nomor telp (${history.no_telp})`}
+                                    label={`Masukkan nomor telp`}
+                                    value={history.no_telp_kontak_darurat}
                                     placeholder="8892384434"
                                     onChange={(e) => {
                                         const inputValue = e.target.value;
-
-                                        // Prevents user from starting the input with "0" after "+62"
                                         if (inputValue.startsWith('0')) {
                                             setNomorTelp(inputValue.slice(1));
                                         } else {
@@ -279,14 +305,7 @@ const HistoryDetail = ({ history, image }) => {
                             <span className="text-black">
                                 Diskon
                             </span>
-                            <Select label="Masukkan diskon" value={history.diskon && history.diskon.nama_diskon ? history.diskon.nama_diskon : null} disabled>
-                                <Option className="text-white rounded-md w-full bg-green-400">
-                                    Ramadhan
-                                </Option>
-                                <Option className="text-white my-2 rounded-md w-full bg-red-400">
-                                    Natal
-                                </Option>
-                            </Select>
+                            <Input label="Tidak ada" type="number" value={history.diskon} disabled />
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">
@@ -317,7 +336,12 @@ const HistoryDetail = ({ history, image }) => {
                             <span className="text-black">
                                 Total Pembayaran
                             </span>
-                            <Input label="Masukkan total pembayaran" type="number" value={history.total_pembayaran} disabled />
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input label="Masukkan total pembayaran" type="number" value={history.total_pembayaran} disabled />
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">

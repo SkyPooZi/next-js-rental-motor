@@ -43,7 +43,6 @@ const Page = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [nomor_hp, setNomorHp] = useState('');
     const [alamat, setAlamat] = useState('');
-    const [peran, setPeran] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
@@ -73,6 +72,13 @@ const Page = () => {
         return phone;
     };
 
+    const stripPrefix = (phoneNumber) => {
+        if (phoneNumber.startsWith('+62')) {
+            return phoneNumber.slice(3);
+        }
+        return phoneNumber;
+    };
+
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -96,6 +102,11 @@ const Page = () => {
                 console.log('Fetched data:', userData);
                 setUser(userData);
                 setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                setNamaPengguna(userData.nama_pengguna);
+                setNamaLengkap(userData.nama_lengkap);
+                setAlamat(userData.alamat);
+                setNomorHp(stripPrefix(userData.nomor_hp));
+                setEmail(userData.email);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -118,7 +129,6 @@ const Page = () => {
                 nama_lengkap,
                 nomor_hp: formatPhoneNumber(nomor_hp),
                 alamat,
-                peran,
             });
 
             console.log('Updated data:', updatedUser);
@@ -127,7 +137,7 @@ const Page = () => {
 
             setTimeout(() => {
                 setShowNotification(false);
-                router.refresh();
+                window.location.reload();
             }, 1000);
 
             setUser((prevUser) => ({
@@ -136,7 +146,6 @@ const Page = () => {
                 ...(nama_lengkap && { nama_lengkap: updatedUser.nama_lengkap }),
                 ...(nomor_hp && { nomor_hp: updatedUser.nomor_hp }),
                 ...(alamat && { alamat: updatedUser.alamat }),
-                ...(peran && { peran: updatedUser.peran }),
             }));
         } catch (err) {
             setError(err.message);
@@ -267,7 +276,8 @@ const Page = () => {
                                                             Nama Pengguna
                                                         </span>
                                                         <Input
-                                                            label={`Masukkan nama pengguna (${user.nama_pengguna})`}
+                                                            label={`Masukkan nama pengguna`}
+                                                            value={nama_pengguna}
                                                             onChange={(e) => setNamaPengguna(e.target.value)}
                                                         />
                                                     </div>
@@ -276,7 +286,8 @@ const Page = () => {
                                                             Nama Lengkap
                                                         </span>
                                                         <Input
-                                                            label={`Masukkan nama lengkap (${user.nama_lengkap})`}
+                                                            label={`Masukkan nama lengkap`}
+                                                            value={nama_lengkap}
                                                             onChange={(e) => setNamaLengkap(e.target.value)}
                                                         />
                                                     </div>
@@ -287,7 +298,8 @@ const Page = () => {
                                                             Alamat
                                                         </span>
                                                         <Textarea
-                                                            label={`Masukkan alamat (${user.alamat})`}
+                                                            label={`Masukkan alamat`}
+                                                            value={alamat}
                                                             onChange={(e) => setAlamat(e.target.value)}
                                                         />
                                                     </div>
@@ -296,20 +308,17 @@ const Page = () => {
                                                             Nomor HP
                                                         </span>
                                                         <div className="flex items-center">
-                                                            <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l">
+                                                            <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
                                                                 +62
                                                             </span>
                                                             <Input
                                                                 type="number"
-                                                                label={`Masukkan no hp (${user.nomor_hp})`}
+                                                                label={`Masukkan no hp`}
+                                                                value={nomor_hp}
                                                                 placeholder="8892384434"
                                                                 onChange={(e) => {
                                                                     const inputValue = e.target.value;
-                                                                    if (inputValue.startsWith('0')) {
-                                                                        setNomorHp(inputValue.slice(1));
-                                                                    } else {
-                                                                        setNomorHp(inputValue);
-                                                                    }
+                                                                    setNomorHp(inputValue);
                                                                 }}
                                                             />
                                                         </div>
@@ -355,7 +364,8 @@ const Page = () => {
                                                         </span>
                                                         <Input
                                                             type='email'
-                                                            label={`Masukkan email (${user.email})`}
+                                                            label={`Masukkan email`}
+                                                            value={email}
                                                             onChange={(e) => setEmail(e.target.value)}
                                                             required
                                                         />

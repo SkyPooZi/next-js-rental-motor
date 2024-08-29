@@ -6,7 +6,6 @@ export const updateUser = async ({ id, token, file, nama_pengguna, nama_lengkap,
     if (email) formData.append('email', email);
     if (nomor_hp) formData.append('nomor_hp', nomor_hp);
     if (alamat) formData.append('alamat', alamat);
-    if (peran) formData.append('peran', peran);
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {

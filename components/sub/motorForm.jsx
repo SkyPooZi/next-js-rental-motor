@@ -260,17 +260,6 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">
-                                    Fasilitas <span className="text-[#FF4D33] font-semibold">*</span>
-                                </span>
-                                <Textarea
-                                    label="Masukkan fasilitas tambahan"
-                                    value={fasilitas_motor}
-                                    onChange={(e) => setMotorFacilities(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">
                                     Status <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
                                 <Select

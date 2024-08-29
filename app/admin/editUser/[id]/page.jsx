@@ -3,16 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Cookies from 'js-cookie';
 
-import {
-    Card,
-    CardHeader,
-    Button,
-    Input,
-    Select,
-    Option,
-    Textarea,
-    Spinner
-} from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
 import Dashboard from "@/components/sub/admin/dashboard";
@@ -74,6 +64,12 @@ const Page = ({ params: { id } }) => {
                 console.log('Fetched data:', userData);
                 setUser(userData);
                 setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                setNamaPengguna(userData.nama_pengguna);
+                setNamaLengkap(userData.nama_lengkap);
+                setEmail(userData.email);
+                setNomorHp(userData.nomor_hp);
+                setAlamat(userData.alamat);
+                setPeran(userData.peran);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -196,6 +192,12 @@ const Page = ({ params: { id } }) => {
                                 handleButtonClick={handleButtonClick}
                                 fileInputRef={fileInputRef}
                                 loading={loading}
+                                nama_pengguna={nama_pengguna}
+                                nama_lengkap={nama_lengkap}
+                                email={email}
+                                nomor_hp={nomor_hp}
+                                alamat={alamat}
+                                peran={peran}
                             />
                         ) : (
                             <p>Loading...</p>

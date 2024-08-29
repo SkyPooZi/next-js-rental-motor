@@ -17,18 +17,30 @@ import EditMotorForm from '@/components/sub/editMotor';
 import { fetchMotor } from '@/utils/services/motorsService';
 import { fetchMotorDetail } from '@/utils/services/fetchMotorDetail';
 import { updateMotor } from '@/utils/services/handleEditMotor';
+import { fetchBookedDatesAdmin } from '@/utils/services/bookedDates';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
+dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
 
 const Page = ({ params: { id } }) => {
     const [motor, setMotor] = useState(null);
     const [motors, setMotors] = useState([]);
+    const [disabledDays, setDisabledDays] = useState([]);
+    const [disabledTimesPerDay, setDisabledTimesPerDay] = useState({});
+    const [minEndDate, setMinEndDate] = useState(null);
+    const [tanggal_mulai_tidak_tersedia, setTanggalMulai] = useState(null);
+    const [tanggal_selesai_tidak_tersedia, setTanggalSelesai] = useState(null);
     const [selectedMotor, setSelectedMotor] = useState('');
     const [nama_motor, setNamaMotor] = useState('');
     const [tipe_motor, setTipeMotor] = useState('');
     const [merk_motor, setMerkMotor] = useState('');
     const [stok_motor, setStokMotor] = useState('');
+    const [motor_id, setMotorId] = useState('');
     const [harga_motor_per_1_hari, setHargaMotorPer1Hari] = useState('');
     const [harga_motor_per_1_minggu, setHargaMotorPer1Minggu] = useState('');
-    const [fasilitas_motor, setFasilitasMotor] = useState('');
     const [status_motor, setStatusMotor] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
@@ -80,8 +92,16 @@ const Page = ({ params: { id } }) => {
             if (result.error) {
                 setError(result.error);
             } else {
-                setMotor(result.data);
+                const motorData = result.data;
+                setMotor(motorData);
                 setImage(result.imageUrl);
+                setNamaMotor(motorData.nama_motor); // Initialize nama_motor state
+                setTipeMotor(motorData.tipe_motor); // Initialize tipe_motor state
+                setMerkMotor(motorData.merk_motor); // Initialize merk_motor state
+                setStokMotor(motorData.stok_motor); // Initialize stok_motor state
+                setHargaMotorPer1Hari(motorData.harga_motor_per_1_hari); // Initialize harga_motor_per_1_hari state
+                setHargaMotorPer1Minggu(motorData.harga_motor_per_1_minggu); // Initialize harga_motor_per_1_minggu state
+                setStatusMotor(motorData.status_motor); // Initialize status_motor state
             }
             setLoadData(false);
         };
@@ -103,8 +123,9 @@ const Page = ({ params: { id } }) => {
                 stok_motor,
                 harga_motor_per_1_hari,
                 harga_motor_per_1_minggu,
-                fasilitas_motor,
                 status_motor,
+                tanggal_mulai_tidak_tersedia,
+                tanggal_selesai_tidak_tersedia,
                 token
             });
 
@@ -120,8 +141,9 @@ const Page = ({ params: { id } }) => {
                 ...(stok_motor && { stok_motor: data.listMotor.stok_motor }),
                 ...(harga_motor_per_1_hari && { harga_motor_per_1_hari: data.listMotor.harga_motor_per_1_hari }),
                 ...(harga_motor_per_1_minggu && { harga_motor_per_1_minggu: data.listMotor.harga_motor_per_1_minggu }),
-                ...(fasilitas_motor && { fasilitas_motor: data.listMotor.fasilitas_motor }),
                 ...(status_motor && { status_motor: data.listMotor.status_motor }),
+                ...(tanggal_mulai_tidak_tersedia && { tanggal_mulai_tidak_tersedia: data.listMotor.tanggal_mulai_tidak_tersedia }),
+                ...(tanggal_selesai_tidak_tersedia && { tanggal_selesai_tidak_tersedia: data.listMotor.tanggal_selesai_tidak_tersedia }),
             }));
 
             setTimeout(() => {
@@ -132,6 +154,89 @@ const Page = ({ params: { id } }) => {
             setError(err.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (id && motors.length > 0) {
+            const motor = motors.find((m) => m.id === parseInt(id, 10)); // Ensure both are numbers
+            if (motor) {
+                setSelectedMotor(motor.nama_motor);
+                setMotorId(motor.id);
+                setNamaMotor(motor.nama_motor);
+                setTanggalMulai('');
+                setTanggalSelesai('');
+            }
+        }
+    }, [id, motors]);
+
+    useEffect(() => {
+        const getBookedDates = async () => {
+            try {
+                const { disabledDays, disabledTimesPerDay } = await fetchBookedDatesAdmin(motor_id, token, stok_motor);
+                setDisabledDays(disabledDays);
+                console.log('disabledDays:', disabledDays);
+                console.log('disabledTimesPerDay:', disabledTimesPerDay);
+                setDisabledTimesPerDay(disabledTimesPerDay);
+            } catch (error) {
+                console.error('Failed to fetch booked dates:', error);
+            }
+        };
+
+        getBookedDates();
+    }, [motor_id, token, stok_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+
+        const dateStr = date.format('YYYY-MM-DD');
+        return disabledDays.includes(dateStr);
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const now = dayjs();
+        const dateStr = selectedDate.format('YYYY-MM-DD');
+        const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
+
+        // Check if the selected date is today and the time is within 2 hours of the current time
+        if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
+            return true;
+        }
+
+        // Check for the 2-hour buffer around booked times
+        const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
+        for (let bookedTimeStr of bookedTimes) {
+            const bookedTime = dayjs(bookedTimeStr);
+            const startBuffer = bookedTime.subtract(2, 'hour');
+            const endBuffer = bookedTime.add(2, 'hour');
+            if (time.isBetween(startBuffer, endBuffer, null, '[)')) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    const handleDateStart = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+            setMinEndDate(dayjs(date).add(1, 'day'));
+        } else {
+            setTanggalMulai('');
+        }
+    };
+
+    const handleDateEnd = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalSelesai(formattedDate);
+        } else {
+            setTanggalSelesai('');
         }
     };
 
@@ -207,9 +312,24 @@ const Page = ({ params: { id } }) => {
                                 setStokMotor={setStokMotor}
                                 setHargaMotorPer1Hari={setHargaMotorPer1Hari}
                                 setHargaMotorPer1Minggu={setHargaMotorPer1Minggu}
-                                setFasilitasMotor={setFasilitasMotor}
                                 handleSelectChangeStatus={handleSelectChangeStatus}
                                 loading={loading}
+                                nama_motor={nama_motor}
+                                tipe_motor={tipe_motor}
+                                merk_motor={merk_motor}
+                                stok_motor={stok_motor}
+                                harga_motor_per_1_hari={harga_motor_per_1_hari}
+                                harga_motor_per_1_minggu={harga_motor_per_1_minggu}
+                                status_motor={status_motor}
+                                tanggal_mulai={tanggal_mulai_tidak_tersedia}
+                                tanggal_selesai={tanggal_selesai_tidak_tersedia}
+                                handleDateStart={handleDateStart}
+                                handleDateEnd={handleDateEnd}
+                                shouldDisableDate={shouldDisableDate}
+                                shouldDisableTime={shouldDisableTime}
+                                minEndDate={minEndDate}
+                                setStatusMotor={setStatusMotor}
+
                             />
                         ) : (
                             <p>Loading...</p>
