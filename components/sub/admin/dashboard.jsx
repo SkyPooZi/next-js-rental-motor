@@ -141,7 +141,7 @@ export default function Dashboard() {
                             />
                             <StatCard
                                 icon={<MdHistory size="25" />}
-                                title="Total Sewa"
+                                title="Total Sewa (Bulan Ini)"
                                 value={totalSewa}
                                 color="pink"
                             />

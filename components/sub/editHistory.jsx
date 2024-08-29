@@ -196,8 +196,6 @@ const EditHistoryForm = ({
                                                 <Option
                                                     key={motor.id}
                                                     value={motor.id}
-                                                    disabled={motor.status_motor !== 'Tersedia'}
-                                                    className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}
                                                 >
                                                     <div className="flex items-center justify-between">
                                                         <div className='flex gap-2 items-center flex-grow'>
@@ -210,9 +208,6 @@ const EditHistoryForm = ({
                                                             />
                                                             <span className='mr-5'>{motor.nama_motor}</span>
                                                         </div>
-                                                        <span className={motor.status_motor === 'Tersedia' ? 'text-green-500' : 'text-red-500'}>
-                                                            {motor.status_motor}
-                                                        </span>
                                                     </div>
                                                 </Option>
                                             ))}

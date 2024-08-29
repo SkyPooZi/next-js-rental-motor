@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
@@ -41,6 +41,14 @@ const EditMotorForm = ({
     setStatusMotor,
 }) => {
     const [isChecked, setIsChecked] = useState(false);
+
+    useEffect(() => {
+        if (status_motor === 'Tidak Tersedia') {
+            setIsChecked(true);
+        } else {
+            setIsChecked(false);
+        }
+    }, []);
 
     const handleClick = () => {
         setIsChecked(!isChecked);

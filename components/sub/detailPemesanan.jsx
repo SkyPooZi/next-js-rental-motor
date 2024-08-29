@@ -38,8 +38,6 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                                             <Option
                                                 key={motor.id}
                                                 value={motor.nama_motor}
-                                                disabled={motor.status_motor !== 'Tersedia'}
-                                                className={motor.status_motor !== 'Tersedia' ? 'cursor-not-allowed' : ''}
                                             >
                                                 <div className="flex items-center">
                                                     <Image
