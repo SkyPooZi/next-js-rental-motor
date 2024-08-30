@@ -31,7 +31,8 @@ export const handleSubmitPersonalData = async (e, { nomor_hp, alamat, id, token,
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+                window.location.reload();
+            }, 1000);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);

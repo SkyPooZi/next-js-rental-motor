@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import ReactWhatsapp from 'react-whatsapp';
 import { RiMotorbikeFill } from "react-icons/ri";
 import { IoTimeOutline, IoChatboxEllipsesOutline } from "react-icons/io5";
+import { FaWhatsapp } from "react-icons/fa6";
 import {
     Spinner,
     Card,
@@ -102,7 +103,7 @@ const NewOrderBookedList = () => {
         <div className="p-4 mb-4">
             <h2 className="text-2xl font-semibold mb-4">Pesanan Baru</h2>
             {newOrders.map(order => (
-                <Card key={order.id} className="mt-6 w-96">
+                <Card key={order.id} className="mt-6 w-fit">
                     <CardBody>
                         <Typography variant='h5' color='gray' className='mb-2' >
                             <span className='opacity-80'>Id Pesanan:</span> <span className='font-semibold'>{order.id}</span>
@@ -156,14 +157,14 @@ const NewOrderBookedList = () => {
                             <div className='flex gap-2'>
                                 <motion.div
                                     whileHover={{
-                                        background: '#000',
+                                        background: '#1b5e20',
                                         color: '#fff',
                                         transition: { duration: 0.3, type: 'tween', bounce: 0.25 },
                                     }}
-                                    className='px-3 py-3 rounded-full bg-blue-500 cursor-pointer'
+                                    className='px-3 py-3 rounded-full bg-green-500 cursor-pointer'
                                 >
                                     <ReactWhatsapp number={order.no_telp} message="Hello World!!!" className="flex items-center font-bold text-white wa">
-                                        <IoChatboxEllipsesOutline size='20' color='white' />
+                                        <FaWhatsapp size='20' color='white' />
                                     </ReactWhatsapp>
                                 </motion.div>
                             </div>

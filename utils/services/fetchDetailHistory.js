@@ -1,4 +1,4 @@
-export const fetchHistoryDetail = async (id, token, setHistory, setError, setSelectedMotor) => {
+export const fetchHistoryDetail = async (id, token, setHistory, setError, setSelectedMotor, setTanggalMulai, setTanggalSelesai, setHargaRental) => {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/detail/${id}`, {
             method: 'GET',
@@ -16,6 +16,10 @@ export const fetchHistoryDetail = async (id, token, setHistory, setError, setSel
             console.log('Fetched data:', data.history);
             setHistory(data.history);
             setSelectedMotor(data.history.list_motor.nama_motor);
+            console.log(data.history.tanggal_mulai)
+            setTanggalMulai(data.history.tanggal_mulai);
+            setTanggalSelesai(data.history.tanggal_selesai);
+            setHargaRental(data.history.total_pembayaran);
         }
     } catch (err) {
         setError(`An error occurred: ${err.message}`);
