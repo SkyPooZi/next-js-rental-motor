@@ -44,6 +44,8 @@ const EditHistoryForm = ({
     selectedMotor,
     minEndDate,
     total_pembayaran,
+    nomor_hp,
+    nomor_kontak_darurat
 }) => {
     return (
         <form action='post' method='post' onSubmit={handleSubmit}>
@@ -91,7 +93,7 @@ const EditHistoryForm = ({
                                     <Input
                                         disabled
                                         type="number"
-                                        value={history.no_telp}
+                                        value={nomor_hp}
                                         label={`Tidak ada`}
                                         placeholder="8892384434"
                                     // onChange={(e) => {
@@ -263,6 +265,7 @@ const EditHistoryForm = ({
                                 <Input
                                     disabled
                                     label={`Tidak ada`}
+                                    value={history.nama_kontak_darurat}
                                 // onChange={(e) => setNamaKontakDarurat(e.target.value)}
                                 />
                             </div>
@@ -278,7 +281,7 @@ const EditHistoryForm = ({
                                         disabled
                                         type="number"
                                         label={`Tidak ada`}
-                                        value={history.no_telp_kontak_darurat}
+                                        value={nomor_kontak_darurat}
                                         placeholder="8892384434"
                                         // onChange={(e) => {
                                         //     const inputValue = e.target.value;
@@ -302,7 +305,7 @@ const EditHistoryForm = ({
                                 <Input
                                     disabled
                                     label={`Tidak ada`}
-                                    value={history.hubungan_kontak_darurat}
+                                    value={history.hubungan_dengan_kontak_darurat}
                                 // onChange={(e) => setHubunganKontakDarurat(e.target.value)}
                                 />
                             </div>

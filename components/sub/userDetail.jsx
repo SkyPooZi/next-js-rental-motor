@@ -17,7 +17,7 @@ const UserDetail = ({ image, userData }) => {
                         <img
                             src={image || 'https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg='}
                             alt="Image Preview"
-                            className="max-w-32 h-auto rounded-full"
+                            className="w-32 h-32 rounded-full object-cover"
                         />
                     </div>
                     <div className="flex flex-col md:flex-row gap-4">

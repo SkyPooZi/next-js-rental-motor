@@ -32,7 +32,7 @@ const Page = ({ params: { id } }) => {
     const [history, setHistory] = useState(null);
     const [nama_lengkap, setNamaLengkap] = useState('');
     const [email, setEmail] = useState('');
-    const [no_telp, setNomorTelp] = useState('');
+    const [nomor_hp, setNomorHp] = useState('');
     const [akun_sosmed, setAkunSosmed] = useState('');
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
@@ -120,8 +120,23 @@ const Page = ({ params: { id } }) => {
     }, []);
 
     useEffect(() => {
-        fetchHistoryDetail(id, token, setHistory, setError, setSelectedMotor, setTanggalMulai, setTanggalSelesai, setHargaRental);
+        fetchHistoryDetail(id, token, setHistory, setError, setMotorId, setSelectedMotor, setTanggalMulai, setTanggalSelesai, setHargaRental, setNomorHp, setNomorKontakDarurat);
     }, [id]);
+
+    useEffect(() => {
+        if (nomor_hp.startsWith('+62')) {
+            setNomorHp(nomor_hp.slice(3));
+        } else {
+            setNomorHp(nomor_hp);
+        }
+    }, [nomor_hp]);
+    useEffect(() => {
+        if (nomor_kontak_darurat.startsWith('+62')) {
+            setNomorKontakDarurat(nomor_kontak_darurat.slice(3));
+        } else {
+            setNomorKontakDarurat(nomor_kontak_darurat);
+        }
+    }, [nomor_kontak_darurat]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -135,7 +150,7 @@ const Page = ({ params: { id } }) => {
             akun_sosmed,
             alamat,
             penyewa,
-            motor_id,
+            motor_id: motor_id,
             tanggal_mulai,
             tanggal_selesai,
             keperluan_menyewa,
@@ -240,7 +255,7 @@ const Page = ({ params: { id } }) => {
                                 history={history}
                                 setNamaLengkap={setNamaLengkap}
                                 setEmail={setEmail}
-                                setNomorTelp={setNomorTelp}
+                                setNomorTelp={setNomorHp}
                                 setAkunSosmed={setAkunSosmed}
                                 setAlamat={setAlamat}
                                 motors={motors}
@@ -261,6 +276,8 @@ const Page = ({ params: { id } }) => {
                                 selectedMotor={selectedMotor}
                                 minEndDate={minEndDate}
                                 total_pembayaran={total_pembayaran}
+                                nomor_hp={nomor_hp}
+                                nomor_kontak_darurat={nomor_kontak_darurat}
                             />
                         ) : (
                             <p>Loading...</p>
