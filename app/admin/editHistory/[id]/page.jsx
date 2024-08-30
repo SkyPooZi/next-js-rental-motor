@@ -3,22 +3,6 @@
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
-import {
-    Card,
-    CardHeader,
-    Button,
-    Checkbox,
-    Input,
-    Select,
-    Option,
-    Textarea,
-    Popover,
-    PopoverHandler,
-    PopoverContent,
-} from "@material-tailwind/react";
-import { format, set } from "date-fns";
-import { DayPicker } from "react-day-picker";
-import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { MdDone } from "react-icons/md";
 
 import Dashboard from "@/components/sub/admin/dashboard";
@@ -35,6 +19,12 @@ import { fetchMotor } from '@/utils/services/motorsService';
 import { fetchDiscounts } from '@/utils/services/fetchDicounts';
 import { fetchHistoryDetail } from '@/utils/services/fetchDetailHistory';
 import { EditHistory } from '@/utils/services/fetchEditHistory';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
+dayjs.extend(isBetween);
+dayjs.extend(isSameOrAfter);
 
 const Page = ({ params: { id } }) => {
     const [motors, setMotors] = useState([]);
@@ -47,8 +37,11 @@ const Page = ({ params: { id } }) => {
     const [alamat, setAlamat] = useState('');
     const [penyewa, setPenyewa] = useState('');
     const [motor_id, setMotorId] = useState('');
+    const [detailId, setDetailMotorId] = useState(motor_id);
+    const [hargaRental, setHargaRental] = useState(0);
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
+    const [minEndDate, setMinEndDate] = useState(null);
     const [keperluan_menyewa, setKeperluan] = useState('');
     const [penerimaan_motor, setPenerimaan] = useState('');
     const [nama_kontak_darurat, setNamaKontakDarurat] = useState('');
@@ -56,23 +49,67 @@ const Page = ({ params: { id } }) => {
     const [hubungan_dengan_kontak_darurat, setHubunganKontakDarurat] = useState('');
     const [id_diskon, setDiskon] = useState('');
     const [metode_pembayaran, setMetodePembayaran] = useState('');
-    const [total_pembayaran, setTotalPembayaran] = useState('');
     const [status_history, setStatusHistory] = useState('');
     const [selectedMotor, setSelectedMotor] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
+    const [durasi, setDurasi] = useState('');
     const [loadData, setLoadData] = useState(true);
     const token = Cookies.get('token');
+
+    useEffect(() => {
+        calculateTotalPembayaran();
+    }, [hargaRental, durasi, id_diskon]);
+
+    const calculateTotalPembayaran = () => {
+        let totalPriceWithoutDiscount = hargaRental * durasi;
+
+        if (id_diskon) {
+            const selectedDiskon = diskons.find((diskon) => diskon.id === id_diskon);
+            if (selectedDiskon) {
+                const potonganHargaPercentage = selectedDiskon.potongan_harga;
+                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                totalPriceWithoutDiscount -= discountAmount;
+            }
+        }
+
+        setTotalPembayaran(Math.round(totalPriceWithoutDiscount));
+        return Math.round(totalPriceWithoutDiscount);
+    };
 
     const handleSelectChangeDiskon = (value) => {
         setDiskon(value);
     }
 
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
+
     const handleSelectChangeNamaMotor = (value) => {
         setSelectedMotor(value);
-    }
+        console.log(value);
+
+        if (value) {
+            const selectedMotor = motors.find((motor) => motor.id === value);
+            if (selectedMotor) {
+                setDetailMotorId(selectedMotor.id);
+                setMotorId(selectedMotor.id);
+                setHargaRental(selectedMotor.harga_motor_per_1_hari);
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (tanggal_mulai && tanggal_selesai) {
+            const startDate = dayjs(tanggal_mulai);
+            const endDate = dayjs(tanggal_selesai);
+            const duration = endDate.diff(startDate, 'day');
+            console.log(duration);
+            setDurasi(duration);
+        } else {
+            setDurasi(0);
+        }
+    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
 
     useEffect(() => {
         fetchMotor(token, setMotors, setError, setLoadData);
@@ -83,7 +120,7 @@ const Page = ({ params: { id } }) => {
     }, []);
 
     useEffect(() => {
-        fetchHistoryDetail(id, token, setHistory, setError, setSelectedMotor);
+        fetchHistoryDetail(id, token, setHistory, setError, setSelectedMotor, setTanggalMulai, setTanggalSelesai, setHargaRental);
     }, [id]);
 
     const handleSubmit = async (e) => {
@@ -124,17 +161,21 @@ const Page = ({ params: { id } }) => {
 
     const handleDateStart = (date) => {
         if (date) {
-            setNomorTelp(format(date, 'yyyy-MM-dd'));
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+            setMinEndDate(dayjs(date).add(1, 'day'));
         } else {
-            setNomorTelp('');
+            setTanggalMulai('');
         }
     };
 
     const handleDateEnd = (date) => {
         if (date) {
-            setAkunSosmed(format(date, 'yyyy-MM-dd'));
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalSelesai(formattedDate);
         } else {
-            setAkunSosmed('');
+            setTanggalSelesai('');
         }
     };
 
@@ -218,6 +259,8 @@ const Page = ({ params: { id } }) => {
                                 handleSelectChangeStatus={handleSelectChangeStatus}
                                 loading={loading}
                                 selectedMotor={selectedMotor}
+                                minEndDate={minEndDate}
+                                total_pembayaran={total_pembayaran}
                             />
                         ) : (
                             <p>Loading...</p>

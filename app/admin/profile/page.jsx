@@ -116,6 +116,15 @@ const Page = () => {
         fetchData();
     }, [id, token]);
 
+    useEffect(() => {
+        console.log(nomor_hp)
+        if (nomor_hp.startsWith('+62')) {
+            setNomorHp(nomor_hp.slice(3)); // Remove '+62'
+        } else {
+            setNomorHp(nomor_hp);
+        }
+    }, [nomor_hp]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -246,7 +255,7 @@ const Page = () => {
                                                     <img
                                                         src={imagePreview || image}
                                                         alt="Image Preview"
-                                                        className="max-w-36 h-auto rounded-full"
+                                                        className="w-32 h-32 object-cover rounded-full"
                                                     />
                                                 </div>
                                                 <div>
@@ -318,7 +327,11 @@ const Page = () => {
                                                                 placeholder="8892384434"
                                                                 onChange={(e) => {
                                                                     const inputValue = e.target.value;
-                                                                    setNomorHp(inputValue);
+                                                                    if (inputValue.startsWith('0')) {
+                                                                        setNomorHp(inputValue.slice(1));
+                                                                    } else {
+                                                                        setNomorHp(inputValue);
+                                                                    }
                                                                 }}
                                                             />
                                                         </div>

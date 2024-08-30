@@ -118,8 +118,6 @@ export default function Profile() {
         setShowConfirmPassword((prevShowPassword) => !prevShowPassword);
     };
 
-
-
     const handleButtonClick = () => {
         fileInputRef.current.click();
     };
@@ -129,12 +127,25 @@ export default function Profile() {
             try {
                 const userData = await fetchUserDetail(id, token);
                 setUser(userData);
+                setEmail(userData.email);
+                setNamaLengkap(userData.nama_lengkap);
+                setNomorHp(userData.nomor_hp);
+                setAlamat(userData.alamat);
             } catch (error) {
                 setError(error.message);
             }
         };
         getUserDetail();
     }, [id, token]);
+
+    useEffect(() => {
+        console.log(nomor_hp)
+        if (nomor_hp.startsWith('+62')) {
+            setNomorHp(nomor_hp.slice(3)); // Remove '+62'
+        } else {
+            setNomorHp(nomor_hp);
+        }
+    }, [nomor_hp]);
 
     if (!user) {
         return (
@@ -160,7 +171,7 @@ export default function Profile() {
                                 : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
                             )}
                             alt="Image Preview"
-                            className="max-w-36 h-auto rounded-md"
+                            className="w-32 h-32 rounded-full object-cover"
                         />
                     </div>
                     {!(user.google_id || user.facebook_id) && (
@@ -183,7 +194,8 @@ export default function Profile() {
                             <span>Nama Lengkap</span>
                         </Label>
                         <Input
-                            label={`Masukkan nama lengkap anda (${user.nama_lengkap})`}
+                            label={`Masukkan nama lengkap anda`}
+                            value={nama_lengkap}
                             onChange={(e) => setNamaLengkap(e.target.value)}
                         />
                     </div>
@@ -194,7 +206,7 @@ export default function Profile() {
                         <Input
                             type='email'
                             placeholder='Email Anda'
-                            label={`(${user.email})`}
+                            value={user.email}
                             disabled
                         />
                     </div>
@@ -217,7 +229,8 @@ export default function Profile() {
                         </span>
                         <Input
                             type="number"
-                            label={`Masukkan no hp (${user.nomor_hp})`}
+                            label={`Masukkan no hp`}
+                            value={nomor_hp}
                             placeholder="8892384434"
                             onChange={(e) => {
                                 const inputValue = e.target.value;
@@ -237,7 +250,8 @@ export default function Profile() {
                             <span>Alamat</span>
                         </Label>
                         <Textarea
-                            label={`Masukkan alamat (${user.alamat})`}
+                            label={`Masukkan alamat`}
+                            value={alamat}
                             onChange={(e) => setAlamat(e.target.value)}
                         />
                     </div>
@@ -263,7 +277,7 @@ export default function Profile() {
                         <span>Email Baru</span>
                     </label>
                     <Input
-                        label={`Masukkan email (${user.email})`}
+                        label={`Masukkan email`}
                         type='email'
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
