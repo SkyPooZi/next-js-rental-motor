@@ -89,7 +89,7 @@ export const EditHistory = async ({
 
             setTimeout(() => {
                 setShowNotification(false);
-                window.location.reload();
+                // window.location.reload();
             }, 1000);
         }
     } catch (err) {

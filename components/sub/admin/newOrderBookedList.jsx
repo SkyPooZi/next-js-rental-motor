@@ -102,88 +102,90 @@ const NewOrderBookedList = () => {
     return (
         <div className="p-4 mb-4">
             <h2 className="text-2xl font-semibold mb-4">Pesanan Baru</h2>
-            {newOrders.map(order => (
-                <Card key={order.id} className="mt-6 w-fit">
-                    <CardBody>
-                        <Typography variant='h5' color='gray' className='mb-2' >
-                            <span className='opacity-80'>Id Pesanan:</span> <span className='font-semibold'>{order.id}</span>
-                        </Typography>
-                        <div className='flex gap-2'>
-                            <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-500/10'>
-                                <RiMotorbikeFill size='20' className='text-blue-500' />
-                                <Typography>
-                                    <span className='text-blue-500 font-bold'>{order.penerimaan_motor}</span>
-                                </Typography>
-                            </div>
-                            <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-gray-50'>
-                                <IoTimeOutline size='20' className='opacity-90' />
-                                <Typography>
-                                    <span className='font-bold opacity-90'>{formatTime(order.tanggal_mulai)}</span>
-                                </Typography>
-                            </div>
-                        </div>
-                        <div className='flex items-center mb-2'>
-                            <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} width={100} height={100} className="w-16 h-16 mr-4 rounded-lg" />
-                            <Typography variant="h5" color="blue-gray">
-                                {order.list_motor.nama_motor}
+            <div className='flex gap-3 overflow-x-scroll'>
+                {newOrders.map(order => (
+                    <Card key={order.id} className="mt-6 mb-2 w-fit">
+                        <CardBody>
+                            <Typography variant='h5' color='gray' className='mb-2' >
+                                <span className='opacity-80'>Id Pesanan:</span> <span className='font-semibold'>{order.id}</span>
                             </Typography>
-                        </div>
-                        <div className="border-t border-gray-500 shadow-md mb-4"></div>
-                        <div className='flex justify-between items-center mb-4'>
-                            <div className='flex gap-3'>
-                                <Avatar className="w-12 h-12">
-                                    {order.user.gambar ? (
-                                        <AvatarImage
-                                            className="w-full h-full object-cover"
-                                            src={
-                                                order.user.google_id || order.user.facebook_id
-                                                    ? order.user.gambar
-                                                    : `${process.env.NEXT_PUBLIC_API_URL}/storage/${order.user.gambar}`
-                                            }
-                                        />
-                                    ) : (
-                                        <AvatarFallback>o_o</AvatarFallback>
-                                    )}
-                                </Avatar>
-                                <div className='flex flex-col'>
-                                    <Typography variant='h6' color='gray'>
-                                        <span className='font-semibold opacity-75'>Customer</span>
+                            <div className='flex gap-2'>
+                                <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-500/10'>
+                                    <RiMotorbikeFill size='20' className='text-blue-500' />
+                                    <Typography>
+                                        <span className='text-blue-500 font-bold'>{order.penerimaan_motor}</span>
                                     </Typography>
-                                    <Typography variant='h5' color='black'>
-                                        <span className='font-bold'>{order.nama_lengkap}</span>
+                                </div>
+                                <div className='flex gap-1.5 py-1 px-2 w-fit items-center mb-2 rounded-md bg-blue-gray-50'>
+                                    <IoTimeOutline size='20' className='opacity-90' />
+                                    <Typography>
+                                        <span className='font-bold opacity-90'>{formatTime(order.tanggal_mulai)}</span>
                                     </Typography>
                                 </div>
                             </div>
-                            <div className='flex gap-2'>
-                                <motion.div
-                                    whileHover={{
-                                        background: '#1b5e20',
-                                        color: '#fff',
-                                        transition: { duration: 0.3, type: 'tween', bounce: 0.25 },
-                                    }}
-                                    className='px-3 py-3 rounded-full bg-green-500 cursor-pointer'
-                                >
-                                    <ReactWhatsapp number={order.no_telp} message="Hello World!!!" className="flex items-center font-bold text-white wa">
-                                        <FaWhatsapp size='20' color='white' />
-                                    </ReactWhatsapp>
-                                </motion.div>
+                            <div className='flex items-center mb-2'>
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} width={100} height={100} className="w-16 h-16 mr-4 rounded-lg" />
+                                <Typography variant="h5" color="blue-gray">
+                                    {order.list_motor.nama_motor}
+                                </Typography>
                             </div>
-                        </div>
-                        <div className="border-t border-gray-500 shadow-md"></div>
-                    </CardBody>
-                    <CardFooter className="pt-0">
-                        <div className='self-end'>
-                            <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
-                                <Label>
-                                    <span className="text-blue-500 cursor-pointer">
-                                        Tampilkan Invoice
-                                    </span>
-                                </Label>
-                            </Button>
-                        </div>
-                    </CardFooter>
-                </Card>
-            ))}
+                            <div className="border-t border-gray-500 shadow-md mb-4"></div>
+                            <div className='flex justify-between items-center mb-4'>
+                                <div className='flex gap-3'>
+                                    <Avatar className="w-12 h-12">
+                                        {order.user.gambar ? (
+                                            <AvatarImage
+                                                className="w-full h-full object-cover"
+                                                src={
+                                                    order.user.google_id || order.user.facebook_id
+                                                        ? order.user.gambar
+                                                        : `${process.env.NEXT_PUBLIC_API_URL}/storage/${order.user.gambar}`
+                                                }
+                                            />
+                                        ) : (
+                                            <AvatarFallback>o_o</AvatarFallback>
+                                        )}
+                                    </Avatar>
+                                    <div className='flex flex-col'>
+                                        <Typography variant='h6' color='gray'>
+                                            <span className='font-semibold opacity-75'>Customer</span>
+                                        </Typography>
+                                        <Typography variant='h5' color='black'>
+                                            <span className='font-bold'>{order.nama_lengkap}</span>
+                                        </Typography>
+                                    </div>
+                                </div>
+                                <div className='flex gap-2'>
+                                    <motion.div
+                                        whileHover={{
+                                            background: '#1b5e20',
+                                            color: '#fff',
+                                            transition: { duration: 0.3, type: 'tween', bounce: 0.25 },
+                                        }}
+                                        className='px-3 py-3 rounded-full bg-green-500 cursor-pointer'
+                                    >
+                                        <ReactWhatsapp number={order.nomor_hp} message="Hello World!!!" className="flex items-center font-bold text-white wa">
+                                            <FaWhatsapp size='20' color='white' />
+                                        </ReactWhatsapp>
+                                    </motion.div>
+                                </div>
+                            </div>
+                            <div className="border-t border-gray-500 shadow-md"></div>
+                        </CardBody>
+                        <CardFooter className="pt-0">
+                            <div className='self-end'>
+                                <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>
+                                    <Label>
+                                        <span className="text-blue-500 cursor-pointer">
+                                            Tampilkan Invoice
+                                        </span>
+                                    </Label>
+                                </Button>
+                            </div>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
             {showInvoice && (
                 <InvoicePopup
                     onClose={() => setShowInvoice(false)}

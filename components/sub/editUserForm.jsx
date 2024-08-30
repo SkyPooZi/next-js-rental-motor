@@ -35,7 +35,7 @@ const EditUserForm = ({
                             <img
                                 src={imagePreview || image}
                                 alt="Image Preview"
-                                className="max-w-32 h-auto rounded-md"
+                                className="w-32 h-32 rounded-full object-cover"
                             />
                         </div>
                         <div>
