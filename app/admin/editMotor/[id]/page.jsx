@@ -152,7 +152,7 @@ const Page = ({ params: { id } }) => {
 
             setTimeout(() => {
                 setShowNotification(false);
-                window.location.reload();
+                // window.location.reload();
             }, 1000);
         } catch (err) {
             setError(err.message);
@@ -168,8 +168,6 @@ const Page = ({ params: { id } }) => {
                 setSelectedMotor(motor.nama_motor);
                 setMotorId(motor.id);
                 setNamaMotor(motor.nama_motor);
-                setTanggalMulai('');
-                setTanggalSelesai('');
             }
         }
     }, [id, motors]);
@@ -180,8 +178,6 @@ const Page = ({ params: { id } }) => {
                 const { disabledDays, disabledTimesPerDay } = await fetchBookedDatesAdmin(motor_id, token, stok_motor);
                 setDisabledDays(disabledDays || []); // Default to empty array if undefined
                 setDisabledTimesPerDay(disabledTimesPerDay || {}); // Default to empty object if undefined
-                console.log('disabledDays:', disabledDays);
-                console.log('disabledTimesPerDay:', disabledTimesPerDay);
             } catch (error) {
                 console.error('Failed to fetch booked dates:', error);
             }
@@ -336,7 +332,8 @@ const Page = ({ params: { id } }) => {
                                 shouldDisableTime={shouldDisableTime}
                                 minEndDate={minEndDate}
                                 setStatusMotor={setStatusMotor}
-
+                                token={token}
+                                id={id}
                             />
                         ) : (
                             <p>Loading...</p>

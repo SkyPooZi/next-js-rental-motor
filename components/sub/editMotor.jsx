@@ -39,6 +39,8 @@ const EditMotorForm = ({
     shouldDisableTime,
     minEndDate,
     setStatusMotor,
+    token,
+    id
 }) => {
     const [isChecked, setIsChecked] = useState(false);
 
@@ -47,8 +49,30 @@ const EditMotorForm = ({
             setIsChecked(true);
         } else {
             setIsChecked(false);
+
+            const sendAPIRequest = async () => {
+                try {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/editDate/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                        },
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API request failed with status ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('API response:', data);
+                } catch (error) {
+                    console.error('API request error:', error);
+                }
+            };
+
+            sendAPIRequest();
         }
-    }, []);
+    }, [status_motor, id, token]);
 
     const handleClick = () => {
         setIsChecked(!isChecked);
@@ -60,7 +84,7 @@ const EditMotorForm = ({
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
                         <span className="text-black font-medium">Edit Motor</span>
-                        <div className="border-t border-[#969696] w-full"></div>
+                        <div className="border-t border-[#988080] w-full"></div>
                         <span className="text-black">Foto</span>
                         <div className="mr-4">
                             <img
