@@ -37,8 +37,26 @@ const Motor = ({ motor }) => {
             : 'text-green-500';
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('id-ID', options);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
     };
 
     return (
@@ -76,8 +94,8 @@ const Motor = ({ motor }) => {
                     </div>
                     <div className="mb-4">
                         <p className={`text-lg font-bold ${statusColor}`}>{motor.status_motor}</p>
-                        {motor.tanggal_tersedia && (
-                            <p className="text-sm text-gray-600">Tersedia mulai: {formatDate(motor.tanggal_tersedia)}</p>
+                        {motor.tanggal_selesai_tidak_tersedia && (
+                            <p className="text-md font-medium text-red-500">{formatDate(motor.tanggal_mulai_tidak_tersedia)} - {formatDate(motor.tanggal_selesai_tidak_tersedia)}</p>
                         )}
                     </div>
                     <div className="flex flex-col items-center mb-2">
