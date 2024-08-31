@@ -241,7 +241,7 @@ export function UserListTable() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                <Tooltip content="Delete">
+                                                {/* <Tooltip content="Delete">
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
@@ -249,7 +249,7 @@ export function UserListTable() {
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip> */}
                                             </td>
                                         </tr>
                                     ))

@@ -104,8 +104,8 @@ const NewOrderBookedList = () => {
             <h2 className="text-2xl font-semibold mb-4">Pesanan Baru</h2>
             <div className='flex gap-3 overflow-x-scroll'>
                 {newOrders.map(order => (
-                    <Card key={order.id} className="mt-6 mb-2 w-fit">
-                        <CardBody>
+                    <Card key={order.id} className="mt-6 mb-2">
+                        <CardBody className='w-80'>
                             <Typography variant='h5' color='gray' className='mb-2' >
                                 <span className='opacity-80'>Id Pesanan:</span> <span className='font-semibold'>{order.id}</span>
                             </Typography>

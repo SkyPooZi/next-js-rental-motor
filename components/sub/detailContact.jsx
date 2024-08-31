@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Input, Radio } from '@material-tailwind/react';
 import { Label } from '@/components/ui/label';
 import { FaInstagram, FaFacebookF, FaTwitter } from 'react-icons/fa';
+import { IoIosArrowDown } from "react-icons/io";
 
 const DetailKontak = ({
     nama_lengkap,
@@ -28,7 +29,6 @@ const DetailKontak = ({
         setShowDropdown(false);
     };
 
-    // Close the dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -42,7 +42,6 @@ const DetailKontak = ({
             document.removeEventListener('mousedown', handleClickOutside);
         }
 
-        // Cleanup the event listener on component unmount
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
@@ -62,6 +61,30 @@ const DetailKontak = ({
             </div>
             <div className='mt-10'>
                 <div className='flex flex-col gap-8'>
+                    <div className='flex flex-col gap-2'>
+                        <span className="text-black">
+                            Pemesan <span className="text-[#FF4D33] font-semibold">*</span>
+                        </span>
+                        <div className="flex flex-col md:flex-row gap-5">
+                            <div className={`flex flex-row items-center cursor-pointer`}>
+                                <Radio
+                                    checked={clickedPenyewaDiriSendiri}
+                                    onChange={handleClickPenyewaDiriSendiri}
+                                    label={'Diri Sendiri'}
+                                />
+                            </div>
+                            <div className={`flex flex-row items-center cursor-pointer`}>
+                                <Radio
+                                    checked={clickedPenyewaOrangLain}
+                                    onChange={handleClickPenyewaOrangLain}
+                                    label={'Untuk Orang Lain'}
+                                />
+                            </div>
+                        </div>
+                        <span className='text-[#757575] text-[14px]'>
+                            Anda bisa memesan motor untuk orang lain dengan memilih opsi "Untuk Orang Lain"
+                        </span>
+                    </div>
                     <div className="flex md:flex-row flex-col gap-5 w-full">
                         <div className="w-full flex flex-col gap-2">
                             <span className="text-black">
@@ -74,17 +97,22 @@ const DetailKontak = ({
                                 required
                             />
                         </div>
-                        {/* Social Media Account Input */}
                         <div className="w-full flex flex-col gap-2">
                             <span className="text-black">
                                 Akun Sosial Media <span className="text-[#FF4D33] font-semibold">*</span>
                             </span>
                             <div className="relative flex items-center">
                                 <button
-                                    className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-l"
+                                    className={`px-3 py-3 flex gap-2 border border-r-0 rounded-lg ${selectedIcon && selectedIcon.type === FaInstagram
+                                            ? 'bg-pink-100'
+                                            : selectedIcon && selectedIcon.type === FaFacebookF
+                                                ? 'bg-blue-100'
+                                                : 'bg-white'
+                                        }`}
                                     onClick={toggleDropdown}
                                 >
                                     {selectedIcon}
+                                    <IoIosArrowDown className={`${selectedIcon && selectedIcon.type === FaInstagram ? 'text-pink-500' : selectedIcon && selectedIcon.type === FaFacebookF ? 'text-blue-600' : 'text-white'}`} />
                                 </button>
                                 <Input
                                     label="Masukkan akun sosmed"
@@ -112,13 +140,6 @@ const DetailKontak = ({
                                             >
                                                 <FaFacebookF className="text-blue-600 mr-2" />
                                                 Facebook
-                                            </li>
-                                            <li
-                                                className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
-                                                onClick={() => selectIcon(<FaTwitter className="text-blue-400" />)}
-                                            >
-                                                <FaTwitter className="text-blue-400 mr-2" />
-                                                Twitter
                                             </li>
                                         </ul>
                                     </div>
@@ -175,25 +196,6 @@ const DetailKontak = ({
                         <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
                     </div>
                 </div>
-                <div className="flex flex-col md:flex-row gap-5">
-                    <div className={`flex flex-row items-center cursor-pointer`}>
-                        <Radio
-                            checked={clickedPenyewaDiriSendiri}
-                            onChange={handleClickPenyewaDiriSendiri}
-                        />
-                        Diri Sendiri
-                    </div>
-                    <div className={`flex flex-row items-center cursor-pointer`}>
-                        <Radio
-                            checked={clickedPenyewaOrangLain}
-                            onChange={handleClickPenyewaOrangLain}
-                        />
-                        Orang Lain
-                    </div>
-                </div>
-                <span className='text-[#757575] text-[14px]'>
-                    Anda bisa memesan motor untuk orang lain dengan memilih opsi "Untuk Orang Lain"
-                </span>
             </div>
         </div>
     );

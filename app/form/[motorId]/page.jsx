@@ -73,8 +73,8 @@ export default function page({ params: { motorId } }) {
     const [response, setResponse] = useState(null);
     const [error, setError] = useState(null);
     const [clickedDiantar, setClickedDiantar] = useState(false);
-    const [clickedAmbil, setClickedAmbil] = useState(false);
-    const [clickedPenyewaDiriSendiri, setClickedPenyewaDiriSendiri] = useState(false);
+    const [clickedAmbil, setClickedAmbil] = useState(true);
+    const [clickedPenyewaDiriSendiri, setClickedPenyewaDiriSendiri] = useState(true);
     const [clickedPenyewaOrangLain, setClickedPenyewaOrangLain] = useState(false);
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
@@ -83,20 +83,19 @@ export default function page({ params: { motorId } }) {
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
-    const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram'); // Default to Instagram icon
+    const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram');
 
-    // Store fetched user data separately
     const [userData, setUserData] = useState({});
 
     const token = Cookies.get('token');
-    const userIdFromCookie = Cookies.get('id'); // Assuming user ID is stored in a cookie
+    const userIdFromCookie = Cookies.get('id');
     const router = useRouter();
     const id = Cookies.get('id');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const user = await fetchUserData({ id: userIdFromCookie, token }); // Fetch user data using the API
+                const user = await fetchUserData({ id: userIdFromCookie, token });
                 if (user) {
                     setUserData(user); // Store fetched data separately
                     setNamaLengkap(user.nama_lengkap);
@@ -259,12 +258,6 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if nama and nomor telepon are the same for detail kontak and emergency contact
-        if (nama_lengkap === nama_kontak_darurat && nomor_hp === nomor_kontak_darurat) {
-            alert('Nama dan nomor telepon di kontak detail dan kontak darurat tidak boleh sama. Silakan ubah salah satunya.');
-            return; // Prevent submission if they are the same
-        }
-
         if (clickedPenyewaDiriSendiri && userId) {
             try {
                 await updateUserData(userId, token, { nama_lengkap, nomor_hp });
@@ -301,12 +294,6 @@ export default function page({ params: { motorId } }) {
     };
 
     useEffect(() => {
-
-        if (nama_lengkap === nama_kontak_darurat && nomor_hp === nomor_kontak_darurat) {
-            alert('Nama dan nomor telepon di kontak detail dan kontak darurat tidak boleh sama. Silakan ubah salah satunya.');
-            return; // Prevent submission if they are the same
-        }
-        
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
@@ -326,6 +313,17 @@ export default function page({ params: { motorId } }) {
         } else {
             setDurasi(0);
         }
+
+        if (nama_kontak_darurat.trim().toLowerCase() === nama_lengkap.trim().toLowerCase()) {
+            showNotificationWithTimeout('Nama kontak darurat tidak boleh sama dengan nama pemesan', 'error');
+            return;
+        }
+
+        if (nomor_kontak_darurat.trim().toLowerCase() === nomor_hp.trim().toLowerCase()) {
+            showNotificationWithTimeout('Nomor kontak darurat tidak boleh sama dengan nomor hp pemesan', 'error');
+            return;
+        }
+
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
@@ -359,6 +357,11 @@ export default function page({ params: { motorId } }) {
 
             if (!response.ok) {
                 throw new Error('Network Error');
+            }
+
+            if (!response === 422) {
+                showNotificationWithTimeout('Data yang dimasukkan tidak valid', 'error');
+                return;
             }
 
             const data = await response.json();
@@ -535,12 +538,19 @@ export default function page({ params: { motorId } }) {
         }
     };
 
+    useEffect(() => {
+        if (clickedPenyewaDiriSendiri === true) {
+            setPenyewa('Diri Sendiri');
+        } else {
+            setPenyewa('Orang Lain');
+        }
+    });
+
     const handleClickPenyewaDiriSendiri = () => {
         setClickedPenyewaDiriSendiri(true);
         setClickedPenyewaOrangLain(false);
         setPenyewa('Diri Sendiri');
 
-        // Re-fill the fields using stored user data
         setNamaLengkap(userData.nama_lengkap);
         setNoTelp(userData.nomor_hp);
         setAkunSosmed(userData.akun_sosmed);
@@ -553,7 +563,6 @@ export default function page({ params: { motorId } }) {
         setClickedPenyewaDiriSendiri(false);
         setPenyewa('Orang Lain');
 
-        // Clear the input fields when "Orang Lain" is clicked
         setNamaLengkap('');
         setNoTelp('');
         setAkunSosmed('');
@@ -573,6 +582,14 @@ export default function page({ params: { motorId } }) {
         setMetodePembayaran('Non-Tunai');
     };
 
+    useEffect(() => {
+        if (clickedAmbil === true) {
+            setPenerimaanMotor('Diambil');
+        } else {
+            setPenerimaanMotor('Diantar');
+        }
+    })
+
     const handleClickDiantar = () => {
         setClickedDiantar(true);
         setClickedAmbil(false);
@@ -582,7 +599,7 @@ export default function page({ params: { motorId } }) {
     const handleClickAmbil = () => {
         setClickedAmbil(true);
         setClickedDiantar(false);
-        setPenerimaanMotor('Ambil');
+        setPenerimaanMotor('Diambil');
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -599,10 +616,10 @@ export default function page({ params: { motorId } }) {
     const openPrivacyModal = () => setPrivacyModalOpen(true);
     const closePrivacyModal = () => setPrivacyModalOpen(false);
 
-    const selectIcon = (icon) => {
-        setSelectedIcon(icon);
-        setShowDropdown(false);
-    };
+    // const selectIcon = (icon) => {
+    //     setSelectedIcon(icon);
+    //     setShowDropdown(false);
+    // };
 
     if (!motors) {
         return (
@@ -683,8 +700,10 @@ export default function page({ params: { motorId } }) {
                     />
                     <EmergencyContact
                         nama_kontak_darurat={nama_kontak_darurat}
-                        setNamaKontakDarurat={setNamaKontakDarurat}
+                        nama_lengkap={nama_lengkap}
                         nomor_kontak_darurat={nomor_kontak_darurat}
+                        setNamaKontakDarurat={setNamaKontakDarurat}
+                        nomor_hp={nomor_hp}
                         setNomorKontakDarurat={setNomorKontakDarurat}
                         hubungan_dengan_kontak_darurat={hubungan_dengan_kontak_darurat}
                         setHubunganDenganKontakDarurat={setHubunganDenganKontakDarurat}

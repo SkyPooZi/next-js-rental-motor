@@ -38,10 +38,19 @@ export const handleBookingSubmit = async (
         return;
     }
 
+    if (nama_kontak_darurat.trim().toLowerCase() === nama_lengkap.trim().toLowerCase()) {
+        showNotificationWithTimeout('Nama kontak darurat tidak boleh sama dengan nama pemesan', 'error');
+        return;
+    }
+
+    if (nomor_kontak_darurat.trim().toLowerCase() === nomor_hp.trim().toLowerCase()) {
+        showNotificationWithTimeout('Nomor kontak darurat tidak boleh sama dengan nomor hp pemesan', 'error');
+        return;
+    }
+
     setLoading(true);
 
     try {
-        // Create history entry
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
             method: 'POST',
             headers: {
@@ -75,6 +84,11 @@ export const handleBookingSubmit = async (
         if (!historyResponse.ok) {
             const errorText = await historyResponse.text();
             throw new Error(`Failed to create history: ${errorText}`);
+        }
+
+        if (!historyResponse === 422) {
+            showNotificationWithTimeout('Data yang dimasukkan tidak valid', 'error');
+            return;
         }
 
         const historyData = await historyResponse.json();

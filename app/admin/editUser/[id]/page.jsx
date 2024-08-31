@@ -28,7 +28,8 @@ const Page = ({ params: { id } }) => {
     const [peran, setPeran] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
-    const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
+    const [image, setImage] = useState('');
+    const [blankImage, setBlankImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
     const [imagePreview, setImagePreview] = useState('');
     const fileInputRef = useRef(null);
     const [file, setFile] = useState(null);
@@ -63,7 +64,11 @@ const Page = ({ params: { id } }) => {
                 const userData = await fetchUserData({ id, token });
                 console.log('Fetched data:', userData);
                 setUser(userData);
-                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                if (userData.gambar === null) {
+                    setImage(blankImage);
+                } else {
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                }
                 setNamaPengguna(userData.nama_pengguna);
                 setNamaLengkap(userData.nama_lengkap);
                 setEmail(userData.email);
