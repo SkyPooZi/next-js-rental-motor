@@ -7,6 +7,29 @@ import { useRouter } from 'next/navigation';
 const DetailMotor = ({ motor }) => {
     const router = useRouter();
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    };
+
+    const isAvailable =
+        !motor.tanggal_mulai_tidak_tersedia && !motor.tanggal_selesai_tidak_tersedia;
+
+    const availabilityStatus = isAvailable
+        ? 'Tersedia'
+        : (
+            <>
+              Tidak tersedia dari
+              <div>
+                <strong>{formatDate(motor.tanggal_mulai_tidak_tersedia)} hingga {formatDate(motor.tanggal_selesai_tidak_tersedia)}</strong>
+              </div>
+            </>
+        );
+
     const statusColor = motor.status_motor === 'Tidak Tersedia'
         ? 'text-red-500'
         : motor.status_motor === 'Tertunda'
@@ -14,7 +37,7 @@ const DetailMotor = ({ motor }) => {
             : 'text-green-500';
 
     const handleButtonClick = () => {
-            router.push(`/form/${motor.id}`);
+        router.push(`/form/${motor.id}`);
     };
 
     return (
@@ -90,11 +113,10 @@ const DetailMotor = ({ motor }) => {
                             <p className="text-black text-xl font-bold">Fasilitas:</p>
                             <p className="text-black text-base font-medium">{motor.fasilitas_motor}</p>
                         </div>
-                        <div className='mb-10'>
+                        <div className="mb-10">
                             <p className="text-black text-xl font-bold">Status:</p>
-                            <div className={`flex items-center ${statusColor}`}>
-                                <span className="h-4 w-4 rounded-full bg-current mr-2"></span>
-                                <p className="text-lg font-medium">{motor.status_motor}</p>
+                            <div className={`text-lg font-medium ${isAvailable ? 'text-green-500' : 'text-red-500'}`}>
+                                {availabilityStatus}
                             </div>
                         </div>
                         <div className="flex flex-col space-y-4 md:flex-row md:space-x-5 md:space-y-0">
