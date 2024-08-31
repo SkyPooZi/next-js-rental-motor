@@ -102,11 +102,11 @@ const DetailMotor = ({ motor }) => {
                         <div className="flex flex-col md:flex-row md:space-x-6 mb-6">
                             <div className='mb-4 md:mb-0'>
                                 <p className="text-black text-sm md:text-base font-bold">Harian:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_hari.toLocaleString('id-ID')}`}</p>
+                                <p className="text-[#ff4d33] text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_hari.toLocaleString('id-ID')}`}</p>
                             </div>
                             <div className='md:ml-6'>
                                 <p className="text-black text-sm md:text-base font-bold">Mingguan:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</p>
+                                <p className="text-[#ff4d33] text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</p>
                             </div>
                         </div>
                         <div className='mb-4'>

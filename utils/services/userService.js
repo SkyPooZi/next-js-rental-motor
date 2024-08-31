@@ -22,11 +22,12 @@ export const fetchUserData = async ({ id, token }) => {
     }
 };
 
-export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp }) => {
+export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp, email }) => {
     try {
         const payload = {
             nama_lengkap: nama_lengkap,
             nomor_hp: nomor_hp,
+            email:email,
             // Include other fields if needed
         };
 

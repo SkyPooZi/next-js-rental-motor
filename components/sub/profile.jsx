@@ -73,6 +73,7 @@ export default function Profile() {
     const [serverOtp, setServerOtp] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [response, setResponse] = useState(null);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
@@ -101,6 +102,13 @@ export default function Profile() {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            // Check if file size is within the limit (2 MB)
+            if (file.size > 2 * 1024 * 1024) {
+                setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
+                // Clear the response after 5 seconds
+                setTimeout(() => setResponse(null), 5000);
+                return;
+            }
             setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -109,6 +117,8 @@ export default function Profile() {
             reader.readAsDataURL(file);
         }
     };
+
+
 
     const toggleShowPassword = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
@@ -157,6 +167,13 @@ export default function Profile() {
 
     return (
         <div className="flex flex-col gap-5 w-full">
+            {response && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${response.error ? 'bg-red-500' : 'bg-green-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg`}>
+                    <span>{response.message}</span>
+                    <MdDone className={`ml-2 text-white ${response.error ? 'hidden' : ''}`} />
+                </div>
+            )}
+
             <FormSection
                 title="Profil Saya"
                 onSubmit={(e) => handleSubmitProfile(e, { file, nama_lengkap, id, token, setIsLoadingProfile, setError, setImage, setShowNotification, setUser })}
