@@ -260,7 +260,7 @@ export default function page({ params: { motorId } }) {
 
         if (clickedPenyewaDiriSendiri && userId) {
             try {
-                await updateUserData(userId, token, { nama_lengkap, nomor_hp });
+                await updateUserData(userId, token, { nama_lengkap, nomor_hp, email });
             } catch (error) {
                 console.error('Error updating user data:', error);
             }

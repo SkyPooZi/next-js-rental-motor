@@ -125,8 +125,8 @@ export default function Booked() {
         <div>
             {bookedDetails.length > 0 ? (
                 bookedDetails
-                    .sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai))
-                    .map((detail) => (
+                .sort((a, b) => b.id - a.id)  // Sort by `id` in descending order
+                .map((detail) => (
                         <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
                             <div className="flex flex-col md:flex-row gap-3 justify-between">
                                 <div className="flex flex-row gap-2">

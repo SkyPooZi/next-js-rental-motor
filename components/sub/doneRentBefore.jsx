@@ -92,52 +92,54 @@ export default function DoneRentBefore() {
     return (
         <div>
             {doneRentBeforeDetails.length > 0 ? (
-               doneRentBeforeDetails.sort((a, b) => new Date(b.tanggal_mulai) - new Date(a.tanggal_mulai)).map((detail) => (
-                    <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
-                        <div className="flex flex-col md:flex-row gap-3 justify-between">
-                            <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
-                                <div className="flex flex-col gap-2.5">
+                doneRentBeforeDetails
+                    .sort((a, b) => b.id - a.id)  // Sort by `id` in descending order
+                    .map((detail) => (
+                        <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
+                            <div className="flex flex-col md:flex-row gap-3 justify-between">
+                                <div className="flex flex-row gap-2">
+                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                    <div className="flex flex-col gap-2.5">
+                                        <Label>
+                                            <span className="text-lg font-bold">
+                                                {detail.list_motor.nama_motor || 'Motor'}
+                                            </span>
+                                        </Label>
+                                        <Label>
+                                            <span className="text-base opacity-80">
+                                                {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
+                                            </span>
+                                        </Label>
+                                        <Label>
+                                            <span>Total pembayaran </span>
+                                            <span className="font-bold">
+                                                {`Rp. ${detail.total_pembayaran}`}
+                                            </span>
+                                        </Label>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1 items-end">
                                     <Label>
-                                        <span className="text-lg font-bold">
-                                            {detail.list_motor.nama_motor || 'Motor'}
-                                        </span>
-                                    </Label>
-                                    <Label>
-                                        <span className="text-base opacity-80">
-                                            {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
-                                        </span>
-                                    </Label>
-                                    <Label>
-                                        <span>Total pembayaran </span>
                                         <span className="font-bold">
-                                            {`Rp. ${detail.total_pembayaran}`}
+                                            Selesai
                                         </span>
                                     </Label>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-1 items-end">
-                                <Label>
-                                    <span className="font-bold">
-                                        Selesai
-                                    </span>
-                                </Label>
+                            <div className="border-t border-[#FF4D30] mt-2"></div>
+                            <div className="w-full flex flex-row gap-2 justify-end">
+                                <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
+                                    <Button>
+                                        <Label>
+                                            <span className="cursor-pointer">
+                                                Beri Ulasan
+                                            </span>
+                                        </Label>
+                                    </Button>
+                                </a>
                             </div>
                         </div>
-                        <div className="border-t border-[#FF4D30] mt-2"></div>
-                        <div className="w-full flex flex-row gap-2 justify-end">
-                            <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
-                                <Button>
-                                    <Label>
-                                        <span className="cursor-pointer">
-                                            Beri Ulasan
-                                        </span>
-                                    </Label>
-                                </Button>
-                            </a>
-                        </div>
-                    </div>
-                ))
+                    ))
             ) : (
                 null
             )}
