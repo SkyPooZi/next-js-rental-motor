@@ -34,7 +34,7 @@ export default function HeaderHomePage() {
                         </p>
                         <Link href='/catalog' className='my-5 ml-1'>
                             <Button className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
-                                <span className="relative text-base z-10">Pesan Sekarang!</span>
+                                <span className="relative text-base z-10">Sewa Sekarang!</span>
                             </Button>
                         </Link>
                         {/* <div className='flex flex-col md:flex-row gap-1 md:gap-3'>
