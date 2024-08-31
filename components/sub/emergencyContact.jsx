@@ -28,6 +28,10 @@ const EmergencyContact = ({ nama_kontak_darurat, setNamaKontakDarurat, nomor_kon
                                 onChange={(e) => setNamaKontakDarurat(e.target.value)}
                                 required
                             />
+                            {/* Additional text below the input field */}
+                            <span className='text-sm text-[#FF4d33]'>
+                                Pastikan nama kontak darurat berbeda dari nama pemesan.
+                            </span>
                         </div>
                         <div className='w-full flex flex-col gap-2'>
                             <span className="text-black">
