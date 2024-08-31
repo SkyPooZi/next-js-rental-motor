@@ -5,8 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import { MdOutlineTimer } from "react-icons/md";
-import { MdDone, MdClear } from 'react-icons/md';
+import { MdOutlineTimer, MdDone, MdClear } from "react-icons/md";
 import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import InvoicePopup from '@/components/sub/invoice';
@@ -83,6 +82,11 @@ export default function page({ params: { motorId } }) {
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram'); // Default to Instagram icon
+
+    // Store fetched user data separately
+    const [userData, setUserData] = useState({});
 
     const token = Cookies.get('token');
     const userIdFromCookie = Cookies.get('id'); // Assuming user ID is stored in a cookie
@@ -94,9 +98,12 @@ export default function page({ params: { motorId } }) {
             try {
                 const user = await fetchUserData({ id: userIdFromCookie, token }); // Fetch user data using the API
                 if (user) {
+                    setUserData(user); // Store fetched data separately
                     setNamaLengkap(user.nama_lengkap);
                     setEmail(user.email);
                     setNoTelp(user.nomor_hp);
+                    setAkunSosmed(user.akun_sosmed);
+                    setAlamat(user.alamat);
                     setUserId(user.id); // Set user ID
                 }
             } catch (error) {
@@ -205,27 +212,14 @@ export default function page({ params: { motorId } }) {
             if (error) {
                 setError(error);
             } else {
-                // Get today's date in 'YYYY-MM-DD' format
                 const today = dayjs().format('YYYY-MM-DD');
-
-                // Filter discounts based on the provided conditions
                 const filteredDiskons = data.filter(diskon => {
                     const startDate = dayjs(diskon.tanggal_mulai).format('YYYY-MM-DD');
                     const endDate = dayjs(diskon.tanggal_selesai).format('YYYY-MM-DD');
-
-                    // Condition 1: Show discount if today is on or after 'tanggal_mulai'
                     const isWithinStartDate = dayjs(today).isSameOrAfter(startDate);
-
-                    // Condition 2: Do not show discount if it expired today (unless it continues beyond today)
                     const isNotExpired = dayjs(today).isBefore(endDate);
-
-                    console.log(`Checking discount ${diskon.id}: start=${startDate}, end=${endDate}, today=${today}`);
-                    console.log(`Within start date: ${isWithinStartDate}, Not expired: ${isNotExpired}`);
-
                     return isWithinStartDate && isNotExpired;
                 });
-
-                console.log('Filtered discounts:', filteredDiskons);
                 setDiskons(filteredDiskons);
             }
         };
@@ -256,7 +250,6 @@ export default function page({ params: { motorId } }) {
     }, []);
 
     const formatPhoneNumber = (phone) => {
-        // Ensure that the phone number starts with +62
         if (!phone.startsWith('+62')) {
             return '+62' + phone.replace(/^0+/, '');
         }
@@ -265,6 +258,20 @@ export default function page({ params: { motorId } }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Check if nama and nomor telepon are the same for detail kontak and emergency contact
+        if (nama_lengkap === nama_kontak_darurat && nomor_hp === nomor_kontak_darurat) {
+            alert('Nama dan nomor telepon di kontak detail dan kontak darurat tidak boleh sama. Silakan ubah salah satunya.');
+            return; // Prevent submission if they are the same
+        }
+
+        if (clickedPenyewaDiriSendiri && userId) {
+            try {
+                await updateUserData(userId, token, { nama_lengkap, nomor_hp });
+            } catch (error) {
+                console.error('Error updating user data:', error);
+            }
+        }
 
         const bookingData = {
             pengguna_id: id,
@@ -294,6 +301,12 @@ export default function page({ params: { motorId } }) {
     };
 
     useEffect(() => {
+
+        if (nama_lengkap === nama_kontak_darurat && nomor_hp === nomor_kontak_darurat) {
+            alert('Nama dan nomor telepon di kontak detail dan kontak darurat tidak boleh sama. Silakan ubah salah satunya.');
+            return; // Prevent submission if they are the same
+        }
+        
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
@@ -349,8 +362,6 @@ export default function page({ params: { motorId } }) {
             }
 
             const data = await response.json();
-            console.log('Success', data);
-            console.log('history ID', data.history.id);
             setResponse(data);
             const historyId = data.history.id;
 
@@ -367,12 +378,10 @@ export default function page({ params: { motorId } }) {
             }
 
             const invoiceData = await invoiceResponse.json();
-            console.log('Invoice created', invoiceData);
             Cookies.set('orderIdTunai', invoiceData.order_id);
 
             if (usePoint) {
                 const pointsToUse = Math.min(point, total_pembayaran);
-                console.log(pointsToUse);
                 const pointResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
                     method: 'POST',
                     headers: {
@@ -382,13 +391,9 @@ export default function page({ params: { motorId } }) {
                     body: JSON.stringify({ point: point - pointsToUse }),
                 });
 
-                console.log(pointResponse);
-
                 if (!pointResponse.ok) {
                     throw new Error('Failed to update points');
                 }
-
-                console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
             }
 
             showNotificationWithTimeout(successMessage, 'success');
@@ -436,7 +441,7 @@ export default function page({ params: { motorId } }) {
 
     useEffect(() => {
         if (motorId && motors.length > 0) {
-            const motor = motors.find((m) => m.id === parseInt(motorId, 10)); // Ensure both are numbers
+            const motor = motors.find((m) => m.id === parseInt(motorId, 10));
             if (motor) {
                 setSelectedMotor(motor.nama_motor);
                 setMotorId(motor.id);
@@ -478,12 +483,10 @@ export default function page({ params: { motorId } }) {
         const dateStr = selectedDate.format('YYYY-MM-DD');
         const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
-        // Check if the selected date is today and the time is within 2 hours of the current time
         if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
             return true;
         }
 
-        // Check for the 2-hour buffer around booked times
         const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
         for (let bookedTimeStr of bookedTimes) {
             const bookedTime = dayjs(bookedTimeStr);
@@ -532,24 +535,30 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const handleClickPenyewaDiriSendiri = async () => {
+    const handleClickPenyewaDiriSendiri = () => {
         setClickedPenyewaDiriSendiri(true);
         setClickedPenyewaOrangLain(false);
         setPenyewa('Diri Sendiri');
 
-        if (userId) { // Check if userId is available
-            try {
-                await updateUserData(userId, token, { nama_lengkap, nomor_hp }); // Call the updateUserData function
-            } catch (error) {
-                console.error('Error updating user data:', error);
-            }
-        }
+        // Re-fill the fields using stored user data
+        setNamaLengkap(userData.nama_lengkap);
+        setNoTelp(userData.nomor_hp);
+        setAkunSosmed(userData.akun_sosmed);
+        setEmail(userData.email);
+        setAlamat(userData.alamat);
     };
 
     const handleClickPenyewaOrangLain = () => {
         setClickedPenyewaOrangLain(true);
         setClickedPenyewaDiriSendiri(false);
         setPenyewa('Orang Lain');
+
+        // Clear the input fields when "Orang Lain" is clicked
+        setNamaLengkap('');
+        setNoTelp('');
+        setAkunSosmed('');
+        setEmail('');
+        setAlamat('');
     };
 
     const handleClickPaymentTunai = () => {
@@ -578,28 +587,22 @@ export default function page({ params: { motorId } }) {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const openModal = () => {
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-    };
+    const openModal = () => setIsModalOpen(true);
+    const closeModal = () => setIsModalOpen(false);
 
     const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
     const [isPrivacyModalOpen, setPrivacyModalOpen] = useState(false);
 
-    const openTermsModal = () => {
-        setIsTermsModalOpen(true);
-    };
-
-    const closeTermsModal = () => {
-        setIsTermsModalOpen(false);
-    };
-
+    const openTermsModal = () => setIsTermsModalOpen(true);
+    const closeTermsModal = () => setIsTermsModalOpen(false);
 
     const openPrivacyModal = () => setPrivacyModalOpen(true);
     const closePrivacyModal = () => setPrivacyModalOpen(false);
+
+    const selectIcon = (icon) => {
+        setSelectedIcon(icon);
+        setShowDropdown(false);
+    };
 
     if (!motors) {
         return (
