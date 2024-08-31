@@ -8,16 +8,26 @@ const DetailMotor = ({ motor }) => {
     const router = useRouter();
 
     const formatDate = (dateString) => {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         const date = new Date(dateString);
-        return date.toLocaleDateString('id-ID', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        });
-    };
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
 
-    const formatCurrency = (amount) => {
-        return `Rp ${amount?.toLocaleString('id-ID')}`;
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
     };
 
     const isAvailable =
@@ -27,8 +37,8 @@ const DetailMotor = ({ motor }) => {
         ? 'Tersedia'
         : (
             <>
-              Tidak tersedia dari{' '}
-              <strong>{formatDate(motor.tanggal_mulai_tidak_tersedia)} hingga{' '}{formatDate(motor.tanggal_selesai_tidak_tersedia)}</strong>
+                Tidak tersedia dari{' '}
+                <strong>{formatDate(motor.tanggal_mulai_tidak_tersedia)} hingga{' '}{formatDate(motor.tanggal_selesai_tidak_tersedia)}</strong>
             </>
         );
 
@@ -92,11 +102,11 @@ const DetailMotor = ({ motor }) => {
                         <div className="flex flex-col md:flex-row md:space-x-6 mb-6">
                             <div className='mb-4 md:mb-0'>
                                 <p className="text-black text-sm md:text-base font-bold">Harian:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{formatCurrency(motor.harga_motor_per_1_hari)}</p>
+                                <p className="text-black text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_hari.toLocaleString('id-ID')}`}</p>
                             </div>
                             <div className='md:ml-6'>
                                 <p className="text-black text-sm md:text-base font-bold">Mingguan:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{formatCurrency(motor.harga_motor_per_1_minggu)}</p>
+                                <p className="text-black text-lg md:text-xl font-bold">{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</p>
                             </div>
                         </div>
                         <div className='mb-4'>
@@ -113,9 +123,13 @@ const DetailMotor = ({ motor }) => {
                         </div>
                         <div className="mb-10">
                             <p className="text-black text-xl font-bold">Status:</p>
-                            <div className={`text-lg font-medium ${isAvailable ? 'text-green-500' : 'text-red-500'}`}>
-                                {availabilityStatus}
+                            <div className={`flex items-center ${statusColor}`}>
+                                <span className="h-4 w-4 rounded-full bg-current mr-2"></span>
+                                <p className="text-lg font-medium">{motor.status_motor}</p>
                             </div>
+                            {motor.tanggal_selesai_tidak_tersedia && (
+                                <p className="text-md font-medium text-red-500">{formatDate(motor.tanggal_mulai_tidak_tersedia)} - {formatDate(motor.tanggal_selesai_tidak_tersedia)}</p>
+                            )}
                         </div>
                         <div className="flex flex-col space-y-4 md:flex-row md:space-x-5 md:space-y-0">
                             <Link href="/catalog">
