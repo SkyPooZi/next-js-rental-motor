@@ -30,6 +30,17 @@ const Motor = ({ motor }) => {
         router.push(`/form/${motor.id}`);
     };
 
+    const statusColor = motor.status_motor === 'Tidak Tersedia'
+        ? 'text-red-500'
+        : motor.status_motor === 'Tertunda'
+            ? 'text-yellow-500'
+            : 'text-green-500';
+
+    const formatDate = (dateString) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('id-ID', options);
+    };
+
     return (
         <>
             <div className="border w-fit border-gray-300 bg-white rounded-lg p-4 shadow-md flex flex-col items-start">
@@ -55,20 +66,26 @@ const Motor = ({ motor }) => {
                     </h3>
                     <div className='flex justify-between'>
                         <div className="mb-2 flex flex-col gap-2">
-                            <span className="font-bold text-black/70">Harian : </span>
-                            <span className="font-bold">{motor.harga_motor_per_1_hari.toLocaleString('id-ID')}</span>
+                            <span className="font-bold text-black/70">Harian :</span>
+                            <span className="font-bold">{`Rp ${motor.harga_motor_per_1_hari.toLocaleString('id-ID')}`}</span>
                         </div>
                         <div className="mb-4 flex flex-col gap-2 text-end">
-                            <span className="font-bold text-black/70">Mingguan : </span>
-                            <span className='font-bold'>{motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}</span>
+                            <span className="font-bold text-black/70">Mingguan :</span>
+                            <span className='font-bold'>{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</span>
                         </div>
+                    </div>
+                    <div className="mb-4">
+                        <p className={`text-lg font-bold ${statusColor}`}>{motor.status_motor}</p>
+                        {motor.tanggal_tersedia && (
+                            <p className="text-sm text-gray-600">Tersedia mulai: {formatDate(motor.tanggal_tersedia)}</p>
+                        )}
                     </div>
                     <div className="flex flex-col items-center mb-2">
                         <Button
                             onClick={handleButtonClick}
                             className={`before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 ${motor.status_motor === 'Tertunda' || motor.status_motor === 'Tidak Tersedia' ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            <span className="relative text-base z-10">Pesan Sekarang!</span>
+                            <span className="relative text-base z-10">Sewa Sekarang!</span>
                         </Button>
                         <Link href={`/detail/${motor.id}`}>
                             <button className="hover:underline text-[#FF4D30] py-2 px-4 sm:px-6">Lihat detail</button>

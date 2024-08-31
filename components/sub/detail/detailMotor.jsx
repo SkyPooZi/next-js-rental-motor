@@ -16,6 +16,10 @@ const DetailMotor = ({ motor }) => {
         });
     };
 
+    const formatCurrency = (amount) => {
+        return `Rp ${amount?.toLocaleString('id-ID')}`;
+    };
+
     const isAvailable =
         !motor.tanggal_mulai_tidak_tersedia && !motor.tanggal_selesai_tidak_tersedia;
 
@@ -23,10 +27,8 @@ const DetailMotor = ({ motor }) => {
         ? 'Tersedia'
         : (
             <>
-              Tidak tersedia dari
-              <div>
-                <strong>{formatDate(motor.tanggal_mulai_tidak_tersedia)} hingga {formatDate(motor.tanggal_selesai_tidak_tersedia)}</strong>
-              </div>
+              Tidak tersedia dari{' '}
+              <strong>{formatDate(motor.tanggal_mulai_tidak_tersedia)} hingga{' '}{formatDate(motor.tanggal_selesai_tidak_tersedia)}</strong>
             </>
         );
 
@@ -87,14 +89,14 @@ const DetailMotor = ({ motor }) => {
                     </div>
                     <div className="w-full md:w-1/2 p-4 md:p-8">
                         <h2 className="text-2xl md:text-3xl font-bold mb-4 text-black">Motor {motor.nama_motor}</h2>
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 w-1/3">
+                        <div className="flex flex-col md:flex-row md:space-x-6 mb-6">
                             <div className='mb-4 md:mb-0'>
                                 <p className="text-black text-sm md:text-base font-bold">Harian:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{motor.harga_motor_per_1_hari?.toLocaleString('id-ID')}</p>
+                                <p className="text-black text-lg md:text-xl font-bold">{formatCurrency(motor.harga_motor_per_1_hari)}</p>
                             </div>
-                            <div>
+                            <div className='md:ml-6'>
                                 <p className="text-black text-sm md:text-base font-bold">Mingguan:</p>
-                                <p className="text-black text-lg md:text-xl font-bold">{motor.harga_motor_per_1_minggu?.toLocaleString('id-ID')}</p>
+                                <p className="text-black text-lg md:text-xl font-bold">{formatCurrency(motor.harga_motor_per_1_minggu)}</p>
                             </div>
                         </div>
                         <div className='mb-4'>
@@ -104,10 +106,6 @@ const DetailMotor = ({ motor }) => {
                         <div className='mb-4'>
                             <p className="text-black text-xl font-bold">Merk:</p>
                             <p className="text-black text-base font-medium">{motor.merk_motor}</p>
-                        </div>
-                        <div className='mb-4'>
-                            <p className="text-black text-xl font-bold">Stok:</p>
-                            <p className="text-black text-base font-medium">{motor.stok_motor}</p>
                         </div>
                         <div className='mb-4'>
                             <p className="text-black text-xl font-bold">Fasilitas:</p>
@@ -130,7 +128,7 @@ const DetailMotor = ({ motor }) => {
                                     onClick={handleButtonClick}
                                     className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32`}
                                 >
-                                    <span className="relative text-base z-10">Pesan Sekarang!</span>
+                                    <span className="relative text-base z-10">Sewa Sekarang!</span>
                                 </Button>
                             </div>
                         </div>

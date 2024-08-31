@@ -121,7 +121,7 @@ const ProductSlider = () => {
                                             <div className="product-slider__bottom mt-[20px]">
                                                 <Link href={`/form/${product.id}`} className='mt-5'>
                                                     <Button className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
-                                                        <span className="relative text-base z-10">Pesan Sekarang!</span>
+                                                        <span className="relative text-base z-10">Sewa Sekarang!</span>
                                                     </Button>
                                                 </Link>
                                             </div>
