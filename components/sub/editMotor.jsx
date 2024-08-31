@@ -252,8 +252,21 @@ const EditMotorForm = ({
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black text-lg">
-                                    Jadwal Motor Status Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
+                                    Status <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
+                                <Select
+                                    label={`Masukkan status motor`}
+                                    onChange={handleSelectChangeStatus}
+                                    value={status_motor}
+                                    name="motorStatus"
+                                >
+                                    <Option className="text-white mb-2 rounded-md w-full bg-green-400" value="Tersedia">
+                                        Tersedia
+                                    </Option>
+                                    <Option className="text-white rounded-md w-full bg-red-400" onClick={handleClick} value="Tidak Tersedia">
+                                        Tidak Tersedia
+                                    </Option>
+                                </Select>
                                 <Typography
                                     variant="small"
                                     color="gray"
@@ -271,37 +284,8 @@ const EditMotorForm = ({
                                             clipRule="evenodd"
                                         />
                                     </svg>
-                                    Digunakan pada saat motor tidak tersedia
+                                    Pastikan Stok Sudah Habis Sebelum Mengubah Status Menjadi Tidak Tersedia
                                 </Typography>
-                                <div>
-                                    <div
-                                        className={`w-8 h-8 flex items-center justify-center border-2 rounded-full cursor-pointer ${isChecked ? 'bg-blue-500 border-blue-500' : 'bg-white border-gray-300'}`}
-                                        onClick={handleClick}
-                                    >
-                                        {isChecked && (
-                                            <div className="w-3 h-3 bg-white rounded-full"></div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="w-full flex flex-col gap-2">
-                                <span className="text-black text-lg">
-                                    Status <span className="text-[#FF4D33] font-semibold">*</span>
-                                </span>
-                                <Select
-                                    disabled
-                                    label={`Masukkan status motor`}
-                                    onChange={handleSelectChangeStatus}
-                                    value={status_motor}
-                                    name="motorStatus"
-                                >
-                                    <Option className="text-white mb-2 rounded-md w-full bg-green-400" value="Tersedia">
-                                        Tersedia
-                                    </Option>
-                                    <Option className="text-white rounded-md w-full bg-red-400" value="Tidak Tersedia">
-                                        Tidak Tersedia
-                                    </Option>
-                                </Select>
                             </div>
                         </div>
                         {isChecked && (
@@ -314,7 +298,7 @@ const EditMotorForm = ({
                                 >
                                     <div className='w-full flex flex-col gap-2'>
                                         <span className="text-black">
-                                            Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
+                                            Tanggal Mulai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
                                         </span>
                                         <DateTimePicker
                                             label="Pilih Tanggal Mulai"
@@ -330,7 +314,7 @@ const EditMotorForm = ({
                                     </div>
                                     <div className="w-full flex flex-col gap-2">
                                         <span className="text-black">
-                                            Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
+                                            Tanggal Selesai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
                                         </span>
                                         <DateTimePicker
                                             label="Pilih Tanggal Selesai"

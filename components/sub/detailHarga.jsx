@@ -126,15 +126,15 @@ const DetailHarga = ({ hargaRental, durasi, nama_motor, usePoint, handleCheckbox
                                 <Radio
                                     checked={clickedPaymentTunai}
                                     onChange={handleClickPaymentTunai}
+                                    label={'Tunai'}
                                 />
-                                Tunai
                             </div>
                             <div className={`flex flex-row items-center cursor-pointer`}>
                                 <Radio
                                     checked={clickedPaymentCashless}
                                     onChange={handleClickPaymentCashless}
+                                    label={'Non-Tunai'}
                                 />
-                                Non-Tunai
                             </div>
                         </div>
                         {clickedPaymentTunai && (
