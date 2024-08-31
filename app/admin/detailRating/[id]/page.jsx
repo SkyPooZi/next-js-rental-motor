@@ -20,6 +20,7 @@ const Page = ({ params: { id } }) => {
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState(null);
+    const [blankImage, setBlankImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
     const [loadData, setLoadData] = useState(true);
     const token = Cookies.get("token");
 
@@ -31,7 +32,11 @@ const Page = ({ params: { id } }) => {
                 setError(result.error);
             } else {
                 setHistory(result.data);
-                setImage(result.imageUrl);
+                if (result.data.gambar === null) {
+                    setImage(blankImage);
+                } else {
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${result.data.gambar}`);
+                }
             }
             setLoadData(false);
         };

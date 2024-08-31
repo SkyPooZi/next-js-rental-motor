@@ -1,8 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@material-tailwind/react';
 import { Label } from '@/components/ui/label';
 
-const EmergencyContact = ({ nama_kontak_darurat, setNamaKontakDarurat, nomor_kontak_darurat, setNomorKontakDarurat, hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat }) => {
+const EmergencyContact = ({ nama_kontak_darurat, nama_lengkap, setNamaKontakDarurat, nomor_kontak_darurat, nomor_hp, setNomorKontakDarurat, hubungan_dengan_kontak_darurat, setHubunganDenganKontakDarurat }) => {
+    const [errorName, setErrorName] = useState('');
+    const [errorNumber, setErrorNumber] = useState('');
+
+    useEffect(() => {
+        const normalizedNamaKontak = nama_kontak_darurat.trim().toLowerCase();
+        const normalizedNamaLengkap = nama_lengkap.trim().toLowerCase();
+
+        if (normalizedNamaKontak === normalizedNamaLengkap) {
+            setErrorName('Nama kontak darurat tidak boleh sama dengan nama pemesan');
+        } else {
+            setErrorName('');
+        }
+    }, [nama_lengkap, nama_kontak_darurat]);
+
+    useEffect(() => {
+        const normalizedNamaKontak = nomor_kontak_darurat.trim().toLowerCase();
+        const normalizedNamaLengkap = nomor_hp.trim().toLowerCase();
+
+        if (normalizedNamaKontak === normalizedNamaLengkap) {
+            setErrorNumber('Nomor kontak darurat tidak boleh sama dengan nama pemesan');
+        } else {
+            setErrorNumber('');
+        }
+    }, [nomor_hp, nomor_kontak_darurat]);
+
     return (
         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
             <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
@@ -28,10 +53,7 @@ const EmergencyContact = ({ nama_kontak_darurat, setNamaKontakDarurat, nomor_kon
                                 onChange={(e) => setNamaKontakDarurat(e.target.value)}
                                 required
                             />
-                            {/* Additional text below the input field */}
-                            <span className='text-sm text-[#FF4d33]'>
-                                Pastikan nama kontak darurat berbeda dari nama pemesan.
-                            </span>
+                            {errorName && <span className="text-red-500 text-xs">{errorName}</span>}
                         </div>
                         <div className='w-full flex flex-col gap-2'>
                             <span className="text-black">
@@ -59,6 +81,7 @@ const EmergencyContact = ({ nama_kontak_darurat, setNamaKontakDarurat, nomor_kon
                                 />
                             </div>
                             <span className='text-sm text-[#ff4d30]'>contoh: 88812345678</span>
+                            {errorNumber && <span className="text-red-500 text-xs">{errorNumber}</span>}
                         </div>
                     </div>
                     <div className='flex flex-row gap-5 '>

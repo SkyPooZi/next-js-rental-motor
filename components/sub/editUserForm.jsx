@@ -47,18 +47,19 @@ const EditUserForm = ({
                                 ref={fileInputRef}
                                 className="hidden"
                             />
-                            <button
+                            {/* <button
                                 type="button"
                                 onClick={handleButtonClick}
                                 className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
                             >
                                 Pilih Foto
-                            </button>
+                            </button> */}
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Pengguna</span>
                                 <Input
+                                    disabled
                                     label={`Masukkan nama pengguna`}
                                     value={nama_pengguna || ''}
                                     onChange={(e) => setNamaPengguna(e.target.value)}
@@ -67,6 +68,7 @@ const EditUserForm = ({
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Lengkap</span>
                                 <Input
+                                    disabled
                                     label={`Masukkan nama lengkap`}
                                     value={nama_lengkap || ''}
                                     onChange={(e) => setNamaLengkap(e.target.value)}

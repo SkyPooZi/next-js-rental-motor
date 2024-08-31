@@ -88,7 +88,6 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                         </div>
                     </LocalizationProvider>
 
-
                     <div className='flex md:flex-row flex-col gap-5 '>
                         <div className='text-black w-full text-sm'>
                             Durasi
@@ -148,6 +147,12 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                             Diantar
                         </div>
                     </div>
+                    <span className={`${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
+                        Anda datang ke tempat kami untuk mengambil motor
+                    </span>
+                    <span className={`${clickedDiantar ? 'slide-in' : 'slide-out'}`}>
+                        Kami antar motor ke tempat Anda
+                    </span>
                     <div className={`text-black w-full ${clickedAmbil ? 'slide-in' : 'slide-out'}`}>
                         <div className='relative'>
                             <div className='mt-5 mb-6'>
