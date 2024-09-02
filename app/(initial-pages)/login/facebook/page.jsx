@@ -27,6 +27,8 @@ const FacebookCallback = () => {
 
                 Cookies.set('token', token);
                 Cookies.set('id', id);
+                console.log('bearer token:', token);
+                console.log('id:', id);
 
                 router.push('/');
             } catch (error) {

@@ -7,8 +7,8 @@ const EmergencyContact = ({ nama_kontak_darurat, nama_lengkap, setNamaKontakDaru
     const [errorNumber, setErrorNumber] = useState('');
 
     useEffect(() => {
-        const normalizedNamaKontak = nama_kontak_darurat.trim().toLowerCase();
-        const normalizedNamaLengkap = nama_lengkap.trim().toLowerCase();
+        const normalizedNamaKontak = nama_kontak_darurat?.trim().toLowerCase();
+        const normalizedNamaLengkap = nama_lengkap?.trim().toLowerCase();
 
         if (normalizedNamaKontak === normalizedNamaLengkap) {
             setErrorName('Nama kontak darurat tidak boleh sama dengan nama pemesan');
@@ -18,8 +18,8 @@ const EmergencyContact = ({ nama_kontak_darurat, nama_lengkap, setNamaKontakDaru
     }, [nama_lengkap, nama_kontak_darurat]);
 
     useEffect(() => {
-        const normalizedNamaKontak = nomor_kontak_darurat.trim().toLowerCase();
-        const normalizedNamaLengkap = nomor_hp.trim().toLowerCase();
+        const normalizedNamaKontak = nomor_kontak_darurat?.trim().toLowerCase();
+        const normalizedNamaLengkap = nomor_hp?.trim().toLowerCase();
 
         if (normalizedNamaKontak === normalizedNamaLengkap) {
             setErrorNumber('Nomor kontak darurat tidak boleh sama dengan nama pemesan');

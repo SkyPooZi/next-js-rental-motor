@@ -125,6 +125,7 @@ export default function Home() {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
+        console.log('bearer token:', token);
         const fetchMotors = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {

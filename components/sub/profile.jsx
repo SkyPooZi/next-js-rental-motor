@@ -149,8 +149,7 @@ export default function Profile() {
     }, [id, token]);
 
     useEffect(() => {
-        console.log(nomor_hp)
-        if (nomor_hp.startsWith('+62')) {
+        if (nomor_hp?.startsWith('+62')) {
             setNomorHp(nomor_hp.slice(3)); // Remove '+62'
         } else {
             setNomorHp(nomor_hp);
