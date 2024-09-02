@@ -146,7 +146,7 @@ const Page = ({ params: { id } }) => {
             token,
             nama_lengkap,
             email,
-            no_telp,
+            nomor_hp,
             akun_sosmed,
             alamat,
             penyewa,

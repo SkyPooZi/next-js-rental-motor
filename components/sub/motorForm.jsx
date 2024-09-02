@@ -1,6 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardHeader, Typography, Button, Input, Select, Option, Textarea } from "@material-tailwind/react";
 import { submitMotorData } from '@/utils/services/motorSubmitService';
+
+import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { TextField } from '@mui/material';
 
 const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loading }) => {
     const [imagePreview, setImagePreview] = useState('');
@@ -14,6 +20,84 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
     const [harga_motor_per_1_minggu, setMotorPricePerWeek] = useState('');
     const [fasilitas_motor, setMotorFacilities] = useState('');
     const [status_motor, setMotorStatus] = useState('');
+    const [tanggal_mulai_tidak_tersedia, setTanggalMulai] = useState(null);
+    const [tanggal_selesai_tidak_tersedia, setTanggalSelesai] = useState(null);
+    const [disabledDays, setDisabledDays] = useState([]);
+    const [disabledTimesPerDay, setDisabledTimesPerDay] = useState({});
+    const [minEndDate, setMinEndDate] = useState(null);
+    const [isChecked, setIsChecked] = useState(false);
+
+    const handleSelectChangeStatus = (value) => {
+        setMotorStatus(value);
+    };
+
+    const handleClick = () => {
+        setIsChecked(!isChecked);
+        setMotorStatus(!isChecked ? 'Tidak Tersedia' : 'Tersedia');
+    };
+
+    useEffect(() => {
+        if (status_motor === 'Tidak Tersedia') {
+            setIsChecked(true);
+        } else {
+            setIsChecked(false);
+        }
+    }, [status_motor]);
+
+    const shouldDisableDate = (date) => {
+        const today = dayjs().startOf('day');
+        if (date.isBefore(today)) return true;
+
+        // Ensure disabledDays is defined and is an array
+        const dateStr = date.format('YYYY-MM-DD');
+        return Array.isArray(disabledDays) && disabledDays.includes(dateStr);
+    };
+
+    const shouldDisableTime = (time, selectedDate) => {
+        if (!selectedDate) return false;
+
+        const now = dayjs();
+        const dateStr = selectedDate.format('YYYY-MM-DD');
+        const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
+
+        // Check if the selected date is today and the time is within 2 hours of the current time
+        if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
+            return true;
+        }
+
+        // Check for the 2-hour buffer around booked times
+        const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
+        for (let bookedTimeStr of bookedTimes) {
+            const bookedTime = dayjs(bookedTimeStr);
+            const startBuffer = bookedTime.subtract(2, 'hour');
+            const endBuffer = bookedTime.add(2, 'hour');
+            if (time.isBetween(startBuffer, endBuffer, null, '[)')) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    const handleDateStart = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalMulai(formattedDate);
+            setTanggalSelesai('');
+            setMinEndDate(dayjs(date).add(1, 'day'));
+        } else {
+            setTanggalMulai('');
+        }
+    };
+
+    const handleDateEnd = (date) => {
+        if (date) {
+            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+            setTanggalSelesai(formattedDate);
+        } else {
+            setTanggalSelesai('');
+        }
+    };
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -30,10 +114,6 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
     const handleSelectChangeType = (value) => {
         setMotorType(value);
     }
-
-    const handleSelectChange = (value) => {
-        setMotorStatus(value);
-    };
 
     const handleButtonClick = () => {
         fileInputRef.current.click();
@@ -54,6 +134,8 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
             harga_motor_per_1_minggu,
             fasilitas_motor,
             status_motor,
+            tanggal_mulai_tidak_tersedia,
+            tanggal_selesai_tidak_tersedia,
             token,
         });
 
@@ -76,7 +158,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+            }, 1000);
         }
 
         setLoading(false);
@@ -259,27 +341,87 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                         </div>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
-                                <span className="text-black">
+                                <span className="text-black text-lg">
                                     Status <span className="text-[#FF4D33] font-semibold">*</span>
                                 </span>
                                 <Select
-                                    label="Masukkan status motor"
+                                    label={`Masukkan status motor`}
+                                    onChange={handleSelectChangeStatus}
                                     value={status_motor}
                                     name="motorStatus"
-                                    onChange={handleSelectChange}
                                 >
-                                    <Option className="text-white rounded-md w-full bg-green-400" value="Tersedia">
+                                    <Option className="text-white mb-2 rounded-md w-full bg-green-400" value="Tersedia">
                                         Tersedia
                                     </Option>
-                                    <Option className="text-white my-2 rounded-md w-full bg-orange-400" value="Tertunda">
-                                        Tertunda
-                                    </Option>
-                                    <Option className="text-white rounded-md w-full bg-red-400" value="Tidak Tersedia">
+                                    <Option className="text-white rounded-md w-full bg-red-400" onClick={handleClick} value="Tidak Tersedia">
                                         Tidak Tersedia
                                     </Option>
                                 </Select>
+                                <Typography
+                                    variant="small"
+                                    color="gray"
+                                    className="flex items-center gap-1 font-normal"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="-mt-px h-4 w-4"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                    Pastikan Stok Sudah Habis Sebelum Mengubah Status Menjadi Tidak Tersedia
+                                </Typography>
                             </div>
                         </div>
+                        {isChecked && (
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className='flex md:flex-row flex-col gap-5'
+                                >
+                                    <div className='w-full flex flex-col gap-2'>
+                                        <span className="text-black">
+                                            Tanggal Mulai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
+                                        </span>
+                                        <DateTimePicker
+                                            label="Pilih Tanggal Mulai"
+                                            value={tanggal_mulai_tidak_tersedia
+                                                ? dayjs(tanggal_mulai_tidak_tersedia
+                                                ) : null}
+                                            onChange={handleDateStart}
+                                            shouldDisableDate={shouldDisableDate}
+                                            shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai_tidak_tersedia
+                                            ))}
+                                            renderInput={(params) => <TextField {...params} required />}
+                                        />
+                                    </div>
+                                    <div className="w-full flex flex-col gap-2">
+                                        <span className="text-black">
+                                            Tanggal Selesai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
+                                        </span>
+                                        <DateTimePicker
+                                            label="Pilih Tanggal Selesai"
+                                            value={tanggal_selesai_tidak_tersedia
+                                                ? dayjs(tanggal_selesai_tidak_tersedia
+                                                ) : null}
+                                            onChange={handleDateEnd}
+                                            minDateTime={minEndDate}
+                                            shouldDisableDate={shouldDisableDate}
+                                            shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai_tidak_tersedia
+                                            ))}
+                                            renderInput={(params) => <TextField {...params} required />}
+                                        />
+                                    </div>
+                                </motion.div>
+                            </LocalizationProvider>
+                        )}
                         <div>
                             <Button
                                 type="submit"

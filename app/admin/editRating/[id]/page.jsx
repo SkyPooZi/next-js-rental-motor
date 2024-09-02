@@ -4,14 +4,6 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
-import {
-    Card,
-    CardHeader,
-    Button,
-    Input,
-    Textarea,
-    Spinner
-} from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
 import Dashboard from "@/components/sub/admin/dashboard";
