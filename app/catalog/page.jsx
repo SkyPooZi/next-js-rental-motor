@@ -8,6 +8,9 @@ import { useRouter } from 'next/navigation';
 import fetchCatalog from '@/utils/services/fetchCatalog';
 import { Button } from '@material-tailwind/react';
 
+import '../../styles/slideInFoward.css';
+import '../../styles/slideInAnimation.css';
+
 const Motor = ({ motor }) => {
   const router = useRouter();
 
