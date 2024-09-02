@@ -72,14 +72,14 @@ const Motor = ({ motor }) => {
           </div>
         </div>
 
-        <div className="mb-4">
+        <div className="mb-6">
           <p className={`text-lg font-bold ${isAvailable ? 'text-green-500' : 'text-red-500'}`}>{motor.status_motor}</p>
           {motor.tanggal_selesai_tidak_tersedia && (
             <p className="text-md font-medium text-red-500">{formatDate(motor.tanggal_mulai_tidak_tersedia)} - {formatDate(motor.tanggal_selesai_tidak_tersedia)}</p>
           )}
         </div>
 
-        <div className={`flex flex-col items-center mb-2 ${motor.status_motor === "Tersedia" ? `mt-16` : ''}`}>
+        <div className={`flex flex-col items-center mb-2 ${motor.status_motor === "Tersedia" ? `mt-24` : ''}`}>
           <Button onClick={() => handleFormRedirect(motor.id)} className="before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32">
             <span className="relative text-base z-10">Sewa Sekarang!</span>
           </Button>
@@ -91,7 +91,7 @@ const Motor = ({ motor }) => {
 };
 
 const MotorList = () => {
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedFilter, setSelectedFilter] = useState('Semua');
   const [motors, setMotors] = useState([]);
   const [filteredMotors, setFilteredMotors] = useState([]);
   const [animate, setAnimate] = useState(false);
@@ -109,7 +109,7 @@ const MotorList = () => {
   useEffect(() => {
     let filtered = motors;
 
-    if (selectedFilter !== 'All') {
+    if (selectedFilter !== 'Semua') {
       filtered = motors.filter(motor => {
         if (selectedFilter === 'Matic') {
           return motor.tipe_motor.includes('Matic');
@@ -169,7 +169,7 @@ const MotorList = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : 'slide-out'}`}">
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : 'slide-out'}`}>
           {filteredMotors.map((motor, index) => (
             <Motor key={index} motor={motor} />
           ))}

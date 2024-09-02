@@ -26,6 +26,7 @@ const GoogleCallback = () => {
         const id = user.pengguna_id;
 
         Cookies.set('token', token);
+        console.log('bearer token:', token);
         Cookies.set('id', id);
 
         router.push('/');

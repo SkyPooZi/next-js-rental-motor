@@ -92,13 +92,13 @@ const Motor = ({ motor }) => {
                             <span className='font-bold'>{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</span>
                         </div>
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-6">
                         <p className={`text-lg font-bold ${statusColor}`}>{motor.status_motor}</p>
                         {motor.tanggal_selesai_tidak_tersedia && (
                             <p className="text-md font-medium text-red-500">{formatDate(motor.tanggal_mulai_tidak_tersedia)} - {formatDate(motor.tanggal_selesai_tidak_tersedia)}</p>
                         )}
                     </div>
-                    <div className={`flex flex-col items-center mb-2 ${motor.status_motor === "Tersedia" ? `mt-16`: ''}`}>
+                    <div className={`flex flex-col items-center mb-2 ${motor.status_motor === "Tersedia" ? `mt-24`: ''}`}>
                         <Button
                             onClick={handleButtonClick}
                             className={`before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32`}

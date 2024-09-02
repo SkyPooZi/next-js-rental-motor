@@ -7,7 +7,6 @@
 .custom-swiper-button-prev,
 .custom-swiper-button-next {
     color: #000;
-    background-color: #fff;
     border-radius: 50%;
     padding: 10px;
     width: 40px;
@@ -24,7 +23,7 @@
 
 .custom-swiper-button-prev:hover,
 .custom-swiper-button-next:hover {
-    background-color: #f0f0f0;
+    background-color: #d23500;
 }
 
 .custom-swiper-button-prev {
