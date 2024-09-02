@@ -75,7 +75,14 @@ export default function AddMotor() {
                         </div>
                     </nav>
                     <div className="mt-12">
-                        <MotorForm token={token} setResponse={setResponse} setShowNotification={setShowNotification} setLoading={setLoading} />
+                        <MotorForm
+                            token={token}
+                            setResponse={setResponse}
+                            setShowNotification={setShowNotification}
+                            setLoading={setLoading}
+                            loading={loading}
+
+                        />
                         <Notification showNotification={showNotification} />
                     </div>
                 </div>

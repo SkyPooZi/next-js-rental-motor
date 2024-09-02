@@ -58,7 +58,7 @@ const DiscountForm = ({ token, setResponse, setShowNotification, setLoading, loa
 
             setTimeout(() => {
                 setShowNotification(false);
-            }, 3000);
+            }, 1000);
         }
 
         setLoading(false);

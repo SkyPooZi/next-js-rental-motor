@@ -3,7 +3,7 @@ export const EditHistory = async ({
     token,
     nama_lengkap,
     email,
-    no_telp,
+    nomor_hp,
     akun_sosmed,
     alamat,
     penyewa,
@@ -28,7 +28,7 @@ export const EditHistory = async ({
     const formData = new FormData();
     if (nama_lengkap) formData.append('nama_lengkap', nama_lengkap);
     if (email) formData.append('email', email);
-    if (no_telp) formData.append('no_telp', no_telp);
+    if (nomor_hp) formData.append('nomor_hp', nomor_hp);
     if (akun_sosmed) formData.append('akun_sosmed', akun_sosmed);
     if (alamat) formData.append('alamat', alamat);
     if (penyewa) formData.append('penyewa', penyewa);
@@ -68,7 +68,7 @@ export const EditHistory = async ({
                 ...prevHistory,
                 ...(nama_lengkap && { nama_lengkap: data.history.nama_lengkap }),
                 ...(email && { email: data.history.email }),
-                ...(no_telp && { no_telp: data.history.no_telp }),
+                ...(nomor_hp && { nomor_hp: data.history.nomor_hp }),
                 ...(akun_sosmed && { akun_sosmed: data.history.akun_sosmed }),
                 ...(alamat && { alamat: data.history.alamat }),
                 ...(penyewa && { penyewa: data.history.penyewa }),
@@ -89,7 +89,7 @@ export const EditHistory = async ({
 
             setTimeout(() => {
                 setShowNotification(false);
-                // window.location.reload();
+                window.location.reload();
             }, 1000);
         }
     } catch (err) {
