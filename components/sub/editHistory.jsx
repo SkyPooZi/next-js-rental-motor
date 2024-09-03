@@ -168,25 +168,27 @@ const EditHistoryForm = ({
                                             // value={selectedMotor}
                                             onChange={handleSelectChangeNamaMotor}
                                         >
-                                            {motors.map((motor) => (
-                                                <Option
-                                                    key={motor.id}
-                                                    value={motor.id}
-                                                >
-                                                    <div className="flex items-center justify-between">
-                                                        <div className='flex gap-2 items-center flex-grow'>
-                                                            <Image
-                                                                src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
-                                                                alt={motor.nama_motor}
-                                                                width={40}
-                                                                height={40}
-                                                                className="w-10 h-10 rounded-full mr-2"
-                                                            />
-                                                            <span className='mr-5'>{motor.nama_motor}</span>
+                                            {motors
+                                                .filter((motor) => motor.is_hidden !== 1)
+                                                .map((motor) => (
+                                                    <Option
+                                                        key={motor.id}
+                                                        value={motor.id}
+                                                    >
+                                                        <div className="flex items-center justify-between">
+                                                            <div className='flex gap-2 items-center flex-grow'>
+                                                                <Image
+                                                                    src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
+                                                                    alt={motor.nama_motor}
+                                                                    width={40}
+                                                                    height={40}
+                                                                    className="w-10 h-10 rounded-full mr-2"
+                                                                />
+                                                                <span className='mr-5'>{motor.nama_motor}</span>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </Option>
-                                            ))}
+                                                    </Option>
+                                                ))}
                                         </Select>
                                     )}
                                 </div>

@@ -20,7 +20,7 @@ import {
 } from "@material-tailwind/react";
 import DeleteConfirmationModal from "../deleteConfirmModal";
 
-const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", ""];
+const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", "Visibilitas", ""];
 
 export function MotorListTable() {
     const [id, setId] = useState(null); // State to store the id
@@ -245,6 +245,23 @@ export function MotorListTable() {
                                                                 ? "green"
                                                                 : motorData.status_motor === "Tertunda"
                                                                     ? "amber"
+                                                                    : "red"
+                                                        }
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
+                                                <div className="w-max">
+                                                    <Chip
+                                                        className="capitalize"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        value={motorData.is_hidden ? "Disembunyikan" : "Ditampilkan"}
+                                                        color={
+                                                            motorData.is_hidden === 0
+                                                                ? "yellow"
+                                                                : motorData.is_hidden === 1
+                                                                    ? "gray"
                                                                     : "red"
                                                         }
                                                     />
