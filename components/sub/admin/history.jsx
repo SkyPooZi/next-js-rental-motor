@@ -9,7 +9,7 @@ import User from "@/components/sub/admin/user";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
 import Dashboard from "@/components/sub/admin/dashboard";
-import Sidebar from '@/components/main/sidebar';
+import Sidebar from '@/components/sub/main/sidebar';
 import { HistoryTable } from "@/components/sub/admin/historyTable";
 
 export default function History() {

@@ -15,8 +15,8 @@ import Profile from "@/components/sub/profile";
 import Point from "@/components/sub/point";
 import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
-import Navbar from "@/components/main/NavbarAfter";
-import Footer from "@/components/main/Footer";
+import Navbar from "@/components/sub/main/NavbarAfter";
+import Footer from "@/components/sub/main/Footer";
 
 export default function Settings() {
     const router = useRouter(); // Initialize useRouter

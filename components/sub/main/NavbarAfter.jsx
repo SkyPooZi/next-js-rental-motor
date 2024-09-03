@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from '@/components/ui/label';
-import BottomNavbar from '../ui/bottom-navbar';
+import BottomNavbar from '../../ui/bottom-navbar';
 
 export default function Navbar() {
     const [activeLink, setActiveLink] = useState('');

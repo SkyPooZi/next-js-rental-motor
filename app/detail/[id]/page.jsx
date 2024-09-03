@@ -4,9 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ReviewMotor from '@/components/sub/detail/reviewMotor';
 import DetailMotor from '@/components/sub/detail/detailMotor';
-import Navbar from '@/components/main/NavbarAfter';
-import Footer from '@/components/main/Footer';
+import Navbar from '@/components/sub/main/NavbarAfter';
+import Footer from '@/components/sub/main/Footer';
 import { fetchMotorDetails, fetchMotorReviews } from '@/utils/fetchDetail';
+import Cookies from 'js-cookie';
 
 const Detail = () => {
     const { id } = useParams();
@@ -21,8 +22,18 @@ const Detail = () => {
             try {
                 const motorData = await fetchMotorDetails(id);
                 setMotor(motorData);
+
+                // Set the 'isHidden' cookie to '1' or 'null'
+                if (motorData.is_hidden === 1) {
+                    Cookies.set('isHidden', '1');
+                } else {
+                    Cookies.set('isHidden', null);
+                }
+                console.log(Cookies.get('isHidden'));
+
             } catch (error) {
                 setError('An error occurred while fetching motor data.');
+                console.log(error);
             } finally {
                 setLoading(false);
             }

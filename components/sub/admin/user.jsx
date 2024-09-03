@@ -4,7 +4,7 @@ import React from "react";
 import { useState } from "react";
 
 import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
+import Sidebar from '@/components/sub/main/sidebar';
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
 import History from "@/components/sub/admin/history";

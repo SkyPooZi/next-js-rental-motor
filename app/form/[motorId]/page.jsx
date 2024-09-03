@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import InvoicePopup from '@/components/sub/invoice';
 import TermsModal from '@/components/sub/termsModal';
-import Footer from '@/components/main/Footer';
-import Navbar from '@/components/main/NavbarAfter';
+import Footer from '@/components/sub/main/Footer';
+import Navbar from '@/components/sub/main/NavbarAfter';
 import PemesananHeader from '@/components/sub/pemesananHeader';
 import DetailKontak from '@/components/sub/detailContact';
 import DetailPemesanan from '@/components/sub/detailPemesanan';
@@ -84,8 +84,8 @@ export default function page({ params: { motorId } }) {
     const [userId, setUserId] = useState(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram');
-
     const [userData, setUserData] = useState({});
+    const [isHidden, setIsHidden] = useState(false);
 
     const token = Cookies.get('token');
     const userIdFromCookie = Cookies.get('id');
@@ -100,7 +100,7 @@ export default function page({ params: { motorId } }) {
                     setUserData(user); // Store fetched data separately
                     setNamaLengkap(user.nama_lengkap);
                     setEmail(user.email);
-                    setNoTelp(user.nomor_hp);
+                    setNoTelp(user.nomor_hp);  // Set the phone number state
                     setAkunSosmed(user.akun_sosmed);
                     setAlamat(user.alamat);
                     setUserId(user.id); // Set user ID
@@ -109,9 +109,19 @@ export default function page({ params: { motorId } }) {
                 console.error('Error fetching user data:', error);
             }
         };
-
+    
         fetchData();
     }, [token, userIdFromCookie]);
+
+    useEffect(() => {
+        console.log(nomor_hp)
+        if (nomor_hp?.startsWith('+62')) {
+            setNoTelp(nomor_hp.slice(3)); 
+        } else {
+            setNoTelp(nomor_hp);
+        }
+    }, [nomor_hp]);
+    
 
     useEffect(() => {
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
@@ -260,7 +270,7 @@ export default function page({ params: { motorId } }) {
 
         if (clickedPenyewaDiriSendiri && userId) {
             try {
-                await updateUserData(userId, token, { nama_lengkap, nomor_hp });
+                await updateUserData(userId, token, { nama_lengkap, nomor_hp, alamat });
             } catch (error) {
                 console.error('Error updating user data:', error);
             }

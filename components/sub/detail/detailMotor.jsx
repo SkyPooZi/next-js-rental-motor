@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@material-tailwind/react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 const DetailMotor = ({ motor }) => {
     const router = useRouter();
+    const [isHidden, setIsHidden] = useState(false);
+
+    useEffect(() => {
+        // Get 'isHidden' cookie value when component mounts
+        const hiddenValue = Cookies.get('isHidden');
+        setIsHidden(hiddenValue === '1'); // Check if cookie value is '1'
+    }, []);
 
     const formatDate = (dateString) => {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -49,7 +57,9 @@ const DetailMotor = ({ motor }) => {
             : 'text-green-500';
 
     const handleButtonClick = () => {
-        router.push(`/form/${motor.id}`);
+        if (!isHidden) {
+            router.push(`/form/${motor.id}`);
+        }
     };
 
     return (
@@ -140,13 +150,13 @@ const DetailMotor = ({ motor }) => {
                             <div className="flex flex-col items-center mb-2">
                                 <Button
                                     onClick={handleButtonClick}
-                                    className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32`}
+                                    disabled={isHidden}
+                                    className={`ml-1 before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 ${isHidden ? 'cursor-not-allowed opacity-50' : ''}`}
                                 >
                                     <span className="relative text-base z-10">Sewa Sekarang!</span>
                                 </Button>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>

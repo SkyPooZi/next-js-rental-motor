@@ -13,7 +13,7 @@ import {
     SheetTitle,
     SheetTrigger,
 } from "@/components/ui/sheet"
-import BottomNavbar from '../ui/bottom-navbar-admin';
+import BottomNavbar from '../../ui/bottom-navbar-admin';
 
 
 const Sidebar = ({ activeComponent, handleButtonClick }) => {
