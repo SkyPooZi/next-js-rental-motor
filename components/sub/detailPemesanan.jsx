@@ -34,7 +34,9 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                                         value={selectedMotor} // Ensure value is set
                                         onChange={(value) => handleSelectChangeNamaMotor(value)}
                                     >
-                                        {motors.map((motor) => (
+                                        {motors
+                                        .filter((motor) => motor.is_hidden !== 1)
+                                        .map((motor) => (
                                             <Option
                                                 key={motor.id}
                                                 value={motor.nama_motor}

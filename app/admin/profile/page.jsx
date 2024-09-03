@@ -21,7 +21,7 @@ const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false }
 const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
 const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
 const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
-const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/sub/main/sidebar'), { ssr: false });
 const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
 const OTPPopup = dynamic(() => import('@/components/sub/admin/sendOTP'), { ssr: false });
 const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });
@@ -253,7 +253,10 @@ const Page = () => {
                                                 </span>
                                                 <div className="mr-4">
                                                     <img
-                                                        src={imagePreview || image}
+                                                        src={imagePreview || (user.google_id || user.facebook_id
+                                                            ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                                            : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                                                        )}
                                                         alt="Image Preview"
                                                         className="w-32 h-32 object-cover rounded-full"
                                                     />

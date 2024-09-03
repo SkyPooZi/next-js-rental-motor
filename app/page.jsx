@@ -11,8 +11,8 @@ import '../styles/slideInAnimation.css';
 
 import { Spinner, Button } from "@material-tailwind/react";
 import GallerySwiper from '@/components/sub/gallerySwiper';
-import Navbar from '@/components/main/NavbarAfter';
-import Footer from '@/components/main/Footer';
+import Navbar from '@/components/sub/main/NavbarAfter';
+import Footer from '@/components/sub/main/Footer';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
 import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';
@@ -239,7 +239,9 @@ export default function Home() {
                         </div>
 
                         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
-                            {filteredMotors.map((motor, index) => (
+                            {filteredMotors
+                            .filter((motor) => motor.is_hidden !== 1)
+                            .map((motor, index) => (
                                 <Motor key={index} motor={motor} />
                             ))}
                         </div>

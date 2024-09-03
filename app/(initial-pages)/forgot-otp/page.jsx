@@ -4,6 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@material-tailwind/react';
 import { sendOtpEmail } from '@/utils/services/fetchForgotOtp';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const ForgotOTP = () => {
   const router = useRouter();
@@ -95,12 +97,26 @@ const ForgotOTP = () => {
     }
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div className="flex items-center justify-center bg-gray-300 min-h-screen p-4">
       <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-12 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col md:flex-row">
 
         {/* Image Section */}
         <div className="w-full md:w-1/2 mt-6 md:mt-0">
+          <div className="mb-2">
+            <button
+              onClick={handleBack}
+              className="text-[#ff4d33] hover:text-[#b15143] text-left flex items-center"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+              Kembali
+            </button>
+          </div>
+
           <img
             src="/images/reset.png"
             alt="Reset"

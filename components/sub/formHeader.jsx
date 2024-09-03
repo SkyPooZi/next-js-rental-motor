@@ -1,6 +1,6 @@
 import React from 'react';
 import NavbarAdmin from "@/components/sub/admin/navbar";
-import Sidebar from '@/components/main/sidebar';
+import Sidebar from '@/components/sub/main/sidebar';
 
 const FormHeader = ({ activeComponent, handleBtnClick }) => (
     <>

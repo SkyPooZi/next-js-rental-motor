@@ -9,7 +9,7 @@ import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
-import Sidebar from '@/components/main/sidebar';
+import Sidebar from '@/components/sub/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
 import HistoryDetail from '@/components/sub/historyDetail';
 import { fetchHistoryDetail } from '@/utils/services/fetchHistoryDetail';

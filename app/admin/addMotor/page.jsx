@@ -13,7 +13,7 @@ const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: fal
 const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
 const MotorForm = dynamic(() => import("@/components/sub/motorForm"), { ssr: false });
 const Notification = dynamic(() => import("@/components/sub/notification"), { ssr: false });
-const Sidebar = dynamic(() => import("@/components/main/sidebar"), { ssr: false });
+const Sidebar = dynamic(() => import("@/components/sub/main/sidebar"), { ssr: false });
 
 export default function AddMotor() {
     const [response, setResponse] = useState(null);

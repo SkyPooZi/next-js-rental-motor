@@ -8,6 +8,7 @@ import fetchRegister from '@/utils/services/fetchregister'; // Import the fetchR
 import { ButtonLoading } from '@/components/ui/buttonLoading';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { fetchUser } from '@/utils/services/fetchUser'; // Import the fetchUser function
 
 const RegisterPage = () => {
   const router = useRouter();
@@ -31,13 +32,26 @@ const RegisterPage = () => {
     setLoading(true);
 
     try {
+      // Assuming you have a token stored in Cookies or localStorage
+      const token = Cookies.get('token') || localStorage.getItem('token');
+      const users = await fetchUser(token);
+
+      // Check if the email is already taken
+      const emailTaken = users.some((user) => user.email === formData.email);
+
+      if (emailTaken) {
+        setError('Email ini sudah terdaftar. Silakan gunakan email lain.');
+        setLoading(false);
+        return;
+      }
+
       const responseData = await fetchRegister(formData); // Call the fetchRegister function
       const user = responseData.user;
-      const token = responseData.access_token;
+      const accessToken = responseData.access_token;
       const id = user.id;
       const role = user.peran;
 
-      Cookies.set('token', token);
+      Cookies.set('token', accessToken);
       Cookies.set('id', id);
       Cookies.set('role', role);
 
@@ -49,6 +63,8 @@ const RegisterPage = () => {
       setLoading(false);
     }
   };
+
+
 
   const handleGoogleLogin = () => {
     router.push(`${process.env.NEXT_PUBLIC_API_URL}/api/login/google`);

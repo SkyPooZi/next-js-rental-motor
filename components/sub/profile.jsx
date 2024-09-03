@@ -18,6 +18,7 @@ import { handleEmailChange } from '@/utils/services/handleEmailChange';
 import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
 import OTPPopup from '@/components/sub/admin/sendOTP';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -138,6 +139,7 @@ export default function Profile() {
                 const userData = await fetchUserDetail(id, token);
                 setUser(userData);
                 setEmail(userData.email);
+                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
                 setNamaLengkap(userData.nama_lengkap);
                 setNomorHp(userData.nomor_hp);
                 setAlamat(userData.alamat);
@@ -149,6 +151,7 @@ export default function Profile() {
     }, [id, token]);
 
     useEffect(() => {
+        console.log(nomor_hp)
         if (nomor_hp?.startsWith('+62')) {
             setNomorHp(nomor_hp.slice(3)); // Remove '+62'
         } else {
@@ -181,14 +184,23 @@ export default function Profile() {
             >
                 <div className="flex flex-col gap-5">
                     <div className="mr-4">
-                        <img
-                            src={imagePreview || (user.google_id || user.facebook_id
-                                ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
-                                : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
-                            )}
-                            alt="Image Preview"
-                            className="w-32 h-32 rounded-full object-cover"
-                        />
+                        {
+                            user?.gambar ? (
+                                <img
+                                    src={imagePreview || (user.google_id || user.facebook_id
+                                        ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                        : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                                    )}
+                                    alt="Image Preview"
+                                    className="w-32 h-32 rounded-full object-cover"
+                                />
+                            ) : (
+                                <Avatar className="w-32 h-32">
+                                        <AvatarFallback className="text-5xl">o_o</AvatarFallback>
+                                </Avatar>
+                            )
+                        }
+
                     </div>
                     {!(user.google_id || user.facebook_id) && (
                         <div>
@@ -250,7 +262,7 @@ export default function Profile() {
                             placeholder="8892384434"
                             onChange={(e) => {
                                 const inputValue = e.target.value;
-                                if (inputValue.startsWith('0')) {
+                                if (inputValue?.startsWith('0')) {
                                     setNomorHp(inputValue.slice(1));
                                 } else {
                                     setNomorHp(inputValue);

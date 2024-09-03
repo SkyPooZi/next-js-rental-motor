@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import NavbarAfter from '@/components/main/NavbarAfter';
-import Footer from '@/components/main/Footer';
+import NavbarAfter from '@/components/sub/main/NavbarAfter';
+import Footer from '@/components/sub/main/Footer';
 import { useRouter } from 'next/navigation';
 import fetchCatalog from '@/utils/services/fetchCatalog';
 import { Button } from '@material-tailwind/react';
@@ -173,7 +173,9 @@ const MotorList = () => {
         </div>
 
         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : 'slide-out'}`}>
-          {filteredMotors.map((motor, index) => (
+          {filteredMotors
+          .filter((motor) => motor.is_hidden !== 1)
+          .map((motor, index) => (
             <Motor key={index} motor={motor} />
           ))}
         </div>
