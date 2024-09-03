@@ -139,20 +139,6 @@ const MotorList = () => {
 
   return (
     <>
-      <style jsx>{`
-          .slide-in {
-            max-height: 1000px;
-            transition: max-height 1s ease-in-out, opacity 1s ease-in-out, visibility 1s ease-in-out;
-            opacity: 1;
-            visibility: visible;
-          }
-          .slide-out {
-            max-height: 0;
-            transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-            opacity: 0;
-            visibility: hidden;
-          }
-        `}</style>
       <NavbarAfter />
       <div className="flex flex-col items-center p-5 bg-white min-h-screen w-full overflow-x-hidden">
         <div className="w-full max-w-6xl mb-5">
@@ -172,7 +158,7 @@ const MotorList = () => {
           </div>
         </div>
 
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : 'slide-out'}`}>
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
           {filteredMotors
           .filter((motor) => motor.is_hidden !== 1)
           .map((motor, index) => (
