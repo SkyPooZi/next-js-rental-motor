@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardHeader, Typography, Button, Input, Select, Option, Textarea } from "@material-tailwind/react";
+import { Card, CardHeader, Typography, Button, Input, Select, Option } from "@material-tailwind/react";
 import { submitMotorData } from '@/utils/services/motorSubmitService';
 
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
@@ -24,14 +24,22 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
     const [tanggal_selesai_tidak_tersedia, setTanggalSelesai] = useState(null);
     const [disabledDays, setDisabledDays] = useState([]);
     const [disabledTimesPerDay, setDisabledTimesPerDay] = useState({});
+    const [errors, setErrors] = useState({});
     const [minEndDate, setMinEndDate] = useState(null);
     const [isChecked, setIsChecked] = useState(false);
+    const [is_hidden, setIsHidden] = useState(0);
 
     const handleSelectChangeStatus = (value) => {
         setMotorStatus(value);
+        setErrors({});
     };
 
-    const handleClick = () => {
+    const handleSelectChangeHidden = (value) => {
+        setIsHidden(value);
+        setErrors({});
+    };
+
+    const handleClickStatusMotor = () => {
         setIsChecked(!isChecked);
         setMotorStatus(!isChecked ? 'Tidak Tersedia' : 'Tersedia');
     };
@@ -48,7 +56,6 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
         const today = dayjs().startOf('day');
         if (date.isBefore(today)) return true;
 
-        // Ensure disabledDays is defined and is an array
         const dateStr = date.format('YYYY-MM-DD');
         return Array.isArray(disabledDays) && disabledDays.includes(dateStr);
     };
@@ -60,12 +67,10 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
         const dateStr = selectedDate.format('YYYY-MM-DD');
         const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
-        // Check if the selected date is today and the time is within 2 hours of the current time
         if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
             return true;
         }
 
-        // Check for the 2-hour buffer around booked times
         const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
         for (let bookedTimeStr of bookedTimes) {
             const bookedTime = dayjs(bookedTimeStr);
@@ -85,6 +90,9 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
             setTanggalMulai(formattedDate);
             setTanggalSelesai('');
             setMinEndDate(dayjs(date).add(1, 'day'));
+            if (date.target.value) {
+                setErrors((prevErrors) => ({ ...prevErrors, tanggal_mulai_tidak_tersedia: '' }));
+            }
         } else {
             setTanggalMulai('');
         }
@@ -94,6 +102,9 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
         if (date) {
             const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalSelesai(formattedDate);
+            if (date.target.value) {
+                setErrors((prevErrors) => ({ ...prevErrors, tanggal_selesai_tidak_tersedia: '' }));
+            }
         } else {
             setTanggalSelesai('');
         }
@@ -136,6 +147,9 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
             status_motor,
             tanggal_mulai_tidak_tersedia,
             tanggal_selesai_tidak_tersedia,
+            isChecked,
+            is_hidden,
+            setErrors,
             token,
         });
 
@@ -155,6 +169,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
             setMotorPricePerWeek('');
             setMotorFacilities('');
             setMotorStatus('');
+            setIsHidden(0);
 
             setTimeout(() => {
                 setShowNotification(false);
@@ -163,6 +178,9 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
 
         setLoading(false);
     };
+
+    const isSubmitDisabled = isChecked && (!tanggal_mulai_tidak_tersedia || !tanggal_selesai_tidak_tersedia);
+
     return (
         <form method="post" action="post" onSubmit={handleSubmit}>
             <Card className="mb-20 xl:mb-0 w-full h-full">
@@ -353,7 +371,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                     <Option className="text-white mb-2 rounded-md w-full bg-green-400" value="Tersedia">
                                         Tersedia
                                     </Option>
-                                    <Option className="text-white rounded-md w-full bg-red-400" onClick={handleClick} value="Tidak Tersedia">
+                                    <Option className="text-white rounded-md w-full bg-red-400" onClick={handleClickStatusMotor} value="Tidak Tersedia">
                                         Tidak Tersedia
                                     </Option>
                                 </Select>
@@ -377,6 +395,43 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                     Pastikan Stok Sudah Habis Sebelum Mengubah Status Menjadi Tidak Tersedia
                                 </Typography>
                             </div>
+                            <div className="w-full flex flex-col gap-2">
+                                <span className="text-black text-lg">
+                                    Status Tampilkan Motor <span className="text-[#FF4D33] font-semibold">*</span>
+                                </span>
+                                <Select
+                                    label={`Masukkan status motor`}
+                                    onChange={handleSelectChangeHidden}
+                                    value={is_hidden}
+                                    name="motorStatus"
+                                >
+                                    <Option className="text-white mb-2 rounded-md w-full bg-yellow-800" value={0}>
+                                        Tampilkan
+                                    </Option>
+                                    <Option className="text-white rounded-md w-full bg-gray-800" value={1}>
+                                        Sembunyikan
+                                    </Option>
+                                </Select>
+                                {/* <Typography
+                                    variant="small"
+                                    color="gray"
+                                    className="flex items-center gap-1 font-normal"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                        className="-mt-px h-4 w-4"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                    Pastikan Stok Sudah Habis Sebelum Mengubah Status Menjadi Tidak Tersedia
+                                </Typography> */}
+                            </div>
                         </div>
                         {isChecked && (
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -391,6 +446,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                             Tanggal Mulai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
                                         </span>
                                         <DateTimePicker
+                                            required={status_motor === 'Tidak Tersedia'}
                                             label="Pilih Tanggal Mulai"
                                             value={tanggal_mulai_tidak_tersedia
                                                 ? dayjs(tanggal_mulai_tidak_tersedia
@@ -401,12 +457,16 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                             ))}
                                             renderInput={(params) => <TextField {...params} required />}
                                         />
+                                        {errors.tanggal_mulai_tidak_tersedia && (
+                                            <span className="text-red-500 text-sm">{errors.tanggal_mulai_tidak_tersedia}</span>
+                                        )}
                                     </div>
                                     <div className="w-full flex flex-col gap-2">
                                         <span className="text-black">
                                             Tanggal Selesai Tidak Tersedia <span className="text-[#FF4D33] font-semibold">*</span>
                                         </span>
                                         <DateTimePicker
+                                            required={status_motor === 'Tidak Tersedia'}
                                             label="Pilih Tanggal Selesai"
                                             value={tanggal_selesai_tidak_tersedia
                                                 ? dayjs(tanggal_selesai_tidak_tersedia
@@ -418,6 +478,9 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                                             ))}
                                             renderInput={(params) => <TextField {...params} required />}
                                         />
+                                        {errors.tanggal_selesai_tidak_tersedia && (
+                                            <span className="text-red-500 text-sm">{errors.tanggal_selesai_tidak_tersedia}</span>
+                                        )}
                                     </div>
                                 </motion.div>
                             </LocalizationProvider>
@@ -426,7 +489,7 @@ const MotorForm = ({ token, setResponse, setShowNotification, setLoading, loadin
                             <Button
                                 type="submit"
                                 className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                disabled={loading}
+                                disabled={loading || isSubmitDisabled}
                             >
                                 {loading ? 'Loading...' : 'Tambah Motor Baru'}
                             </Button>

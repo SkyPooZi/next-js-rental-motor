@@ -41,6 +41,9 @@ export default function DoneRentAfter() {
     const id = Cookies.get('id');
 
     useEffect(() => {
+        const POLLING_INTERVAL = 5000;
+        let polling;
+
         const getDoneRentDetails = async () => {
             try {
                 const data = await fetchDoneRentAfter(token, id);
@@ -54,7 +57,17 @@ export default function DoneRentAfter() {
         };
 
         getDoneRentDetails();
-    }, [token]);
+
+        polling = setInterval(() => {
+            getDoneRentDetails();
+        }, POLLING_INTERVAL);
+
+        return () => {
+            if (polling) {
+                clearInterval(polling);
+            }
+        };
+    }, [token, id]);
 
     const openModal = (detail) => {
         setHistoryId(detail.id);
@@ -63,16 +76,16 @@ export default function DoneRentAfter() {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setHistoryId(null); // Clear the historyId to ensure the modal resets
+        setHistoryId(null);
     };
 
     return (
         <div>
             {doneRentAfterDetails.length > 0 ? (
                 doneRentAfterDetails
-                    .sort((a, b) => b.id - a.id)  // Sort by `id` in descending order
+                    .sort((a, b) => b.id - a.id)
                     .map((detail) => (
-                        <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                        <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
                             <div className="flex flex-col md:flex-row gap-3 justify-between">
                                 <div className="flex flex-row gap-2">
                                     <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />

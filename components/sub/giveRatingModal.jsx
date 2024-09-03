@@ -81,7 +81,8 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                 setShowNotification(false);
                 onClose();
                 setLoading(false);
-            }, 3000);
+
+            }, 1000);
         } else {
             console.error('Failed to update reasons:', result.error);
             setLoading(false);

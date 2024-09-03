@@ -93,7 +93,7 @@ export default function DoneRentBefore() {
         <div>
             {doneRentBeforeDetails.length > 0 ? (
                 doneRentBeforeDetails
-                    .sort((a, b) => b.id - a.id)  // Sort by `id` in descending order
+                    .sort((a, b) => b.id - a.id)
                     .map((detail) => (
                         <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
                             <div className="flex flex-col md:flex-row gap-3 justify-between">

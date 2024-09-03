@@ -43,6 +43,7 @@ const Page = ({ params: { id } }) => {
     const [harga_motor_per_1_hari, setHargaMotorPer1Hari] = useState('');
     const [harga_motor_per_1_minggu, setHargaMotorPer1Minggu] = useState('');
     const [status_motor, setStatusMotor] = useState('');
+    const [is_hidden, setIsHidden] = useState(0);
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
     const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
@@ -75,6 +76,10 @@ const Page = ({ params: { id } }) => {
         setStatusMotor(value);
     };
 
+    const handleSelectIsHidden = (value) => {
+        setIsHidden(value);
+    }
+
     const handleSelectChangeType = (value) => {
         setTipeMotor(value);
     }
@@ -104,6 +109,7 @@ const Page = ({ params: { id } }) => {
                 setHargaMotorPer1Hari(motorData.harga_motor_per_1_hari); // Initialize harga_motor_per_1_hari state
                 setHargaMotorPer1Minggu(motorData.harga_motor_per_1_minggu); // Initialize harga_motor_per_1_minggu state
                 setStatusMotor(motorData.status_motor); // Initialize status_motor state
+                setIsHidden(motorData.is_hidden); // Initialize is_hidden state
                 setTanggalMulai(motorData.tanggal_mulai_tidak_tersedia); // Initialize tanggal_mulai_tidak_tersedia state
                 setTanggalSelesai(motorData.tanggal_selesai_tidak_tersedia); // Initialize tanggal_selesai_tidak_tersedia state
             }
@@ -128,6 +134,7 @@ const Page = ({ params: { id } }) => {
                 harga_motor_per_1_hari,
                 harga_motor_per_1_minggu,
                 status_motor,
+                is_hidden,
                 tanggal_mulai_tidak_tersedia,
                 tanggal_selesai_tidak_tersedia,
                 token
@@ -146,6 +153,7 @@ const Page = ({ params: { id } }) => {
                 ...(harga_motor_per_1_hari && { harga_motor_per_1_hari: data.listMotor.harga_motor_per_1_hari }),
                 ...(harga_motor_per_1_minggu && { harga_motor_per_1_minggu: data.listMotor.harga_motor_per_1_minggu }),
                 ...(status_motor && { status_motor: data.listMotor.status_motor }),
+                ...(is_hidden && { is_hidden: data.listMotor.is_hidden }),
                 ...(tanggal_mulai_tidak_tersedia && { tanggal_mulai_tidak_tersedia: data.listMotor.tanggal_mulai_tidak_tersedia }),
                 ...(tanggal_selesai_tidak_tersedia && { tanggal_selesai_tidak_tersedia: data.listMotor.tanggal_selesai_tidak_tersedia }),
             }));
@@ -192,7 +200,6 @@ const Page = ({ params: { id } }) => {
         const today = dayjs().startOf('day');
         if (date.isBefore(today)) return true;
 
-        // Ensure disabledDays is defined and is an array
         const dateStr = date.format('YYYY-MM-DD');
         return Array.isArray(disabledDays) && disabledDays.includes(dateStr);
     };
@@ -204,12 +211,10 @@ const Page = ({ params: { id } }) => {
         const dateStr = selectedDate.format('YYYY-MM-DD');
         const timeStr = selectedDate.set('hour', time.hour()).set('minute', time.minute()).format('YYYY-MM-DD HH:mm:ss');
 
-        // Check if the selected date is today and the time is within 2 hours of the current time
         if (selectedDate.isSame(now, 'day') && time.isBefore(now.add(2, 'hour'), 'minute')) {
             return true;
         }
 
-        // Check for the 2-hour buffer around booked times
         const bookedTimes = Array.from(disabledTimesPerDay[dateStr] || []);
         for (let bookedTimeStr of bookedTimes) {
             const bookedTime = dayjs(bookedTimeStr);
@@ -324,6 +329,7 @@ const Page = ({ params: { id } }) => {
                                 harga_motor_per_1_hari={harga_motor_per_1_hari}
                                 harga_motor_per_1_minggu={harga_motor_per_1_minggu}
                                 status_motor={status_motor}
+                                handleSelectIsHidden={handleSelectIsHidden}
                                 tanggal_mulai_tidak_tersedia={tanggal_mulai_tidak_tersedia}
                                 tanggal_selesai_tidak_tersedia={tanggal_selesai_tidak_tersedia}
                                 handleDateStart={handleDateStart}
@@ -332,6 +338,8 @@ const Page = ({ params: { id } }) => {
                                 shouldDisableTime={shouldDisableTime}
                                 minEndDate={minEndDate}
                                 setStatusMotor={setStatusMotor}
+                                setIsHidden={setIsHidden}
+                                is_hidden={is_hidden}
                                 token={token}
                                 id={id}
                             />

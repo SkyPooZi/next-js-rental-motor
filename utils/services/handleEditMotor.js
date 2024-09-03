@@ -8,6 +8,7 @@ export const updateMotor = async ({
     harga_motor_per_1_hari,
     harga_motor_per_1_minggu,
     status_motor,
+    is_hidden,
     tanggal_mulai_tidak_tersedia,
     tanggal_selesai_tidak_tersedia,
     token
@@ -21,6 +22,7 @@ export const updateMotor = async ({
     if (harga_motor_per_1_hari) formData.append('harga_motor_per_1_hari', harga_motor_per_1_hari);
     if (harga_motor_per_1_minggu) formData.append('harga_motor_per_1_minggu', harga_motor_per_1_minggu);
     if (status_motor) formData.append('status_motor', status_motor);
+    if (is_hidden !== undefined && is_hidden !== null) formData.append('is_hidden', is_hidden);
     if (tanggal_mulai_tidak_tersedia) formData.append('tanggal_mulai_tidak_tersedia', tanggal_mulai_tidak_tersedia);
     if (tanggal_selesai_tidak_tersedia) formData.append('tanggal_selesai_tidak_tersedia', tanggal_selesai_tidak_tersedia);
 
