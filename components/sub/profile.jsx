@@ -46,6 +46,7 @@ const FormSection = ({ title, children, onSubmit, isLoading, submitText }) => (
 
 export default function Profile() {
     const [nama_lengkap, setNamaLengkap] = useState('');
+    const [nama_pengguna, setNamaPengguna] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -79,7 +80,6 @@ export default function Profile() {
     const id = Cookies.get('id');
 
     const formatPhoneNumber = (phone) => {
-        // Ensure that the phone number starts with +62
         if (!phone.startsWith('+62')) {
             return '+62' + phone.replace(/^0+/, '');
         }
@@ -103,10 +103,8 @@ export default function Profile() {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            // Check if file size is within the limit (2 MB)
             if (file.size > 2 * 1024 * 1024) {
                 setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
-                // Clear the response after 5 seconds
                 setTimeout(() => setResponse(null), 5000);
                 return;
             }
@@ -139,6 +137,7 @@ export default function Profile() {
                 setEmail(userData.email);
                 setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
                 setNamaLengkap(userData.nama_lengkap);
+                setNamaPengguna(userData.nama_pengguna);
                 setNomorHp(userData.nomor_hp);
                 setAlamat(userData.alamat);
             } catch (error) {
@@ -194,7 +193,7 @@ export default function Profile() {
                                 />
                             ) : (
                                 <Avatar className="w-32 h-32">
-                                        <AvatarFallback className="text-5xl">o_o</AvatarFallback>
+                                    <AvatarFallback className="text-5xl">o_o</AvatarFallback>
                                 </Avatar>
                             )
                         }
@@ -221,7 +220,7 @@ export default function Profile() {
                         </Label>
                         <Input
                             label={`Masukkan nama lengkap anda`}
-                            value={nama_lengkap}
+                            value={nama_lengkap || nama_pengguna}
                             onChange={(e) => setNamaLengkap(e.target.value)}
                         />
                     </div>

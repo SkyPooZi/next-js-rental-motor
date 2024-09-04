@@ -19,19 +19,18 @@ import Navbar from "@/components/sub/main/NavbarAfter";
 import Footer from "@/components/sub/main/Footer";
 
 export default function Settings() {
-    const router = useRouter(); // Initialize useRouter
-    const searchParams = useSearchParams(); // Initialize useSearchParams to get query params
+    const searchParams = useSearchParams();
     const [activeComponent, setActiveComponent] = useState("profile");
 
     const [animationClass, setAnimationClass] = useState("fade-in");
 
     useEffect(() => {
-        const component = searchParams.get('component') || "profile"; // Safely get 'component' from query params
+        const component = searchParams.get('component') || "profile";
         setActiveComponent(component);
     }, [searchParams]);
 
     useEffect(() => {
-        setAnimationClass("fade-in"); // Set the class for fade-in animation
+        setAnimationClass("fade-in");
     }, [activeComponent]);
 
     const renderComponent = () => {
@@ -50,10 +49,10 @@ export default function Settings() {
     };
 
     const handleButtonClick = (component) => {
-        setAnimationClass("fade-out"); // Set the class for fade-out animation
+        setAnimationClass("fade-out");
         setTimeout(() => {
             setActiveComponent(component);
-        }, 300); // Delay changing the component to allow the fade-out to complete
+        }, 300);
     };
 
     return (

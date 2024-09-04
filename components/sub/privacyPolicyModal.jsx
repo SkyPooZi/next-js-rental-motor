@@ -29,23 +29,27 @@ const PrivacyModal = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
             <div
                 ref={modalRef}
-                className="relative bg-white p-6 rounded-lg shadow-lg w-full max-w-lg h-full max-h-[80vh] overflow-y-auto"
+                className="relative bg-white rounded-lg shadow-lg w-full max-w-lg h-full max-h-[80vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                    onClick={onClose}
-                    aria-label="Close"
-                >
-                    <FaTimes className="w-6 h-6" />
-                </button>
+                <div className='sticky top-0 right-0 py-5 px-5 flex justify-between bg-white overflow-hidden'>
+                    <div className='flex flex-row gap-2 items-center justify-start'>
+                        <Label>
+                            <span className='text-primary text-lg'>
+                                Kebijakan Privasi
+                            </span>
+                        </Label>
+                    </div>
+                    <button
+                        className=" text-gray-500 hover:text-gray-700"
+                        onClick={onClose}
+                        aria-label="Close"
+                    >
+                        <FaTimes className="w-6 h-6" />
+                    </button>
+                </div>
 
                 <div className="flex flex-col gap-5 py-5 px-5 bg-white rounded-md">
-                    <Label>
-                        <span>
-                            Kebijakan Privasi
-                        </span>
-                    </Label>
                     <Label>
                         <span className="leading-5">
                             Terima kasih telah memilih Rental Motor Kudus. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat Anda menggunakan situs web dan layanan kami.

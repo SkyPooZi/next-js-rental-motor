@@ -29,24 +29,26 @@ const TermsModal = ({ isOpen, onClose }) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" onClick={onClose}>
             <div
                 ref={modalRef}
-                className="relative bg-white p-6 rounded-lg shadow-lg w-full max-w-lg h-full max-h-[80vh] overflow-y-auto"
+                className="relative bg-white rounded-lg shadow-lg w-full max-w-lg h-full max-h-[80vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                    onClick={onClose}
-                    aria-label="Close"
-                >
-                    <FaTimes className="w-6 h-6" />
-                </button>
-                <div className='flex flex-col gap-5'>
+                <div className='sticky top-0 right-0 py-5 px-5 flex justify-between bg-white overflow-hidden'>
                     <div className='flex flex-row gap-2 items-center justify-start'>
                         <Label>
-                            <span className='text-black text-lg'>
+                            <span className='text-primary text-lg'>
                                 Syarat & Ketentuan
                             </span>
                         </Label>
                     </div>
+                    <button
+                        className=" text-gray-500 hover:text-gray-700"
+                        onClick={onClose}
+                        aria-label="Close"
+                    >
+                        <FaTimes className="w-6 h-6" />
+                    </button>
+                </div>
+                <div className='flex flex-col gap-5 p-6'>
                     <div className='flex flex-col gap-2'>
                         <Label>
                             <ol className='list-decimal ml-4 text-base w-full max-w-[500px] leading-6'>
