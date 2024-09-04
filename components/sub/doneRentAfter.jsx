@@ -123,10 +123,10 @@ export default function DoneRentAfter() {
                             </div>
                             <div className="border-t border-[#FF4D30] mt-2"></div>
                             <div className="w-full flex flex-row gap-2 justify-end">
-                                <Button onClick={() => handleInvoicePopup(detail.id)}>
+                                <Button onClick={() => openModal(detail)}>
                                     <Label>
                                         <span className="cursor-pointer">
-                                            Tampilkan Invoice
+                                            Lihat Ulasan
                                         </span>
                                     </Label>
                                 </Button>
