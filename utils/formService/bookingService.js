@@ -78,6 +78,7 @@ export const handleBookingSubmit = async (
                 metode_pembayaran,
                 total_pembayaran,
                 status_history: 'Menunggu Pembayaran',
+                point: point,
             }),
         });
 
@@ -94,7 +95,6 @@ export const handleBookingSubmit = async (
         const historyData = await historyResponse.json();
         const historyId = historyData.history.id;
 
-        // Get payment details
         const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${historyId}`, {
             method: 'GET',
             headers: {

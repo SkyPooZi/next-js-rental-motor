@@ -53,12 +53,17 @@ const Page = ({ params: { id } }) => {
     const [loading, setLoading] = useState(false);
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
-    const router = useRouter();
+    const [response, setResponse] = useState(null);
     const token = Cookies.get("token");
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
+                setTimeout(() => setResponse(null), 2000);
+                return;
+            }
             setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -67,7 +72,6 @@ const Page = ({ params: { id } }) => {
             reader.readAsDataURL(file);
         }
     };
-
     const handleButtonClick = () => {
         fileInputRef.current.click();
     };
@@ -254,6 +258,12 @@ const Page = ({ params: { id } }) => {
 
     return (
         <>
+            {response && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${response.error ? 'bg-red-500' : 'bg-green-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg`}>
+                    <span>{response.message}</span>
+                    <MdDone className={`ml-2 text-white ${response.error ? 'hidden' : ''}`} />
+                </div>
+            )}
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}

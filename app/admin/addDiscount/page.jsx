@@ -42,7 +42,7 @@ export default function AddDiscount() {
                 <div className="p-4 xl:ml-80">
                     <FormHeader activeComponent={activeComponent} handleBtnClick={handleBtnClick} />
                     <div className="mt-12">
-                        <DiscountForm token={token} setResponse={setResponse} setShowNotification={setShowNotification} setLoading={setLoading} loading={loading} />
+                        <DiscountForm token={token} response={response} setResponse={setResponse} setShowNotification={setShowNotification} setLoading={setLoading} loading={loading} />
                         <Notification showNotification={showNotification} />
                     </div>
                 </div>

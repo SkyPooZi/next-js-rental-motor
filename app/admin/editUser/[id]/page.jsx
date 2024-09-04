@@ -117,7 +117,7 @@ const Page = ({ params: { id } }) => {
 
             setTimeout(() => {
                 setShowNotification(false);
-                // window.location.reload();
+                window.location.reload();
             }, 1000);
         } catch (err) {
             setError(err.message);

@@ -362,6 +362,7 @@ export default function page({ params: { motorId } }) {
                     metode_pembayaran,
                     total_pembayaran,
                     status_history: 'Menunggu Pembayaran',
+                    point: point,
                 }),
             });
 

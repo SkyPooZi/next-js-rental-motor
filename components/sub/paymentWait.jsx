@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import Cookies from "js-cookie";
 
 import { Spinner } from "@material-tailwind/react";
@@ -82,36 +83,46 @@ export default function PaymentWait() {
         );
     }
 
-    return <div>
+    return <div className="flex flex-col gap-5 overflow-hidden">
         {paymentDetails.length > 0 ? (
             paymentDetails
-                .sort((a, b) => a.id - b.id)  // Sort by `id` in descending order
+                .sort((a, b) => a.id - b.id)
                 .map((detail) => (
-                    <div key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                    <motion.div
+                        initial={{ opacity: 0, x: 100 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 100 }}
+                        key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                         <div className="flex flex-col md:flex-row gap-3 justify-between">
                             <div className="flex flex-row gap-2">
-                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' width={70} height={0} />
-                                <div className="flex flex-col gap-1">
+                                <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                <div className="flex flex-col gap-2.5">
                                     <Label>
-                                        <span className="text-base">
+                                        <span className="text-base font-bold">
                                             {detail.list_motor.nama_motor || 'Motor'}
                                         </span>
                                     </Label>
                                     <Label>
-                                        <span className="text-base lg:text-lg md:text-fz-medium sm:text-sm">
+                                        <span className="text-base">
                                             {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
+                                        </span>
+                                    </Label>
+                                    <Label>
+                                        <span className="opacity-70">Total pembayaran </span>
+                                        <span className="font-bold">
+                                            {`Rp. ${detail.total_pembayaran}`}
                                         </span>
                                     </Label>
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-2 items-end">
+                            <div className="flex flex-col gap-1 items-end">
                                 <Label>
                                     <span className="font-bold">
                                         {detail.status_history}
                                     </span>
                                 </Label>
                                 <Label>
-                                    <span className="text-[#FF4D33] lg:text-xl md:text-base">
+                                    <span className="text-[#FF4D33] text-base">
                                         Batas Pembayaran - {`${formatDate(detail.tanggal_mulai)}`}
                                     </span>
                                 </Label>
@@ -119,7 +130,7 @@ export default function PaymentWait() {
                         </div>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
                         <div className="w-full flex flex-row justify-end">
-                            <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
+                            <a className="hover:underline cursor-pointer" onClick={() => openModalPayment(detail)}>
                                 <Button>
                                     <Label>
                                         <span>
@@ -129,11 +140,10 @@ export default function PaymentWait() {
                                 </Button>
                             </a>
                         </div>
-                        <PaymentWaitModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
-                    </div>
+                    </motion.div>
                 ))
         ) : (
             <span className="ml-10">Tidak ada</span>
-        )};
+        )}
     </div>
 }

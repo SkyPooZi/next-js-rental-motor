@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Cookies from "js-cookie";
 
@@ -125,9 +126,13 @@ export default function Booked() {
         <div>
             {bookedDetails.length > 0 ? (
                 bookedDetails
-                .sort((a, b) => b.id - a.id)  // Sort by `id` in descending order
-                .map((detail) => (
-                        <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
+                    .sort((a, b) => b.id - a.id)
+                    .map((detail) => (
+                        <motion.div
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 100 }}
+                            key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
                             <div className="flex flex-col md:flex-row gap-3 justify-between">
                                 <div className="flex flex-row gap-2">
                                     <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
@@ -138,12 +143,12 @@ export default function Booked() {
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span className="text-base opacity-80">
+                                            <span className="text-base">
                                                 {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
                                             </span>
                                         </Label>
                                         <Label>
-                                            <span>Total pembayaran </span>
+                                            <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
                                                 {`Rp. ${detail.total_pembayaran}`}
                                             </span>
@@ -170,7 +175,7 @@ export default function Booked() {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button className="cursor-pointer" onClick={() => openModal(detail)}>
+                                    <Button className="cursor-pointer" onClick={() => openModalReschedule(detail)}>
                                         <Label>
                                             <span className="cursor-pointer">
                                                 Atur Penjadwalan Ulang
@@ -179,7 +184,7 @@ export default function Booked() {
                                     </Button>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     ))
             ) : (
                 <span className="ml-10">Tidak ada</span>
