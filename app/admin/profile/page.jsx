@@ -66,7 +66,6 @@ const Page = () => {
     const [response, setResponse] = useState(null);
 
     const formatPhoneNumber = (phone) => {
-        // Ensure that the phone number starts with +62
         if (!phone.startsWith('+62')) {
             return '+62' + phone.replace(/^0+/, '');
         }
@@ -85,7 +84,6 @@ const Page = () => {
         if (file) {
             if (file.size > 2 * 1024 * 1024) {
                 setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
-                // Clear the response after 5 seconds
                 setTimeout(() => setResponse(null), 3000);
                 return;
             }
@@ -130,7 +128,7 @@ const Page = () => {
     useEffect(() => {
         console.log(nomor_hp)
         if (nomor_hp.startsWith('+62')) {
-            setNomorHp(nomor_hp.slice(3)); // Remove '+62'
+            setNomorHp(nomor_hp.slice(3));
         } else {
             setNomorHp(nomor_hp);
         }
