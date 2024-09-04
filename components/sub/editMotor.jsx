@@ -81,6 +81,9 @@ const EditMotorForm = ({
         setIsChecked(!isChecked);
         setStatusMotor(!isChecked ? 'Tidak Tersedia' : 'Tersedia');
     };
+
+    const isSubmitDisabled = isChecked && (!tanggal_mulai_tidak_tersedia || !tanggal_selesai_tidak_tersedia);
+
     return (
         <form action="post" method="post" onSubmit={handleSubmit}>
             <Card className="mb-20 xl:mb-0 w-full h-full">
@@ -113,6 +116,10 @@ const EditMotorForm = ({
                                 Pilih Foto
                             </button>
                         </div>
+                        <span className="text-[#6B7280] text-xs">
+                            Gambar profile memiliki rasio 1:1
+                            dan tidak lebih dari 2MB.
+                        </span>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black text-lg">Nama Motor</span>
@@ -399,7 +406,7 @@ const EditMotorForm = ({
                             <Button
                                 type="submit"
                                 className={`cursor-pointer capitalize text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85] ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                loading={loading}
+                                disabled={loading || isSubmitDisabled}
                             >
                                 {loading ? 'Loading...' : 'Ubah Data'}
                             </Button>

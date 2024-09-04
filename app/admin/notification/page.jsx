@@ -12,6 +12,7 @@ import {
 import { MdDone } from "react-icons/md";
 import { Label } from "@/components/ui/label";
 import CancelConfirmationModal from "@/components/sub/cancelConfirmModal";
+import { fetchCancelledModal } from "@/utils/services/fetchCancelledModal";
 
 import dynamic from 'next/dynamic';
 
@@ -39,6 +40,7 @@ export default function Notification() {
     const [selectedId, setSelectedId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
     const [notifToCancel, setNotifToCancel] = useState(null); // User to delete
+    const [point, setPoint] = useState(0);
     const token = Cookies.get('token');
 
     useEffect(() => {
@@ -156,6 +158,24 @@ export default function Notification() {
 
     };
 
+    useEffect(() => {
+        const getHistoryDetail = async () => {
+            try {
+                const response = await fetchCancelledModal(token, notifToCancel);
+                if (response && response.status === 200) {
+                    const data = response.history;
+                    setPoint(data.point);
+                    setId(data.pengguna_id);
+                } else {
+                    console.log('No data received or incorrect status');
+                }
+            } catch (error) {
+                console.error('Failed to fetch payment details:', error);
+            }
+        };
+        getHistoryDetail();
+    }, [token, notifToCancel]);
+
     const handleSubmitCancel = async () => {
         if (!notifToCancel) {
             setError('No ID available to edit.');
@@ -182,13 +202,35 @@ export default function Notification() {
                 setError(`Failed to update data: ${response.statusText}`);
             } else {
                 const data = await response.json();
+                if (point > 0) {
+                    console.log(`Returning points: ${point} to user ${id}`);
+
+                    try {
+                        const pointResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ point: point }),
+                        });
+
+                        if (!pointResponse.ok) {
+                            throw new Error('Failed to return points');
+                        }
+
+                        console.log(`Points returned successfully: ${point} to user ${id}`);
+                    } catch (error) {
+                        console.error('Error returning points:', error);
+                    }
+                }
                 console.log('Updated data:', data);
                 setShowNotificationCancel(true);
                 setHistory(prevHistory => prevHistory.map(item =>
                     item.id === notifToCancel ? { ...item, status_history: 'Dibatalkan' } : item
                 ));
                 setHistory(prevHistory => prevHistory.filter(item => item.id !== notifToCancel));
-                setIsModalOpen(false); // Close the modal after the action
+                setIsModalOpen(false);
                 setTimeout(() => {
                     setLoadingCancel(false);
                     setShowNotificationCancel(false);

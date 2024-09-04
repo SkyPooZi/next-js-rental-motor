@@ -64,6 +64,10 @@ const EditDiscountForm = ({
                                 Pilih Foto
                             </button>
                         </div>
+                        <span className="text-[#6B7280] text-xs">
+                            Gambar profile memiliki rasio 1:1
+                            dan tidak lebih dari 2MB.
+                        </span>
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">Nama Diskon</span>

@@ -119,8 +119,6 @@ export default function Profile() {
         }
     };
 
-
-
     const toggleShowPassword = () => {
         setShowPassword((prevShowPassword) => !prevShowPassword);
     };

@@ -45,7 +45,8 @@ const Page = () => {
     const [alamat, setAlamat] = useState('');
     const [error, setError] = useState(null);
     const [activeComponent, setActiveComponent] = useState("detailUser");
-    const [image, setImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
+    const [image, setImage] = useState('');
+    const [blankImage, setBlankImage] = useState('https://media.istockphoto.com/id/1441026821/vector/no-picture-available-placeholder-thumbnail-icon-illustration.jpg?s=612x612&w=0&k=20&c=7K9T9bguFyJyKOTvPkdoTWZYRWA3zGvx_xQI53BT0wg=');
     const [imagePreview, setImagePreview] = useState('');
     const fileInputRef = useRef(null);
     const [file, setFile] = useState(null);
@@ -60,9 +61,9 @@ const Page = () => {
     const [loadData, setLoadData] = useState(true);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const router = useRouter();
     const id = Cookies.get('id');
     const token = Cookies.get('token');
+    const [response, setResponse] = useState(null);
 
     const formatPhoneNumber = (phone) => {
         // Ensure that the phone number starts with +62
@@ -82,6 +83,12 @@ const Page = () => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
+                // Clear the response after 5 seconds
+                setTimeout(() => setResponse(null), 3000);
+                return;
+            }
             setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -101,7 +108,11 @@ const Page = () => {
                 const userData = await fetchUserData({ id, token });
                 console.log('Fetched data:', userData);
                 setUser(userData);
-                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                if (userData.gambar === null) {
+                    setImage(blankImage);
+                } else {
+                    setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
+                }
                 setNamaPengguna(userData.nama_pengguna);
                 setNamaLengkap(userData.nama_lengkap);
                 setAlamat(userData.alamat);
@@ -195,6 +206,12 @@ const Page = () => {
 
     return (
         <>
+            {response && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${response.error ? 'bg-red-500' : 'bg-green-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg`}>
+                    <span>{response.message}</span>
+                    <MdDone className={`ml-2 text-white ${response.error ? 'hidden' : ''}`} />
+                </div>
+            )}
             <div>
                 {activeComponent === "dashboard" && <Dashboard />}
                 {activeComponent === "list" && <MotorList />}
@@ -253,7 +270,7 @@ const Page = () => {
                                                 </span>
                                                 <div className="mr-4">
                                                     <img
-                                                        src={imagePreview || (user.google_id || user.facebook_id
+                                                        src={imagePreview || image || (user.google_id || user.facebook_id
                                                             ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
                                                             : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
                                                         )}
@@ -261,23 +278,24 @@ const Page = () => {
                                                         className="w-32 h-32 object-cover rounded-full"
                                                     />
                                                 </div>
-                                                <div>
-                                                    <input
-                                                        type="file"
-                                                        id="picture"
-                                                        accept="image/*"
-                                                        onChange={handleImageChange}
-                                                        ref={fileInputRef}
-                                                        className="hidden"
-                                                    />
-                                                    <button
-                                                        type="button"
-                                                        onClick={handleButtonClick}
-                                                        className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
-                                                    >
-                                                        Pilih Foto
-                                                    </button>
-                                                </div>
+                                                {!(user.google_id || user.facebook_id) && (
+                                                    <div>
+                                                        <input
+                                                            type="file"
+                                                            id="picture"
+                                                            accept="image/*"
+                                                            onChange={handleImageChange}
+                                                            ref={fileInputRef}
+                                                            className="hidden"
+                                                        />
+                                                        <button
+                                                            className="cursor-pointer text-xs rounded-lg px-3 py-2 text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]"
+                                                            type="button" onClick={handleButtonClick}
+                                                        >
+                                                            <span className="font-medium text-xs">Pilih Foto</span>
+                                                        </button>
+                                                    </div>
+                                                )}
                                                 <span className="text-[#6B7280] text-xs">
                                                     Gambar profile memiliki rasio 1:1
                                                     dan tidak lebih dari 2MB.
