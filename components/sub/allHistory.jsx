@@ -294,7 +294,7 @@ export default function AllHistory() {
                                         <Label>
                                             <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -354,7 +354,7 @@ export default function AllHistory() {
                                         <Label>
                                             <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -418,7 +418,7 @@ export default function AllHistory() {
                                         <Label>
                                             <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -471,7 +471,7 @@ export default function AllHistory() {
                                         <Label>
                                             <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -524,7 +524,7 @@ export default function AllHistory() {
                                         <Label>
                                             <span>Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
