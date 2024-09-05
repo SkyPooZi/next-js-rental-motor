@@ -52,4 +52,3 @@ export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp }) 
         throw error;
     }
 };
-
