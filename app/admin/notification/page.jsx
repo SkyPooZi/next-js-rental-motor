@@ -1,20 +1,24 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import { motion } from 'framer-motion';
 import Cookies from "js-cookie";
 
 import {
     Card,
     CardHeader,
+    CardFooter,
     Button,
     Avatar,
 } from "@material-tailwind/react";
+import { Button as Buttons } from "@/components/ui/button";
 import { MdDone } from "react-icons/md";
 import { Label } from "@/components/ui/label";
 import CancelConfirmationModal from "@/components/sub/cancelConfirmModal";
 import { fetchCancelledModal } from "@/utils/services/fetchCancelledModal";
 
 import dynamic from 'next/dynamic';
+import Link from "next/link";
 
 const NavbarAdmin = dynamic(() => import('@/components/sub/admin/navbar'), { ssr: false });
 const Sidebar = dynamic(() => import('@/components/sub/main/sidebar'), { ssr: false });
@@ -38,10 +42,26 @@ export default function Notification() {
     const [activeComponent, setActiveComponent] = useState("notification");
     const [loadData, setLoadData] = useState(true);
     const [selectedId, setSelectedId] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
-    const [notifToCancel, setNotifToCancel] = useState(null); // User to delete
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [notifToCancel, setNotifToCancel] = useState(null);
     const [point, setPoint] = useState(0);
     const token = Cookies.get('token');
+
+    const formatRupiah = (number) => {
+        const stringNumber = number.toString();
+        const split = stringNumber.split(',');
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/g);
+
+        if (ribuan) {
+            const separator = sisa ? '.' : '';
+            rupiah += separator + ribuan.join('.');
+        }
+
+        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+        return 'Rp ' + rupiah;
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -86,7 +106,6 @@ export default function Notification() {
             formData.append('status_history', 'Dipesan');
             setLoadingCancel(true);
 
-            // First API call: Update history
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
                 headers: {
@@ -115,7 +134,6 @@ export default function Notification() {
 
             const orderId = Cookies.get('orderIdTunai');
 
-            // Third API call: Update Invoice with status
             const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
                 method: 'POST',
                 headers: {
@@ -135,7 +153,6 @@ export default function Notification() {
             const updateData = await updateResponse.json();
             console.log('Invoice status update response:', updateData);
 
-            // Handle successful submission
             setShowNotification(true);
             setHistory(prevHistory => prevHistory.map(item =>
                 item.id === id ? { ...item, status_history: 'Dipesan' } : item
@@ -315,7 +332,12 @@ export default function Notification() {
                         ) : (
                             Array.isArray(history) && history.length > 0 ? (
                                 history.map(item => (
-                                    <div key={item.id}>
+                                    <motion.div
+                                        initial={{ opacity: 0, x: -20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.5 }}
+                                        key={item.id}
+                                    >
                                         <Card className="w-full h-full">
                                             <CardHeader floated={false} shadow={false} className="rounded-none">
                                                 <div className="mb-4 flex flex-col gap-4">
@@ -331,17 +353,30 @@ export default function Notification() {
                                                             <Label className="flex gap-2">
                                                                 <span>Total pembayaran </span>
                                                                 <span className="font-bold">
-                                                                    {`Rp. ${item.total_pembayaran}`}
+                                                                    {`${formatRupiah(item.total_pembayaran)}`}
                                                                 </span>
                                                             </Label>
+                                                            <CardFooter className="p-0 pt-2">
+                                                                <div className=''>
+                                                                    <Buttons variant='outline'>
+                                                                        <Link href={`/admin/detailHistory/${item.id}`}>
+                                                                            <Label>
+                                                                                <span className="text-blue-500 cursor-pointer">
+                                                                                    Lihat Detail
+                                                                                </span>
+                                                                            </Label>
+                                                                        </Link>
+                                                                    </Buttons>
+                                                                </div>
+                                                            </CardFooter>
                                                         </div>
                                                     </div>
                                                     <div className="border-t border-[#969696] w-full"></div>
                                                     <div className="w-full justify-end flex flex-row gap-4">
                                                         <Button
                                                             color="red"
-                                                            type="button" // Change type to "button" to prevent default form submission behavior
-                                                            onClick={() => confirmCancelNotif(item.id)} // Call the function directly here
+                                                            type="button"
+                                                            onClick={() => confirmCancelNotif(item.id)}
                                                         >
                                                             Batal
                                                         </Button>
@@ -354,7 +389,7 @@ export default function Notification() {
                                                 </div>
                                             </CardHeader>
                                         </Card>
-                                    </div>
+                                    </motion.div>
                                 ))
                             ) : (
                                 <div>Notification kosong</div>

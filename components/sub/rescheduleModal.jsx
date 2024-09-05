@@ -148,19 +148,15 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const validateTimeMatch = () => {
         if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
 
-        // Original booking start and end times
         const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
         const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
 
-        // New booking start and end times
         const newStartTime = dayjs(tanggal_mulai);
         const newEndTime = dayjs(tanggal_selesai);
 
-        // Calculate durations in seconds
         const originalDuration = originalEndTime.diff(originalStartTime, 'second');
         const newDuration = newEndTime.diff(newStartTime, 'second');
 
-        // Check if the new duration matches the original duration
         return originalDuration === newDuration;
     };
 
@@ -192,7 +188,6 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     const initialDuration = endDate.diff(startDate, 'day');
                     setInitialDuration(initialDuration);
 
-                    // Extract and set original times
                     setOriginalStartTime(startDate.format('HH:mm:ss'));
                     setOriginalEndTime(endDate.format('HH:mm:ss'));
                 } else {
@@ -255,6 +250,44 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         setTanggalSelesai('');
     };
 
+    const formatDate = (dateString) => {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+        const hour = date.getHours();
+        let timeOfDay = '';
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+    };
+
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        return `${formattedTime} ${timeOfDay}`;
+    };
+
     if (!isOpen) return null;
 
     return rescheduleModalDetails ? (
@@ -298,7 +331,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                     </span>
                                 </Label>
                                 <Label>
-                                    <span className="text-base ">
+                                    <span className="text-base">
                                         {`${formatDate(rescheduleModalDetails.tanggal_mulai)} - ${formatDate(rescheduleModalDetails.tanggal_selesai)}`}
                                     </span>
                                 </Label>
@@ -363,7 +396,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </Button>
                         {!validateTimeMatch() && (
                             <div className='text-red-500 text-sm mt-2'>
-                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
+                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${formatTime(rescheduleModalDetails.tanggal_mulai)} - ${formatTime(rescheduleModalDetails.tanggal_selesai)}`}
                             </div>
                         )}
                     </div>

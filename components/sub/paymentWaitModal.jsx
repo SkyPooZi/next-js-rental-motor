@@ -80,8 +80,9 @@ const PaymentWaitModal = ({ isOpen, onClose, historyId }) => {
             setTimeout(() => {
                 setShowNotification(false);
                 onClose();
-                // window.location.reload();
                 router.push('/setting?component=history');
+                router.refresh();
+                // window.location.reload();
             }, 1000);
         } else {
             console.error('Failed to update reasons:', result.error);
