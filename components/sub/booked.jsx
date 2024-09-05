@@ -123,7 +123,7 @@ export default function Booked() {
     }
 
     return (
-        <div>
+        <div className="flex flex-col gap-5 overflow-hidden">
             {bookedDetails.length > 0 ? (
                 bookedDetails
                     .sort((a, b) => b.id - a.id)
@@ -175,7 +175,7 @@ export default function Booked() {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button className="cursor-pointer" onClick={() => openModalReschedule(detail)}>
+                                    <Button className="cursor-pointer" onClick={() => openModal(detail)}>
                                         <Label>
                                             <span className="cursor-pointer">
                                                 Atur Penjadwalan Ulang

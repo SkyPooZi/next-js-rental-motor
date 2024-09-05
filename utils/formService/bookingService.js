@@ -30,7 +30,7 @@ export const handleBookingSubmit = async (
         diskon_id,
         total_pembayaran,
         usePoint,
-        point
+        point,
     } = bookingData;
 
     if (metode_pembayaran === 'Tunai') {
@@ -51,6 +51,8 @@ export const handleBookingSubmit = async (
     setLoading(true);
 
     try {
+        const pointsToUse = usePoint ? Math.min(point, total_pembayaran) : 0;
+
         const historyResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
             method: 'POST',
             headers: {
@@ -78,7 +80,7 @@ export const handleBookingSubmit = async (
                 metode_pembayaran,
                 total_pembayaran,
                 status_history: 'Menunggu Pembayaran',
-                point: point,
+                point: pointsToUse,
             }),
         });
 
@@ -116,14 +118,14 @@ export const handleBookingSubmit = async (
             throw new Error('Snap Token or Order ID missing in the response');
         }
 
-        // Process payment
+        const currentDate = new Date().toISOString().split('T')[0];
+
         window.snap.pay(snapToken, {
             onSuccess: async function (result) {
                 showNotificationWithTimeout('Pembayaran berhasil!', 'success');
-                await updateHistoryStatus(historyData.history.id, 'Dipesan');
+                await updateHistoryStatus(historyData.history.id, 'Dipesan', null, null);
 
                 try {
-                    // Update invoice status
                     const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
                         method: 'POST',
                         headers: {
@@ -142,7 +144,6 @@ export const handleBookingSubmit = async (
 
                     await updateResponse.json();
 
-                    // Deduct points if applicable
                     if (usePoint) {
                         const pointsToUse = Math.min(point, total_pembayaran);
                         console.log(pointsToUse);
@@ -164,7 +165,6 @@ export const handleBookingSubmit = async (
                         console.log(`Points updated successfully: ${point} - ${pointsToUse} for user ${id}`);
                     }
 
-                    // Redirect after success
                     router.push(`/setting?component=history`);
                 } catch (error) {
                     console.error('Error updating invoice or points:', error);
@@ -173,15 +173,15 @@ export const handleBookingSubmit = async (
             },
             onPending: async function (result) {
                 showNotificationWithTimeout('Menunggu pembayaran Anda.', 'info');
-                await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran');
+                await updateHistoryStatus(historyData.history.id, 'Menunggu Pembayaran', null, null);
             },
             onError: async function (result) {
                 showNotificationWithTimeout('Pembayaran dibatalkan.', 'error');
-                await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                await updateHistoryStatus(historyData.history.id, 'Dibatalkan', "Dibatalkan oleh pengguna", currentDate);
             },
             onClose: async function () {
                 showNotificationWithTimeout('Anda menutup popup tanpa menyelesaikan pembayaran.', 'warning');
-                await updateHistoryStatus(historyData.history.id, 'Dibatalkan');
+                await updateHistoryStatus(historyData.history.id, 'Dibatalkan', "Dibatalkan oleh pengguna", currentDate);
             }
         });
 

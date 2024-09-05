@@ -71,7 +71,6 @@ export default function Canceled() {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setSelectedDetail(null);
     };
 
     if (loading) {
@@ -82,7 +81,7 @@ export default function Canceled() {
         );
     }
 
-    return <div>
+    return <div className="flex flex-col gap-5 overflow-hidden">
         {cancelledDetails.length > 0 ? (
             cancelledDetails
                 .sort((a, b) => b.id - a.id)
@@ -127,12 +126,12 @@ export default function Canceled() {
                                     </Label>
                                 </Button>
                             </a>
-                            <CancelReasonModal isOpen={openModal} onClose={closeModal} historyId={historyId} />
                         </div>
                     </motion.div>
                 ))
         ) : (
             <span className="ml-10">Tidak ada</span>
         )}
+        <CancelReasonModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
     </div>
 }

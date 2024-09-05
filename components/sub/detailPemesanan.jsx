@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Select, Option, Input, Textarea, Radio } from '@material-tailwind/react';
 import { Label } from '@/components/ui/label';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
+// import { DatePicker } from "antd";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { IoLocationSharp } from 'react-icons/io5';
@@ -58,6 +59,22 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                             </div>
                         </div>
                     </div>
+                    {/* <div className='flex flex-col gap-2'>
+                        <span>Pilih Tanggal <span className="text-[#FF4D33] font-semibold">*</span></span>
+                        <RangePicker
+                            required
+                            showTime={{
+                                format: 'HH:mm',
+                            }}
+                            format="YYYY-MM-DD HH:mm"
+                            onChange={(value, dateString) => {
+                                console.log('Selected Time: ', value);
+                                console.log('Formatted Selected Time: ', dateString);
+                            }}
+                            onOk={onOk}
+                            style={{ width: 'max-content', fontSize: '16px', padding: '8px' }}
+                        />
+                    </div> */}
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                         <div className='flex md:flex-row flex-col gap-5'>
                             <div className='w-full flex flex-col gap-2'>

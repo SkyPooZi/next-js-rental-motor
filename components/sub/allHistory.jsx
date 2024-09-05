@@ -254,7 +254,7 @@ export default function AllHistory() {
         );
     }
 
-    if (paymentDetails.length === 0 && bookedDetails.length === 0 && inUseDetails.length === 0 && doneRentAfterDetails.length === 0) {
+    if (paymentDetails.length === 0 && bookedDetails.length === 0 && inUseDetails.length === 0 && doneRentAfterDetails.length === 0 && doneRentBeforeDetails.length === 0 && cancelledDetails.length === 0) {
         return (
             <div className="w-full flex justify-center items-center">
                 <Label>
@@ -319,55 +319,6 @@ export default function AllHistory() {
                                         <Label>
                                             <span>
                                                 Batalkan
-                                            </span>
-                                        </Label>
-                                    </Button>
-                                </a>
-                            </div>
-                        </motion.div>
-                    ))
-            )}
-
-            {cancelledDetails && cancelledDetails.length > 0 && (
-                cancelledDetails
-                    .sort((a, b) => b.id - a.id)
-                    .map((detail) => (
-                        <motion.div
-                            initial={{ opacity: 0, x: 100 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 100 }}
-                            key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
-                            <div className="flex flex-col md:flex-row gap-3 justify-between">
-                                <div className="flex flex-row gap-2">
-                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
-                                    <div className="flex flex-col gap-2.5">
-                                        <Label>
-                                            <span className="text-base">
-                                                {detail.list_motor.nama_motor || 'Motor'}
-                                            </span>
-                                        </Label>
-                                        <Label>
-                                            <span className="text-base">
-                                                {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
-                                            </span>
-                                        </Label>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1 items-end">
-                                    <Label>
-                                        <span className="font-bold">
-                                            {detail.status_history}
-                                        </span>
-                                    </Label>
-                                </div>
-                            </div>
-                            <div className="border-t border-[#FF4D30] mt-2"></div>
-                            <div className="w-full flex flex-row gap-2 justify-end">
-                                <a className="hover:underline cursor-pointer " onClick={() => openModalCancel(detail)}>
-                                    <Button>
-                                        <Label>
-                                            <span className="cursor-pointer">
-                                                Tampilkan Rincian Pembatalan
                                             </span>
                                         </Label>
                                     </Button>
@@ -593,6 +544,55 @@ export default function AllHistory() {
                                         <Label>
                                             <span className="cursor-pointer">
                                                 Beri Ulasan
+                                            </span>
+                                        </Label>
+                                    </Button>
+                                </a>
+                            </div>
+                        </motion.div>
+                    ))
+            )}
+
+            {cancelledDetails && cancelledDetails.length > 0 && (
+                cancelledDetails
+                    .sort((a, b) => b.id - a.id)
+                    .map((detail) => (
+                        <motion.div
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 100 }}
+                            key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                            <div className="flex flex-col md:flex-row gap-3 justify-between">
+                                <div className="flex flex-row gap-2">
+                                    <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
+                                    <div className="flex flex-col gap-2.5">
+                                        <Label>
+                                            <span className="text-base">
+                                                {detail.list_motor.nama_motor || 'Motor'}
+                                            </span>
+                                        </Label>
+                                        <Label>
+                                            <span className="text-base">
+                                                {`${formatDate(detail.tanggal_mulai)} - ${formatDate(detail.tanggal_selesai)}`}
+                                            </span>
+                                        </Label>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1 items-end">
+                                    <Label>
+                                        <span className="font-bold">
+                                            {detail.status_history}
+                                        </span>
+                                    </Label>
+                                </div>
+                            </div>
+                            <div className="border-t border-[#FF4D30] mt-2"></div>
+                            <div className="w-full flex flex-row gap-2 justify-end">
+                                <a className="hover:underline cursor-pointer " onClick={() => openModalCancel(detail)}>
+                                    <Button>
+                                        <Label>
+                                            <span className="cursor-pointer">
+                                                Tampilkan Rincian Pembatalan
                                             </span>
                                         </Label>
                                     </Button>

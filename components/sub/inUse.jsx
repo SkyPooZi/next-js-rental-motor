@@ -152,7 +152,7 @@ export default function InUse() {
                 ))
         ) : (
             <span className="ml-10">Tidak ada</span>
-        )};
+        )}
         {showInvoice && (
             <InvoicePopup onClose={() => setShowInvoice(false)} orderId={orderNumber} />
         )}

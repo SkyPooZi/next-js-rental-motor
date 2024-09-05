@@ -130,7 +130,7 @@ export default function PaymentWait() {
                         </div>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
                         <div className="w-full flex flex-row justify-end">
-                            <a className="hover:underline cursor-pointer" onClick={() => openModalPayment(detail)}>
+                            <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
                                 <Button>
                                     <Label>
                                         <span>
@@ -145,5 +145,6 @@ export default function PaymentWait() {
         ) : (
             <span className="ml-10">Tidak ada</span>
         )}
+        <PaymentWaitModal isOpen={isModalOpen} onClose={closeModal} historyId={historyId} />
     </div>
 }
