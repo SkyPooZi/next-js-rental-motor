@@ -9,6 +9,11 @@ const FacebookCallback = () => {
     useEffect(() => {
         const handleFacebookCallback = async () => {
             try {
+                if (window.location.hash === "#_=_") {
+                    window.location.hash = "";
+                    history.replaceState(null, null, window.location.href.split("#")[0]);
+                }
+
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/facebook/detail`, {
                     method: 'GET',
                     headers: {
