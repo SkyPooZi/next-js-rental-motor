@@ -17,6 +17,7 @@ import History from "@/components/sub/history";
 import Terms from "@/components/sub/terms";
 import Navbar from "@/components/sub/main/NavbarAfter";
 import Footer from "@/components/sub/main/Footer";
+import Cookies from "js-cookie";
 
 export default function Settings() {
     const searchParams = useSearchParams();
@@ -53,6 +54,15 @@ export default function Settings() {
         setTimeout(() => {
             setActiveComponent(component);
         }, 300);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        Cookies.remove('token');
+        Cookies.remove('id');
+        Cookies.remove('role');
+        Cookies.remove('email');
+        Cookies.remove('isAdmin');
     };
 
     return (
@@ -196,7 +206,7 @@ export default function Settings() {
                             </div>
                         </button>
                         <div className="border-t border-[#FF4D30] mt-2 mx-4 mb-5"></div>
-                        <Link href="/login">
+                        <Link href="/login" onClick={handleLogout}>
                             <button className={`button-wrapper text-[#FF4D30]`}>
                                 <div className="flex flex-row items-center gap-2">
                                     <RiLogoutCircleLine size="25" className="icon" />

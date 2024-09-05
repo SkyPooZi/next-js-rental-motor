@@ -150,7 +150,7 @@ export default function Booked() {
                                         <Label>
                                             <span className="opacity-70">Total pembayaran </span>
                                             <span className="font-bold">
-                                                {`Rp. ${detail.total_pembayaran}`}
+                                            {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -175,7 +175,7 @@ export default function Booked() {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button className="cursor-pointer" onClick={() => openModalReschedule(detail)}>
+                                    <Button className="cursor-pointer" onClick={() => openModal(detail)}>
                                         <Label>
                                             <span className="cursor-pointer">
                                                 Atur Penjadwalan Ulang

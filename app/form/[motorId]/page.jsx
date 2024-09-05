@@ -27,6 +27,7 @@ import { fetchUserPoint } from '@/utils/formService/userService';
 import { handleBookingSubmit } from '@/utils/formService/bookingService';
 import { fetchBookedDates } from '@/utils/formService/bookedDates';
 import { fetchUserData, updateUserData } from '@/utils/services/userService';
+import { fetchUserDetail } from '@/utils/services/fetchUserDetail';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
@@ -37,7 +38,6 @@ dayjs.extend(isSameOrAfter);
 export default function page({ params: { motorId } }) {
     const [selectedMotor, setSelectedMotor] = useState(null);
     const [pengguna_id, setPenggunaId] = useState('');
-    const [disabledRanges, setDisabledRanges] = useState([]);
     const [disabledDays, setDisabledDays] = useState([]);
     const [disabledTimesPerDay, setDisabledTimesPerDay] = useState({});
     const [minEndDate, setMinEndDate] = useState(null);
@@ -47,6 +47,7 @@ export default function page({ params: { motorId } }) {
     const [motors, setMotors] = useState([]);
     const [diskons, setDiskons] = useState([]);
     const [nama_lengkap, setNamaLengkap] = useState('');
+    const [nama_pengguna, setNamaPengguna] = useState('');
     const [email, setEmail] = useState('');
     const [nomor_hp, setNoTelp] = useState('');
     const [akun_sosmed, setAkunSosmed] = useState('');
@@ -82,46 +83,41 @@ export default function page({ params: { motorId } }) {
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
-    const [showDropdown, setShowDropdown] = useState(false);
-    const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram');
-    const [userData, setUserData] = useState({});
-    const [isHidden, setIsHidden] = useState(false);
+    const [userData, setUserData] = useState('');
 
     const token = Cookies.get('token');
-    const userIdFromCookie = Cookies.get('id');
     const router = useRouter();
     const id = Cookies.get('id');
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const user = await fetchUserData({ id: userIdFromCookie, token });
-                if (user) {
-                    setUserData(user); // Store fetched data separately
-                    setNamaLengkap(user.nama_lengkap);
-                    setEmail(user.email);
-                    setNoTelp(user.nomor_hp);  // Set the phone number state
-                    setAkunSosmed(user.akun_sosmed);
-                    setAlamat(user.alamat);
-                    setUserId(user.id); // Set user ID
-                }
+                const user = await fetchUserData( id, token );
+                setUserData(user); // Store fetched data separately
+                setNamaLengkap(user.nama_lengkap);
+                setNamaPengguna(user.nama_pengguna);
+                setEmail(user.email);
+                setNoTelp(user.nomor_hp);  // Set the phone number state
+                setAkunSosmed(user.akun_sosmed);
+                setAlamat(user.alamat);
+                setUserId(user.id);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }
         };
-    
+
         fetchData();
-    }, [token, userIdFromCookie]);
+    }, [token, id]);
 
     useEffect(() => {
         console.log(nomor_hp)
         if (nomor_hp?.startsWith('+62')) {
-            setNoTelp(nomor_hp.slice(3)); 
+            setNoTelp(nomor_hp.slice(3));
         } else {
             setNoTelp(nomor_hp);
         }
     }, [nomor_hp]);
-    
+
 
     useEffect(() => {
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
@@ -271,6 +267,9 @@ export default function page({ params: { motorId } }) {
         if (clickedPenyewaDiriSendiri && userId) {
             try {
                 await updateUserData(userId, token, { nama_lengkap, nomor_hp, alamat });
+                if (!nama_lengkap) {
+                    setNamaLengkap('Guest');
+                }
             } catch (error) {
                 console.error('Error updating user data:', error);
             }
@@ -344,6 +343,7 @@ export default function page({ params: { motorId } }) {
                 body: JSON.stringify({
                     pengguna_id: id,
                     nama_lengkap,
+                    nama_pengguna,
                     email,
                     nomor_hp: formatPhoneNumber(nomor_hp),
                     akun_sosmed,
@@ -563,6 +563,7 @@ export default function page({ params: { motorId } }) {
         setPenyewa('Diri Sendiri');
 
         setNamaLengkap(userData.nama_lengkap);
+        setNamaPengguna(userData.nama_pengguna);
         setNoTelp(userData.nomor_hp);
         setAkunSosmed(userData.akun_sosmed);
         setEmail(userData.email);
@@ -668,8 +669,8 @@ export default function page({ params: { motorId } }) {
                             closeModal={closeModal}
                         />
                         <DetailKontak
-                            nama_lengkap={nama_lengkap}
-                            setNamaLengkap={setNamaLengkap}
+                            nama_lengkap={nama_lengkap || nama_pengguna}
+                            setNamaLengkap={setNamaLengkap || setNamaPengguna}
                             akun_sosmed={akun_sosmed}
                             setAkunSosmed={setAkunSosmed}
                             email={email}

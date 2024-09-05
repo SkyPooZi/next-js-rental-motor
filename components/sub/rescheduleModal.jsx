@@ -50,6 +50,29 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const userId = Cookies.get('id');
     console.log(historyId)
 
+    const formatDate = (dateString) => {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+    };
+
     useEffect(() => {
         if (rescheduleModalDetails?.created_at) {
             const daysAgo = calculateDaysAgo(rescheduleModalDetails.created_at);
@@ -275,8 +298,8 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                     </span>
                                 </Label>
                                 <Label>
-                                    <span className="text-base">
-                                        {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
+                                    <span className="text-base ">
+                                        {`${formatDate(rescheduleModalDetails.tanggal_mulai)} - ${formatDate(rescheduleModalDetails.tanggal_selesai)}`}
                                     </span>
                                 </Label>
                                 <Label>
