@@ -92,7 +92,7 @@ export default function page({ params: { motorId } }) {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const user = await fetchUserData( id, token );
+                const user = await fetchUserData({ id, token });
                 setUserData(user); // Store fetched data separately
                 setNamaLengkap(user.nama_lengkap);
                 setNamaPengguna(user.nama_pengguna);
