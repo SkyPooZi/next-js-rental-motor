@@ -14,8 +14,11 @@ import { FiInfo } from "react-icons/fi";
 import {
     PlusIcon,
 } from "@heroicons/react/24/outline";
+import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 export function DefaultSpeedDial({ activeComponent, handleButtonClick }) {
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const [currentIcon, setCurrentIcon] = useState(<PlusIcon className="h-5 w-5" />);
 
@@ -27,6 +30,18 @@ export function DefaultSpeedDial({ activeComponent, handleButtonClick }) {
         handleButtonClick(component);
         setCurrentIcon(icon); // Update the current icon based on the selected action
         setOpen(false); // Close the SpeedDial after an action is clicked
+    };
+
+    const handleLogout = (icon) => {
+        localStorage.removeItem('user');
+        Cookies.remove('token');
+        Cookies.remove('id');
+        Cookies.remove('role');
+        Cookies.remove('email');
+        Cookies.remove('isAdmin');
+        setCurrentIcon(icon);
+        setOpen(false);
+        router.push('/login')
     };
 
     return (
@@ -79,10 +94,10 @@ export function DefaultSpeedDial({ activeComponent, handleButtonClick }) {
                         </SpeedDialAction>
                         <SpeedDialAction
                             className="h-16 w-16"
-                            onClick={() => handleActionClick('logout', <RiLogoutCircleLine className="h-5 w-5 text-[#FF4D33]" />)}
+                            onClick={() => handleLogout(<RiLogoutCircleLine className="h-5 w-5 text-[#FF4D33]" />)}
                         >
                             <RiLogoutCircleLine className="h-5 w-5 text-[#FF4D33]" />
-                            <Typography color="blue-gray" className="text-xs text-[#FF4D33] font-normal">
+                            <Typography color="blue-gray" className={`text-xs text-[#FF4D33] font-normal ${activeComponent === 'logout' ? 'text-white' : ''}`}>
                                 Logout
                             </Typography>
                         </SpeedDialAction>
