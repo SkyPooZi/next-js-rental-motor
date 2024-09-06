@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import Cookies from 'js-cookie';
 
 import { IoIosArrowDown } from "react-icons/io";
@@ -14,17 +14,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from '@/components/ui/label';
-import BottomNavbar from '../ui/bottom-navbar';
+import BottomNavbar from '../../ui/bottom-navbar';
 
 export default function Navbar() {
-    const [activeLink, setActiveLink] = useState('/');
+    const [activeLink, setActiveLink] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState(null);
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
-        setActiveLink(router.pathname);
-    }, [router.pathname]);
+        setActiveLink(pathname);
+        console.log("route:"+pathname);
+    }, [pathname]);
 
     useEffect(() => {
         const fetchUser = async () => {

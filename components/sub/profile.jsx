@@ -18,6 +18,7 @@ import { handleEmailChange } from '@/utils/services/handleEmailChange';
 import { handleVerifyOTP } from '@/utils/services/otpService';
 import { handlePasswordReset } from '@/utils/services/handlePasswordReset';
 import OTPPopup from '@/components/sub/admin/sendOTP';
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -45,6 +46,7 @@ const FormSection = ({ title, children, onSubmit, isLoading, submitText }) => (
 
 export default function Profile() {
     const [nama_lengkap, setNamaLengkap] = useState('');
+    const [nama_pengguna, setNamaPengguna] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -73,11 +75,11 @@ export default function Profile() {
     const [serverOtp, setServerOtp] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [response, setResponse] = useState(null);
     const token = Cookies.get('token');
     const id = Cookies.get('id');
 
     const formatPhoneNumber = (phone) => {
-        // Ensure that the phone number starts with +62
         if (!phone.startsWith('+62')) {
             return '+62' + phone.replace(/^0+/, '');
         }
@@ -101,6 +103,11 @@ export default function Profile() {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                setResponse({ message: 'Gambar terlalu besar. Maksimal ukuran file adalah 2 MB.', error: 'Image size too large' });
+                setTimeout(() => setResponse(null), 5000);
+                return;
+            }
             setFile(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -128,7 +135,9 @@ export default function Profile() {
                 const userData = await fetchUserDetail(id, token);
                 setUser(userData);
                 setEmail(userData.email);
+                setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${userData.gambar}`);
                 setNamaLengkap(userData.nama_lengkap);
+                setNamaPengguna(userData.nama_pengguna);
                 setNomorHp(userData.nomor_hp);
                 setAlamat(userData.alamat);
             } catch (error) {
@@ -140,7 +149,7 @@ export default function Profile() {
 
     useEffect(() => {
         console.log(nomor_hp)
-        if (nomor_hp.startsWith('+62')) {
+        if (nomor_hp?.startsWith('+62')) {
             setNomorHp(nomor_hp.slice(3)); // Remove '+62'
         } else {
             setNomorHp(nomor_hp);
@@ -157,6 +166,13 @@ export default function Profile() {
 
     return (
         <div className="flex flex-col gap-5 w-full">
+            {response && (
+                <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 ${response.error ? 'bg-red-500' : 'bg-green-500'} text-white py-2 px-4 rounded-md flex items-center shadow-lg`}>
+                    <span>{response.message}</span>
+                    <MdDone className={`ml-2 text-white ${response.error ? 'hidden' : ''}`} />
+                </div>
+            )}
+
             <FormSection
                 title="Profil Saya"
                 onSubmit={(e) => handleSubmitProfile(e, { file, nama_lengkap, id, token, setIsLoadingProfile, setError, setImage, setShowNotification, setUser })}
@@ -165,14 +181,23 @@ export default function Profile() {
             >
                 <div className="flex flex-col gap-5">
                     <div className="mr-4">
-                        <img
-                            src={imagePreview || (user.google_id || user.facebook_id
-                                ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
-                                : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
-                            )}
-                            alt="Image Preview"
-                            className="w-32 h-32 rounded-full object-cover"
-                        />
+                        {
+                            user?.gambar ? (
+                                <img
+                                    src={imagePreview || (user.google_id || user.facebook_id
+                                        ? user.gambar // Use the link directly from the response if google_id or facebook_id is not null
+                                        : `${process.env.NEXT_PUBLIC_API_URL}/storage/${user.gambar}` // Use the local storage link if both are null
+                                    )}
+                                    alt="Image Preview"
+                                    className="w-32 h-32 rounded-full object-cover"
+                                />
+                            ) : (
+                                <Avatar className="w-32 h-32">
+                                    <AvatarFallback className="text-5xl">o_o</AvatarFallback>
+                                </Avatar>
+                            )
+                        }
+
                     </div>
                     {!(user.google_id || user.facebook_id) && (
                         <div>
@@ -195,7 +220,7 @@ export default function Profile() {
                         </Label>
                         <Input
                             label={`Masukkan nama lengkap anda`}
-                            value={nama_lengkap}
+                            value={nama_lengkap || nama_pengguna}
                             onChange={(e) => setNamaLengkap(e.target.value)}
                         />
                     </div>
@@ -234,7 +259,7 @@ export default function Profile() {
                             placeholder="8892384434"
                             onChange={(e) => {
                                 const inputValue = e.target.value;
-                                if (inputValue.startsWith('0')) {
+                                if (inputValue?.startsWith('0')) {
                                     setNomorHp(inputValue.slice(1));
                                 } else {
                                     setNomorHp(inputValue);

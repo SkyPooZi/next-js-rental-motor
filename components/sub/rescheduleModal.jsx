@@ -46,6 +46,29 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const token = Cookies.get('token');
     const userId = Cookies.get('id');
 
+    const formatDate = (dateString) => {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+    };
+
     useEffect(() => {
         if (rescheduleModalDetails?.created_at) {
             const daysAgo = calculateDaysAgo(rescheduleModalDetails.created_at);
@@ -103,6 +126,21 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         }
     };
 
+    const validateTimeMatch = () => {
+        if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
+
+        const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
+        const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
+
+        const newStartTime = dayjs(tanggal_mulai);
+        const newEndTime = dayjs(tanggal_selesai);
+
+        const originalDuration = originalEndTime.diff(originalStartTime, 'second');
+        const newDuration = newEndTime.diff(newStartTime, 'second');
+
+        return originalDuration === newDuration;
+    };
+
     useEffect(() => {
         if (tanggal_mulai) {
             const startDate = dayjs(tanggal_mulai);
@@ -129,7 +167,6 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     const initialDurationValue = endDate.diff(startDate, 'day');
                     setInitialDuration(initialDurationValue);  // Set initial duration
 
-                    // Extract and set original times
                     setOriginalStartTime(startDate.format('HH:mm:ss'));
                     setOriginalEndTime(endDate.format('HH:mm:ss'));
                 } else {
@@ -192,6 +229,25 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         setTanggalSelesai('');
     };
 
+    const formatTime = (dateString) => {
+        const date = new Date(dateString);
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        return `${formattedTime} ${timeOfDay}`;
+    };
+
     if (!isOpen) return null;
 
     return rescheduleModalDetails ? (
@@ -236,7 +292,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                 </Label>
                                 <Label>
                                     <span className="text-base">
-                                        {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
+                                        {`${formatDate(rescheduleModalDetails.tanggal_mulai)} - ${formatDate(rescheduleModalDetails.tanggal_selesai)}`}
                                     </span>
                                 </Label>
                                 <Label>
@@ -294,6 +350,12 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}
                         </Button>
+
+                        {!validateTimeMatch() && (
+                            <div className='text-red-500 text-sm mt-2'>
+                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${formatTime(rescheduleModalDetails.tanggal_mulai)} - ${formatTime(rescheduleModalDetails.tanggal_selesai)}`}
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>

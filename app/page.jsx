@@ -11,8 +11,8 @@ import '../styles/slideInAnimation.css';
 
 import { Spinner, Button } from "@material-tailwind/react";
 import GallerySwiper from '@/components/sub/gallerySwiper';
-import Navbar from '@/components/main/NavbarAfter';
-import Footer from '@/components/main/Footer';
+import Navbar from '@/components/sub/main/NavbarAfter';
+import Footer from '@/components/sub/main/Footer';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
 import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';
@@ -37,8 +37,26 @@ const Motor = ({ motor }) => {
             : 'text-green-500';
 
     const formatDate = (dateString) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('id-ID', options);
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        const formattedDate = new Intl.DateTimeFormat('id-ID', options).format(date);
+
+        const hour = date.getHours();
+        let timeOfDay = '';
+
+        if (hour >= 0 && hour < 11) {
+            timeOfDay = 'pagi';
+        } else if (hour >= 11 && hour < 15) {
+            timeOfDay = 'siang';
+        } else if (hour >= 15 && hour < 19) {
+            timeOfDay = 'sore';
+        } else {
+            timeOfDay = 'malam';
+        }
+
+        const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
     };
 
     return (
@@ -74,16 +92,16 @@ const Motor = ({ motor }) => {
                             <span className='font-bold'>{`Rp ${motor.harga_motor_per_1_minggu.toLocaleString('id-ID')}`}</span>
                         </div>
                     </div>
-                    <div className="mb-4">
+                    <div className="mb-6">
                         <p className={`text-lg font-bold ${statusColor}`}>{motor.status_motor}</p>
-                        {motor.tanggal_tersedia && (
-                            <p className="text-sm text-gray-600">Tersedia mulai: {formatDate(motor.tanggal_tersedia)}</p>
+                        {motor.tanggal_selesai_tidak_tersedia && (
+                            <p className="text-md font-medium text-red-500">{formatDate(motor.tanggal_mulai_tidak_tersedia)} - {formatDate(motor.tanggal_selesai_tidak_tersedia)}</p>
                         )}
                     </div>
-                    <div className="flex flex-col items-center mb-2">
+                    <div className={`flex flex-col items-center mb-2 ${motor.status_motor === "Tersedia" ? `mt-24`: ''}`}>
                         <Button
                             onClick={handleButtonClick}
-                            className={`before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32 ${motor.status_motor === 'Tertunda' || motor.status_motor === 'Tidak Tersedia' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`before:ease bg-[#FF4D33] border-2 border-[#FF4D33] capitalize relative overflow-hidden shadow-[#FF4D33] transition-all before:absolute before:top-1/2 before:h-0 before:w-64 before:origin-center before:-translate-x-20 before:rotate-45 before:bg-white before:duration-300 hover:text-[#FF4D33] hover:border-2 hover:border-[#FF4D33] hover:shadow-[#FF4D33] hover:before:h-64 hover:before:-translate-y-32`}
                         >
                             <span className="relative text-base z-10">Sewa Sekarang!</span>
                         </Button>
@@ -107,6 +125,7 @@ export default function Home() {
     const [animate, setAnimate] = useState(false);
 
     useEffect(() => {
+        console.log('bearer token:', token);
         const fetchMotors = async () => {
             try {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/all`, {
@@ -220,7 +239,9 @@ export default function Home() {
                         </div>
 
                         <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl overflow-x-hidden ${animate ? 'slide-in' : ''}`}>
-                            {filteredMotors.map((motor, index) => (
+                            {filteredMotors
+                            .filter((motor) => motor.is_hidden !== 1)
+                            .map((motor, index) => (
                                 <Motor key={index} motor={motor} />
                             ))}
                         </div>

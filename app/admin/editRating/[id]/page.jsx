@@ -4,14 +4,6 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
 
-import {
-    Card,
-    CardHeader,
-    Button,
-    Input,
-    Textarea,
-    Spinner
-} from "@material-tailwind/react";
 import { MdDone } from "react-icons/md";
 
 import Dashboard from "@/components/sub/admin/dashboard";
@@ -20,7 +12,7 @@ import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
-import Sidebar from '@/components/main/sidebar';
+import Sidebar from '@/components/sub/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
 import Loading from '@/components/ui/loading';
 import EditReviewForm from '@/components/sub/editReviewForm';

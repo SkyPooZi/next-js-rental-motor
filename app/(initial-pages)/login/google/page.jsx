@@ -9,6 +9,11 @@ const GoogleCallback = () => {
   useEffect(() => {
     const handleGoogleCallback = async () => {
       try {
+        if (window.location.hash === "#_=_") {
+          window.location.hash = "";
+          history.replaceState(null, null, window.location.href.split("#")[0]);
+        }
+
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/google/detail`, {
           method: 'GET',
           headers: {
@@ -27,6 +32,8 @@ const GoogleCallback = () => {
 
         Cookies.set('token', token);
         Cookies.set('id', id);
+        console.log('bearer token:', token);
+        console.log('id:', id);
 
         router.push('/');
       } catch (error) {

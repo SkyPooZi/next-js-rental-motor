@@ -27,10 +27,9 @@ export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp }) 
         const payload = {
             nama_lengkap: nama_lengkap,
             nomor_hp: nomor_hp,
-            // Include other fields if needed
         };
 
-        console.log('Payload being sent to update user:', payload); // Log the payload
+        console.log('Payload being sent to update user:', payload);
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/edit/${userId}`, {
             method: 'POST',
@@ -47,10 +46,9 @@ export const updateUserData = async (userId, token, { nama_lengkap, nomor_hp }) 
 
         const updatedUser = await response.json();
         console.log('User data updated successfully:', updatedUser);
-        return updatedUser; // Return the updated user data if needed
+        return updatedUser;
     } catch (error) {
         console.error('Error updating user data:', error);
-        throw error; // Re-throw the error so that it can be handled by the caller
+        throw error;
     }
 };
-

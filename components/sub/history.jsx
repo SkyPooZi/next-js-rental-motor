@@ -61,7 +61,7 @@ export default function History() {
     };
 
     return (
-        <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col w-full">
             <div className="flex flex-col bg-white py-5 px-10 rounded-md">
                 <div className='hidden xl:flex items-center justify-between font-medium text-sm'>
                     <button onClick={() => handleButtonClick('all')} className={`cursor-pointer hover:text-[#FF4D33] text-[#B3B1B1] ${activeComponent === 'all' ? 'hover:underline text-[#FF4D33]' : ''}`}>

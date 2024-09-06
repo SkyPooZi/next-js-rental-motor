@@ -86,6 +86,11 @@ const LoginPage = () => {
   };
 
   useEffect(() => {
+    if (window.location.hash === "#_=_") {
+      window.location.hash = "";
+      history.replaceState(null, null, window.location.href.split("#")[0]);
+    }
+    
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('login') === 'success') {
       router.push('/');

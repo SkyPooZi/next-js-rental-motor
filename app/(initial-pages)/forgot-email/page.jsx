@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { Button as TailwindButton } from '@material-tailwind/react';
 import Input from '@/components/ui/input';
 import { sendOtpEmail } from '@/utils/services/fetchForgotOtp';
+import { fetchUser } from '@/utils/services/fetchUser'; // Import the fetchUser function
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 const ForgotEmail = () => {
   const router = useRouter();
@@ -26,9 +29,26 @@ const ForgotEmail = () => {
       return;
     }
 
-    await handleSendOtp(email);
-    router.push('/forgot-otp');
+    try {
+      // Assuming you have a token stored in localStorage or obtained from somewhere
+      const token = localStorage.getItem('token');
+      const users = await fetchUser(token);
+
+      const userExists = users.some((user) => user.email === email);
+
+      if (!userExists) {
+        setError('Email tidak ditemukan.');
+        return;
+      }
+
+      await handleSendOtp(email);
+      router.push('/forgot-otp');
+    } catch (error) {
+      setError('Terjadi kesalahan saat memverifikasi email. Silakan coba lagi.');
+      console.error('Error:', error);
+    }
   };
+
 
   const handleSendOtp = async (email) => {
     try {
@@ -45,15 +65,29 @@ const ForgotEmail = () => {
     }
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-cover bg-center p-4 bg-gray-300">
       <div className="bg-white rounded-lg shadow-lg p-6 md:p-8 lg:p-12 w-full max-w-2xl md:max-w-3xl lg:max-w-4xl flex flex-col md:flex-row">
 
         {/* Form Section */}
         <div className="flex flex-col w-full md:w-1/2 pr-0 md:pr-4">
-          <h1 className="text-lg md:text-2xl lg:text-3xl font-bold mb-4 md:mb-6 text-black">Reset Kata Sandi</h1>
+          <div className="mb-4">
+            <button
+              onClick={handleBack}
+              className="text-[#ff4d33] hover:text-[#b15143] text-left flex items-center"
+            >
+              <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+              Kembali
+            </button>
+          </div>
+
+          <h1 className="text-lg md:text-2xl lg:text-3xl font-bold mb-2 text-black">Reset Kata Sandi</h1>
           <h3 className="text-base md:text-lg mt-4 text-black">Silahkan isi alamat email anda</h3>
-          {error && <div className="text-red-500 mb-2 md:mb-4">{error}</div>}
+          {error && <div className="text-red-500 ">{error}</div>}
           <form onSubmit={handleSubmit} className="flex flex-col gap-2 w-full">
             <input
               type="text"

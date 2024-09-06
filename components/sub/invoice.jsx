@@ -77,6 +77,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
         total_pembayaran,
         list_motor,
         diskon,
+        point,
     } = history || {};
 
     const {
@@ -97,14 +98,15 @@ const InvoicePopup = ({ onClose, orderId }) => {
         const { total_pemesanan, history } = midtrans;
         if (!total_pemesanan || !history) return;
 
-        const { diskon, tanggal_mulai, tanggal_selesai } = history;
+        const { diskon, point, tanggal_mulai, tanggal_selesai } = history;
         if (!diskon) {
             setDiscountedTotal(total_pemesanan);
             setDiscountAmount(0);
         } else {
             const { potongan_harga } = diskon;
             const discountValue = (total_pemesanan * potongan_harga) / 100;
-            const discountedTotal = total_pemesanan - discountValue;
+            const discountedTotal = total_pemesanan - discountValue - point;
+            console.log(discountedTotal);
             setDiscountedTotal(discountedTotal);
             setDiscountAmount(discountValue);
         }
@@ -199,6 +201,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
 
         drawText('Total Pemesanan', formatRupiah(hari * harga_motor_per_1_hari) || '');
         drawText('Diskon', formatRupiah(discountAmount) || '', { strikethrough: true });
+        drawText('Point', formatRupiah(point) || '', { strikethrough: true });
         drawText('Total Dibayar', formatRupiah(invoiceData?.midtrans?.history?.total_pembayaran) || '');
 
         doc.save('invoice.pdf');
@@ -211,19 +214,21 @@ const InvoicePopup = ({ onClose, orderId }) => {
             initial={{ opacity: 0, y: 100 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, type: 'tween' }}
-            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50 p-4"
+            className="fixed inset-0 flex items-center justify-center bg-gray-500 bg-opacity-75 z-50"
         >
-            <div className="bg-[#F6F7F9] p-6 rounded-lg relative mx-4 w-fit max-w-lg md:max-w-3xl overflow-y-auto max-h-[90vh]">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                        <Image src='/images/logo.png' alt='Logo' width={38} height={38} className='cursor-pointer' />
-                        <span className='font-bold ml-2 hidden md:block text-base md:text-lg'>
-                            Rental Motor Kudus
-                        </span>
+            <div className="bg-[#F6F7F9] rounded-lg relative mx-4 w-fit max-w-lg md:max-w-3xl overflow-y-auto max-h-[90vh]">
+                <div className='sticky top-0 right-0 py-5 px-5 flex justify-between bg-white overflow-hidden'>
+                    <div className='flex flex-row gap-2 items-center w-full justify-between'>
+                        <div className="flex items-center">
+                            <Image src='/images/logo.png' alt='Logo' width={38} height={38} className='cursor-pointer' />
+                            <span className='font-bold ml-2 hidden md:block text-base md:text-lg'>
+                                Rental Motor Kudus
+                            </span>
+                        </div>
+                        <AiOutlineClose className="w-6 h-6 cursor-pointer" onClick={onClose} />
                     </div>
-                    <AiOutlineClose className="w-6 h-6 cursor-pointer" onClick={onClose} />
                 </div>
-                <div className="bg-[#FFFFFF] p-4 rounded-lg">
+                <div className="bg-[#FFFFFF] p-6 rounded-lg">
                     <div className="mb-2">
                         <span className="font-bold text-sm md:text-base">No. Pemesanan :</span>
                         <span className="font-semibold ml-2 text-sm md:text-base">{no_pemesanan}</span>
@@ -305,11 +310,19 @@ const InvoicePopup = ({ onClose, orderId }) => {
                                 <span className='font-bold text-sm md:text-base'>Total Pemesanan</span>
                                 <span className='font-semibold text-sm md:text-base'>{formatRupiah(hari * harga_motor_per_1_hari)}</span>
                             </div>
-                            <div className='flex gap-5'>
+                            <div className='flex gap-5 mb-2'>
                                 <span className='font-bold text-sm md:text-base'>Diskon</span>
                                 <div className='w-full text-end'>
                                     <span className='font-semibold text-sm md:text-base' style={{ textDecoration: 'line-through' }}>
                                         {formatRupiah(discountAmount)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className='flex gap-5'>
+                                <span className='font-bold text-sm md:text-base'>Point</span>
+                                <div className='w-full text-end'>
+                                    <span className='font-semibold text-sm md:text-base' style={{ textDecoration: 'line-through' }}>
+                                        {formatRupiah(point)}
                                     </span>
                                 </div>
                             </div>

@@ -13,7 +13,7 @@ const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: fal
 const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
 const MotorForm = dynamic(() => import("@/components/sub/motorForm"), { ssr: false });
 const Notification = dynamic(() => import("@/components/sub/notification"), { ssr: false });
-const Sidebar = dynamic(() => import("@/components/main/sidebar"), { ssr: false });
+const Sidebar = dynamic(() => import("@/components/sub/main/sidebar"), { ssr: false });
 
 export default function AddMotor() {
     const [response, setResponse] = useState(null);
@@ -75,7 +75,15 @@ export default function AddMotor() {
                         </div>
                     </nav>
                     <div className="mt-12">
-                        <MotorForm token={token} setResponse={setResponse} setShowNotification={setShowNotification} setLoading={setLoading} />
+                        <MotorForm
+                            token={token}
+                            response={response}
+                            setResponse={setResponse}
+                            setShowNotification={setShowNotification}
+                            setLoading={setLoading}
+                            loading={loading}
+
+                        />
                         <Notification showNotification={showNotification} />
                     </div>
                 </div>

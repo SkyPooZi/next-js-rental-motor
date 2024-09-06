@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Cookies from 'js-cookie';
 import { motion } from 'framer-motion';
@@ -28,6 +29,7 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hover, setHover] = useState(null);
+    const router = useRouter();
     const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
@@ -81,7 +83,9 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                 setShowNotification(false);
                 onClose();
                 setLoading(false);
-            }, 3000);
+                window.location.reload();
+                router.push('/setting?component=history');
+            }, 1000);
         } else {
             console.error('Failed to update reasons:', result.error);
             setLoading(false);
