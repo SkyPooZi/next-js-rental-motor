@@ -21,7 +21,9 @@ export const fetchBookedDatesAdmin = async (motor_id, token, stok_motor) => {
         console.log('dataHistory:', dataHistory);
 
         // Filter bookings for the specific motorbike
-        const bookingsForMotor = dataHistory.history.filter(item => item.motor_id === motor_id);
+        const bookingsForMotor = dataHistory.history.filter(
+            item => item.motor_id === motor_id && item.status_history === 'Dipesan'
+        );
         console.log('bookingsForMotor:', bookingsForMotor);
 
         // Create an object to store disabled dates and times

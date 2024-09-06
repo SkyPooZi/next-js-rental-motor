@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Cookies from 'js-cookie';
 import ReactWhatsapp from 'react-whatsapp';
 import { RiMotorbikeFill } from "react-icons/ri";
+import { FaLocationDot } from "react-icons/fa6";
 import { IoTimeOutline, IoChatboxEllipsesOutline } from "react-icons/io5";
 import { FaWhatsapp } from "react-icons/fa6";
 import {
@@ -125,9 +127,14 @@ const NewOrderBookedList = () => {
                             </div>
                             <div className='flex items-center mb-2'>
                                 <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${order.list_motor.gambar_motor}`} alt={order.list_motor.nama_motor} width={100} height={100} className="w-16 h-16 mr-4 rounded-lg" />
-                                <Typography variant="h5" color="blue-gray">
-                                    {order.list_motor.nama_motor}
-                                </Typography>
+                                <div className='flex flex-col max-w-40'>
+                                    <Typography variant="h5" color="blue-gray">
+                                        {order.list_motor.nama_motor}
+                                    </Typography>
+                                    <Typography variant="h7" color="blue-gray" className='break-words flex gap-1 items-center'>
+                                        <FaLocationDot color='red' /> {order.alamat}
+                                    </Typography>
+                                </div>
                             </div>
                             <div className="border-t border-gray-500 shadow-md mb-4"></div>
                             <div className='flex justify-between items-center mb-4'>
@@ -172,6 +179,19 @@ const NewOrderBookedList = () => {
                             </div>
                             <div className="border-t border-gray-500 shadow-md"></div>
                         </CardBody>
+                        <CardFooter className="pt-0">
+                            <div className='self-end'>
+                                <Button className="bg-blue-500">
+                                    <Link href={`/admin/editHistory/${order.id}`}>
+                                        <Label>
+                                            <span className="cursor-pointer">
+                                                Lihat Detail
+                                            </span>
+                                        </Label>
+                                    </Link>
+                                </Button>
+                            </div>
+                        </CardFooter>
                         <CardFooter className="pt-0">
                             <div className='self-end'>
                                 <Button onClick={() => handleInvociePopup(order.id)} variant='outline'>

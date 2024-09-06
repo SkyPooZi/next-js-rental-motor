@@ -20,6 +20,7 @@ import EmergencyContact from '@/components/sub/emergencyContact';
 import KebijakanDetails from '@/components/sub/kebijakanReschedule';
 import KebijakanDetails1 from '@/components/sub/kebijakanReschedule1';
 import PrivacyModal from '@/components/sub/privacyPolicyModal';
+import ValidateConfirmModal from '@/components/sub/validateConfirmModal';
 import { fetchDetailMotor } from '@/utils/formService/motorService';
 import { fetchMotor } from '@/utils/formService/motorService';
 import { fetchDiskons } from '@/utils/formService/diskonService';
@@ -82,7 +83,11 @@ export default function page({ params: { motorId } }) {
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedIcon, setSelectedIcon] = useState('fab fa-instagram');
     const [userData, setUserData] = useState({});
+    const [isModalOpenValidate, setIsModalOpenValidate] = useState(false);
+    const [isHidden, setIsHidden] = useState(false);
 
     const token = Cookies.get('token');
     const router = useRouter();
@@ -264,6 +269,8 @@ export default function page({ params: { motorId } }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        setIsModalOpenValidate(false);
+
         if (clickedPenyewaDiriSendiri && userId) {
             try {
                 await updateUserData(userId, token, { nama_lengkap, nomor_hp, alamat });
@@ -331,6 +338,8 @@ export default function page({ params: { motorId } }) {
         }
 
         try {
+            const pointsToUse = usePoint ? Math.min(point, total_pembayaran) : 0;
+
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/create`, {
                 method: 'POST',
                 headers: {
@@ -358,6 +367,7 @@ export default function page({ params: { motorId } }) {
                     metode_pembayaran,
                     total_pembayaran,
                     status_history: 'Menunggu Pembayaran',
+                    point: pointsToUse,
                 }),
             });
 
@@ -414,7 +424,7 @@ export default function page({ params: { motorId } }) {
         }
     };
 
-    const updateHistoryStatus = async (id, status) => {
+    const updateHistoryStatus = async (id, status, alasan, tanggal) => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${id}`, {
                 method: 'POST',
@@ -424,6 +434,8 @@ export default function page({ params: { motorId } }) {
                 },
                 body: JSON.stringify({
                     status_history: status,
+                    alasan_pembatalan: alasan,
+                    tanggal_pembatalan: tanggal,
                 }),
             });
 
@@ -622,6 +634,10 @@ export default function page({ params: { motorId } }) {
     const openPrivacyModal = () => setPrivacyModalOpen(true);
     const closePrivacyModal = () => setPrivacyModalOpen(false);
 
+    const handleIsConfirm = () => {
+        setIsModalOpenValidate(true);
+    }
+
     // const selectIcon = (icon) => {
     //     setSelectedIcon(icon);
     //     setShowDropdown(false);
@@ -654,7 +670,7 @@ export default function page({ params: { motorId } }) {
             </div>
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <PemesananHeader />
-                <form method="post" action="post" onSubmit={handleSubmit}>
+                <form method="post" action="post" onSubmit={handleIsConfirm}>
                     <div className='flex lg:flex-row flex-col gap-5'>
                         <KebijakanDetails1
                             gambarMotor={gambarMotor}
@@ -773,6 +789,11 @@ export default function page({ params: { motorId } }) {
                         {notificationType === 'success' ? <MdDone className="ml-2 text-white" /> : <MdClear className="ml-2 text-white" />}
                     </div>
                 )}
+                <ValidateConfirmModal
+                    isOpen={isModalOpenValidate}
+                    onClose={() => setIsModalOpenValidate(false)}
+                    onSubmit={handleSubmit}
+                />
             </div>
             <Footer />
         </>
