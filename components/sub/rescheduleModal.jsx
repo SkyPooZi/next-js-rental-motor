@@ -7,9 +7,7 @@ import { motion } from 'framer-motion';
 
 import { MdDone, MdClear, MdClose } from 'react-icons/md';
 
-import {
-    Input,
-} from "@material-tailwind/react";
+import { Input } from "@material-tailwind/react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
@@ -32,14 +30,13 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [durasi, setDurasi] = useState('');
     const [disabledRanges, setDisabledRanges] = useState([]);
-    const [minEndDate, setMinEndDate] = useState(null);
     const [image, setImage] = useState(null);
     const [motor_id, setMotorId] = useState('');
     const [stok_motor, setStokMotor] = useState(0);
     const [motorData, setMotorData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [rescheduleModalDetails, setRescheduleModalDetails] = useState(null);
-    const [initialDuration, setInitialDuration] = useState(null);
+    const [initialDuration, setInitialDuration] = useState(null);  // Initialize to null
     const [notificationMessage, setNotificationMessage] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [showNotification, setShowNotification] = useState(false);
@@ -48,7 +45,6 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [originalEndTime, setOriginalEndTime] = useState('');
     const token = Cookies.get('token');
     const userId = Cookies.get('id');
-    console.log(historyId)
 
     useEffect(() => {
         if (rescheduleModalDetails?.created_at) {
@@ -93,62 +89,26 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         return disabledRanges.some(disabledDate => date.isSame(disabledDate, 'day'));
     };
 
-    const shouldDisableTime = (time, selectedDate) => {
-        if (!selectedDate) return false;
-
-        const selectedDayDisabled = disabledRanges.some(disabledDate => selectedDate.isSame(disabledDate, 'day'));
-        if (selectedDayDisabled) return true;
-
-        return false;
-    };
-
     const handleDateStart = (date) => {
         if (date) {
             const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalMulai(formattedDate);
-            setTanggalSelesai('');
-            setMinEndDate(dayjs(date).add(1, 'day'));
+
+            // Automatically set end date based on the original duration
+            const calculatedEndDate = dayjs(date).add(initialDuration, 'day');
+            setTanggalSelesai(calculatedEndDate.format('YYYY-MM-DD HH:mm:ss'));
         } else {
             setTanggalMulai('');
-        }
-    };
-
-    const handleDateEnd = (date) => {
-        if (date) {
-            const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
-            setTanggalSelesai(formattedDate);
-        } else {
             setTanggalSelesai('');
         }
-    };
-
-    const validateTimeMatch = () => {
-        if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
-
-        // Original booking start and end times
-        const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
-        const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
-
-        // New booking start and end times
-        const newStartTime = dayjs(tanggal_mulai);
-        const newEndTime = dayjs(tanggal_selesai);
-
-        // Calculate durations in seconds
-        const originalDuration = originalEndTime.diff(originalStartTime, 'second');
-        const newDuration = newEndTime.diff(newStartTime, 'second');
-
-        // Check if the new duration matches the original duration
-        return originalDuration === newDuration;
     };
 
     useEffect(() => {
-        if (tanggal_mulai && tanggal_selesai) {
+        if (tanggal_mulai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
             const duration = endDate.diff(startDate, 'day');
             setDurasi(duration);
-        } else {
-            setDurasi(0);
         }
     }, [tanggal_mulai, tanggal_selesai]);
 
@@ -166,8 +126,8 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
 
                     const startDate = dayjs(data.tanggal_mulai);
                     const endDate = dayjs(data.tanggal_selesai);
-                    const initialDuration = endDate.diff(startDate, 'day');
-                    setInitialDuration(initialDuration);
+                    const initialDurationValue = endDate.diff(startDate, 'day');
+                    setInitialDuration(initialDurationValue);  // Set initial duration
 
                     // Extract and set original times
                     setOriginalStartTime(startDate.format('HH:mm:ss'));
@@ -216,7 +176,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                 showNotificationWithTimeout('Penjadwalan Ulang Berhasil!', 'success');
                 setTimeout(() => {
                     onSuccess();
-                }, 3000)
+                }, 3000);
             } else {
                 throw new Error(result.error);
             }
@@ -302,21 +262,17 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                         value={tanggal_mulai ? dayjs(tanggal_mulai) : null}
                                         onChange={handleDateStart}
                                         shouldDisableDate={shouldDisableDate}
-                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_mulai))}
                                         renderInput={(params) => <TextField {...params} required />}
                                     />
                                 </div>
                                 <div className="w-full flex flex-col gap-2">
                                     <span className="text-black">
-                                        Tanggal Selesai <span className="text-[#FF4D33] font-semibold">*</span>
+                                        Tanggal Selesai
                                     </span>
                                     <DateTimePicker
-                                        label="Pilih Tanggal Selesai"
+                                        label="Tanggal Selesai"
                                         value={tanggal_selesai ? dayjs(tanggal_selesai) : null}
-                                        onChange={handleDateEnd}
-                                        minDateTime={minEndDate}
-                                        shouldDisableDate={shouldDisableDate}
-                                        shouldDisableTime={(time) => shouldDisableTime(dayjs(time), dayjs(tanggal_selesai))}
+                                        disabled
                                         renderInput={(params) => <TextField {...params} required />}
                                     />
                                 </div>
@@ -334,15 +290,10 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         </div>
                         <Button
                             onClick={onConfirm}
-                            disabled={!tanggal_mulai || !tanggal_selesai || isLoading || durasi !== initialDuration || !validateTimeMatch()}
+                            disabled={!tanggal_mulai || isLoading || initialDuration === null || durasi !== initialDuration}
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}
                         </Button>
-                        {!validateTimeMatch() && (
-                            <div className='text-red-500 text-sm mt-2'>
-                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${rescheduleModalDetails.tanggal_mulai} - ${rescheduleModalDetails.tanggal_selesai}`}
-                            </div>
-                        )}
                     </div>
                 </div>
             </motion.div>
