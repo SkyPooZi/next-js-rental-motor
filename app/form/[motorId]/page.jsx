@@ -83,7 +83,6 @@ export default function page({ params: { motorId } }) {
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
     const [userData, setUserData] = useState({});
-    const [isHidden, setIsHidden] = useState(false);
 
     const token = Cookies.get('token');
     const router = useRouter();
