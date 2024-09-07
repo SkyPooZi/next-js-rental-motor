@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import NavbarAfter from '@/components/sub/main/NavbarAfter';
-import Footer from '@/components/sub/main/Footer';
+import NavbarAfter from '@/components/main/NavbarAfter';
+import Footer from '@/components/main/Footer';
 import { useRouter } from 'next/navigation';
 import fetchCatalog from '@/utils/services/fetchCatalog';
 import { Button } from '@material-tailwind/react';
