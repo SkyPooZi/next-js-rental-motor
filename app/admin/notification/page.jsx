@@ -21,7 +21,7 @@ import dynamic from 'next/dynamic';
 import Link from "next/link";
 
 const NavbarAdmin = dynamic(() => import('@/components/sub/admin/navbar'), { ssr: false });
-const Sidebar = dynamic(() => import('@/components/sub/main/sidebar'), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
 const Dashboard = dynamic(() => import('@/components/sub/admin/dashboard'), { ssr: false });
 const MotorList = dynamic(() => import('@/components/sub/admin/motorList'), { ssr: false });
 const User = dynamic(() => import('@/components/sub/admin/user'), { ssr: false });
@@ -129,6 +129,7 @@ export default function Notification() {
                 setHistory(prevHistory => prevHistory.filter(item => item.id !== id));
                 setLoadingCancel(false);
                 setShowNotification(false);
+                window.location.reload();
             }, 1000);
             setSelectedId(null);
 
@@ -326,7 +327,7 @@ export default function Notification() {
                             </div>
                         </div>
                     </nav>
-                    <div className="mt-12 flex flex-col gap-4">
+                    <div className="mt-12 mb-14 flex flex-col gap-4">
                         {loading ? (
                             <div>Loading...</div>
                         ) : (

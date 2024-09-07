@@ -21,7 +21,7 @@ const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false }
 const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
 const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
 const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
-const Sidebar = dynamic(() => import('@/components/sub/main/sidebar'), { ssr: false });
+const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
 const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
 const OTPPopup = dynamic(() => import('@/components/sub/admin/sendOTP'), { ssr: false });
 const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });

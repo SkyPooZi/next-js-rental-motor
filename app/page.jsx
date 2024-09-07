@@ -11,8 +11,8 @@ import '../styles/slideInAnimation.css';
 
 import { Spinner, Button } from "@material-tailwind/react";
 import GallerySwiper from '@/components/sub/gallerySwiper';
-import Navbar from '@/components/sub/main/NavbarAfter';
-import Footer from '@/components/sub/main/Footer';
+import Navbar from '@/components/main/NavbarAfter';
+import Footer from '@/components/main/Footer';
 import ReviewSwiper from '@/components/sub/reviewSwiper';
 import ProductSlider from '@/components/ui/swiperNew';
 import HeaderHomePage from '@/components/sub/headerHomepage';

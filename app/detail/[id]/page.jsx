@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import ReviewMotor from '@/components/sub/detail/reviewMotor';
 import DetailMotor from '@/components/sub/detail/detailMotor';
-import Navbar from '@/components/sub/main/NavbarAfter';
-import Footer from '@/components/sub/main/Footer';
+import Navbar from '@/components/main/NavbarAfter';
+import Footer from '@/components/main/Footer';
 import { fetchMotorDetails, fetchMotorReviews } from '@/utils/fetchDetail';
 import Cookies from 'js-cookie';
 
