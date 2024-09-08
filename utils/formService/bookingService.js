@@ -1,3 +1,5 @@
+import { fetchUserPoint } from "./userService";
+
 export const handleBookingSubmit = async (
     bookingData,
     token,
@@ -8,6 +10,9 @@ export const handleBookingSubmit = async (
     submitForm,
     setResponse,
     id,
+    totalHargaMotor,
+    totalBiayaDiskon,
+    totalBiayaAdmin,
 ) => {
     const {
         metode_pembayaran,
@@ -97,6 +102,20 @@ export const handleBookingSubmit = async (
         const historyData = await historyResponse.json();
         const historyId = historyData.history.id;
 
+        const userData = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/1`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!userData.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+
+        const data = await userData.json();
+        const ownerNumber = data.user.nomor_hp === null ? '62' : '62';
+
         const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${historyId}`, {
             method: 'GET',
             headers: {
@@ -124,6 +143,7 @@ export const handleBookingSubmit = async (
             onSuccess: async function (result) {
                 showNotificationWithTimeout('Pembayaran berhasil!', 'success');
                 await updateHistoryStatus(historyData.history.id, 'Dipesan', null, null);
+                console.log(orderId)
 
                 try {
                     const updateResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/update-invoice/${orderId}`, {
@@ -133,16 +153,59 @@ export const handleBookingSubmit = async (
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({
-                            status_history: 'Dipesan',
                             status_pembayaran: 'Lunas',
                         }),
                     });
 
-                    if (!updateResponse.ok) {
+                    const updateHistoryResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/edit/${historyId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({ status_history: 'Dipesan' }),
+                    });
+
+                    const updateDataKeuangan = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/create`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            history_id: historyId,
+                            total_harga_motor: totalHargaMotor,
+                            total_biaya_overtime: 0,
+                            total_biaya_diantar: 25000,
+                            total_potongan_point: pointsToUse,
+                            total_biaya_diskon: totalBiayaDiskon,
+                            total_biaya_admin: totalBiayaAdmin,
+                            total_pembayaran: total_pembayaran,
+                        })
+                    });
+
+                    const sendNotif = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/send-notification`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            history_id: historyId,
+                            pesan: `Halo, ${nama_lengkap}!`,
+                            no_telp: ownerNumber,
+                            email: email,
+                        })
+                    });
+
+                    if (!updateResponse.ok || !updateHistoryResponse.ok || !updateDataKeuangan.ok || !sendNotif.ok) {
                         throw new Error('Failed to update invoice status');
                     }
 
                     await updateResponse.json();
+                    await updateHistoryResponse.json();
+                    await updateDataKeuangan.json();
+                    await sendNotif.json();
 
                     if (usePoint) {
                         const pointsToUse = Math.min(point, total_pembayaran);

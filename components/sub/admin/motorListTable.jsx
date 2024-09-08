@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon, BanknotesIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -279,6 +279,13 @@ export function MotorListTable() {
                                                     <Tooltip content="Edit">
                                                         <IconButton variant="text" className="bg-[#FFC107] mx-2">
                                                             <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Link href={`/admin/editPrice/${motorData.id}`}>
+                                                    <Tooltip content="Edit Price">
+                                                        <IconButton variant="text" className="bg-[#0eda2c]">
+                                                            <BanknotesIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
