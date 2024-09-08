@@ -4,6 +4,9 @@ import { Label } from '@/components/ui/label';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 
 const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, handleCheckboxChange, point, pointValue, diskons, handleSelectChangeDiskon, total_pembayaran, clickedPaymentTunai, handleClickPaymentTunai, clickedPaymentCashless, handleClickPaymentCashless }) => {
+    const days = Math.floor(durasi / 24);
+    const hours = durasi % 24;
+
     return (
         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
             <div className='flex flex-col items-start justify-start gap-3 text-[#666666]'>
@@ -27,19 +30,19 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                             </Label>
                             <Label>
                                 <span className='font-medium text-sm'>
-                                    Rp. {hargaRental.toLocaleString()} (x{durasi.days})
+                                    Rp. {hargaRental.toLocaleString()} (x{days})
                                 </span>
                             </Label>
                         </div>
                         <div className='flex flex-row justify-between'>
                             <Label>
                                 <span className='font-medium text-sm text-[#757575]'>
-                                    {nama_motor} ({durasi.days} hari)
+                                    {nama_motor} ({days} hari)
                                 </span>
                             </Label>
                             <Label>
                                 <span className='font-medium text-sm'>
-                                    Rp. {(hargaRental * durasi.days).toLocaleString()}
+                                    Rp. {(hargaRental * days).toLocaleString()}
                                 </span>
                             </Label>
                         </div>
@@ -87,8 +90,8 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                             value={diskons[0]?.id}
                                         >
                                             {diskons.map((diskon) => {
-                                                // Check if the discount is correctly applied
-                                                const potonganRupiah = (hargaRental * durasi.days * diskon.potongan_harga) / 100;
+                                                const days = Math.ceil(durasi / 24); // Convert duration in hours to days
+                                                const potonganRupiah = (hargaRental * days * diskon.potongan_harga) / 100; // Calculate discount amount
                                                 console.log(`Discount ${diskon.nama_diskon}: Potongan harga=${diskon.potongan_harga}, Potongan rupiah=${potonganRupiah}`);
                                                 return (
                                                     <Option key={diskon.id} value={diskon.id}>
