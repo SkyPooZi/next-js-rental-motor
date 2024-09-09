@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from '@/components/ui/label';
 import InvoicePopup from '@/components/sub/invoice';
 import TermsModal from '@/components/sub/termsModal';
-import Footer from '@/components/sub/main/Footer';
-import Navbar from '@/components/sub/main/NavbarAfter';
+import Footer from '@/components/main/Footer';
+import Navbar from '@/components/main/NavbarAfter';
 import PemesananHeader from '@/components/sub/pemesananHeader';
 import DetailKontak from '@/components/sub/detailContact';
 import DetailPemesanan from '@/components/sub/detailPemesanan';
@@ -79,7 +79,7 @@ export default function page({ params: { motorId } }) {
     const [clickedPenyewaOrangLain, setClickedPenyewaOrangLain] = useState(false);
     const [clickedPaymentTunai, setClickedPaymentTunai] = useState(false);
     const [clickedPaymentCashless, setClickedPaymentCashless] = useState(false);
-    const [durasi, setDurasi] = useState('');
+    const [durasi, setDurasi] = useState(0);
     const [pointValue, setPointValue] = useState(0);
     const [showInvoice, setShowInvoice] = useState(false);
     const [userId, setUserId] = useState(null);
@@ -110,19 +110,19 @@ export default function page({ params: { motorId } }) {
                 console.error('Error fetching user data:', error);
             }
         };
-    
+
         fetchData();
     }, [token, id]);
 
     useEffect(() => {
         console.log(nomor_hp)
         if (nomor_hp?.startsWith('+62')) {
-            setNoTelp(nomor_hp.slice(3)); 
+            setNoTelp(nomor_hp.slice(3));
         } else {
             setNoTelp(nomor_hp);
         }
     }, [nomor_hp]);
-    
+
 
     useEffect(() => {
         const penggunaIdFromCookie = Cookies.get('pengguna_id');
@@ -135,14 +135,23 @@ export default function page({ params: { motorId } }) {
         calculateTotalPembayaran();
     }, [hargaRental, durasi, usePoint, diskon_id]);
 
+    const [totalBiayaDiskon, setTotalBiayaDiskon] = useState(0);
+    const [totalBiayaAdmin, setTotalBiayaAdmin] = useState(0);
+    const [totalHargaMotor, setTotalHargaMotor] = useState(0);
+
     const calculateTotalPembayaran = () => {
-        let totalPriceWithoutDiscount = hargaRental * durasi;
+        const hargaRentalPerHour = hargaRental / 24; // Convert daily price to hourly price
+        let biayaAdmin = (hargaRentalPerHour * durasi) * 0.02;
+        setTotalBiayaAdmin(biayaAdmin);
+        setTotalHargaMotor(hargaRentalPerHour * durasi);
+        let totalPriceWithoutDiscount = (hargaRentalPerHour * durasi) + biayaAdmin;
 
         if (diskon_id) {
             const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
             if (selectedDiskon) {
                 const potonganHargaPercentage = selectedDiskon.potongan_harga;
                 const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                setTotalBiayaDiskon(discountAmount);
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
@@ -303,26 +312,26 @@ export default function page({ params: { motorId } }) {
             usePoint,
         };
 
-        await handleBookingSubmit(bookingData, token, router, setLoading, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, id);
+        await handleBookingSubmit(bookingData, token, router, setLoading, showNotificationWithTimeout, updateHistoryStatus, submitForm, setResponse, id, totalHargaMotor, totalBiayaDiskon, totalBiayaAdmin);
     };
 
     useEffect(() => {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
-            const duration = endDate.diff(startDate, 'day');
-            setDurasi(duration);
+            const totalHours = endDate.diff(startDate, 'hour');
+            setDurasi(totalHours);
         } else {
             setDurasi(0);
         }
-    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
+    }, [tanggal_mulai, tanggal_selesai]);
 
     const submitForm = async (successMessage) => {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
-            const duration = endDate.diff(startDate, 'day');
-            setDurasi(duration);
+            const totalHours = endDate.diff(startDate, 'hour');
+            setDurasi(totalHours);
         } else {
             setDurasi(0);
         }

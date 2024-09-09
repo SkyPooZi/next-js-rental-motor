@@ -11,6 +11,9 @@ import { IoLocationSharp } from 'react-icons/io5';
 import { TextField } from '@mui/material';
 
 const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, tanggal_mulai, handleDateStart, shouldDisableDate, shouldDisableTime, tanggal_selesai, handleDateEnd, minEndDate, durasi, keperluan_menyewa, setKeperluanMenyewa, alamat, setAlamat, clickedAmbil, handleClickAmbil, clickedDiantar, handleClickDiantar }) => {
+    const days = Math.floor(durasi / 24);
+    const hours = durasi % 24;
+
     return (
         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
             <div className='flex flex-col items-start justify-start gap-3 text-[#666666] '>
@@ -36,24 +39,24 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                                         onChange={(value) => handleSelectChangeNamaMotor(value)}
                                     >
                                         {motors
-                                        .filter((motor) => motor.is_hidden !== 1)
-                                        .map((motor) => (
-                                            <Option
-                                                key={motor.id}
-                                                value={motor.nama_motor}
-                                            >
-                                                <div className="flex items-center">
-                                                    <Image
-                                                        src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
-                                                        alt={motor.nama_motor}
-                                                        width={40}
-                                                        height={40}
-                                                        className="w-10 h-10 rounded-full mr-2"
-                                                    />
-                                                    <span>{motor.nama_motor}</span>
-                                                </div>
-                                            </Option>
-                                        ))}
+                                            .filter((motor) => motor.is_hidden !== 1)
+                                            .map((motor) => (
+                                                <Option
+                                                    key={motor.id}
+                                                    value={motor.nama_motor}
+                                                >
+                                                    <div className="flex items-center">
+                                                        <Image
+                                                            src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${motor.gambar_motor}`}
+                                                            alt={motor.nama_motor}
+                                                            width={40}
+                                                            height={40}
+                                                            className="w-10 h-10 rounded-full mr-2"
+                                                        />
+                                                        <span>{motor.nama_motor}</span>
+                                                    </div>
+                                                </Option>
+                                            ))}
                                     </Select>
                                 )}
                             </div>
@@ -112,7 +115,7 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                             Durasi
                             <Input
                                 label="Durasi (hari)"
-                                value={`${durasi} hari`}
+                                value={`${days} hari ${hours} jam`}
                                 disabled
                             />
                         </div>

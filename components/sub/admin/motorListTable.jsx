@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, MagnifyingGlassIcon, EyeIcon, TrashIcon, BanknotesIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -290,6 +290,22 @@ export function MotorListTable() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
+                                                <Link href={`/admin/editPrice/${motorData.id}`}>
+                                                    <Tooltip content="Edit Price">
+                                                        <IconButton variant="text" className="bg-[#0eda2c]">
+                                                            <BanknotesIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                {/* <Tooltip content="Delete">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-red-500"
+                                                        onClick={() => confirmDeleteMotor(motorData.id)}
+                                                    >
+                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip> */}
                                             </td>
                                         </tr>
                                     ))

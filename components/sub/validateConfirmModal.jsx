@@ -6,7 +6,8 @@ export default function ValidateConfirmModal({ isOpen, onClose, onSubmit }) {
         <Dialog open={isOpen} handler={onClose}>
             <DialogHeader>Konfirmasi</DialogHeader>
             <DialogBody divider>
-                Apakah anda yakin data yang diisi sudah benar?
+                Apakah anda yakin data yang diisi sudah benar? <br />
+                Pemilik Rental berhak membatalkan pesanan jika ada data diri yang tidak valid
             </DialogBody>
             <DialogFooter className="flex gap-3">
                 <Button variant="gradient" color="red" onClick={onClose}>

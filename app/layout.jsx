@@ -2,7 +2,7 @@
 import { Poppins } from 'next/font/google';
 import { ThemeProvider } from "@/components/ui/themes";
 import './globals.css';
-import Navbar from '../components/sub/main/NavbarAfter';
+import Navbar from '../components/main/NavbarAfter';
 
 const poppins = Poppins({
   weight: ['400', '500', '600', '700', '800', '900'],
