@@ -5,7 +5,6 @@ import Cookies from 'js-cookie';
 import { MdHistory } from "react-icons/md";
 import { FaStar, FaUserCircle, FaMotorcycle } from "react-icons/fa";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
-import { Spinner } from "@material-tailwind/react";
 
 const StatCard = dynamic(() => import('@/components/sub/statCard'), { ssr: false });
 const FormHeaderDashboard = dynamic(() => import('@/components/sub/admin/formHeaderDashboard'), { ssr: false });

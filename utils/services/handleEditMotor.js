@@ -1,6 +1,7 @@
 export const updateMotor = async ({
     pengguna_id,
     id,
+    pengguna_id,
     file,
     harga_motor_diantar,
     nama_motor,
@@ -13,7 +14,7 @@ export const updateMotor = async ({
     is_hidden,
     tanggal_mulai_tidak_tersedia,
     tanggal_selesai_tidak_tersedia,
-    token
+    token,
 }) => {
     const formData = new FormData();
     if (pengguna_id) formData.append('pengguna_id', pengguna_id);
@@ -25,16 +26,17 @@ export const updateMotor = async ({
     if (stok_motor) formData.append('stok_motor', stok_motor);
     if (harga_motor_per_1_hari) formData.append('harga_motor_per_1_hari', harga_motor_per_1_hari);
     if (harga_motor_per_1_minggu) formData.append('harga_motor_per_1_minggu', harga_motor_per_1_minggu);
-    if (status_motor) formData.append('status_motor', status_motor);
+    if (status_motor) formData.append('status_motor', status_motor);  // status_motor is required
     if (is_hidden !== undefined && is_hidden !== null) formData.append('is_hidden', is_hidden);
     if (tanggal_mulai_tidak_tersedia) formData.append('tanggal_mulai_tidak_tersedia', tanggal_mulai_tidak_tersedia);
     if (tanggal_selesai_tidak_tersedia) formData.append('tanggal_selesai_tidak_tersedia', tanggal_selesai_tidak_tersedia);
+    if (pengguna_id) formData.append('pengguna_id', pengguna_id);  // pengguna_id is required
 
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/edit/${id}`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`  // No 'Content-Type' header for FormData
             },
             body: formData
         });
