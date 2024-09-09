@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
+import { PencilSquareIcon, MagnifyingGlassIcon, EyeIcon } from "@heroicons/react/24/solid";
 import {
     Card,
     CardHeader,
@@ -19,6 +19,7 @@ import {
     Spinner
 } from "@material-tailwind/react";
 import DeleteConfirmationModal from "../deleteConfirmModal";
+import { Settings } from "lucide-react";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", "Visibilitas", ""];
 
@@ -282,15 +283,13 @@ export function MotorListTable() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                {/* <Tooltip content="Delete">
-                                                    <IconButton
-                                                        variant="text"
-                                                        className="bg-red-500"
-                                                        onClick={() => confirmDeleteMotor(motorData.id)}
-                                                    >
-                                                        <TrashIcon color="white" className="h-5 w-5" />
-                                                    </IconButton>
-                                                </Tooltip> */}
+                                                <Link href={`/admin/setting/${motorData.id}`}>
+                                                    <Tooltip content="Setting">
+                                                        <IconButton variant="text" className="bg-green-500">
+                                                            <Settings color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
                                             </td>
                                         </tr>
                                     ))
