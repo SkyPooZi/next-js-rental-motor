@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
 import { FiActivity } from "react-icons/fi";
 import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon, BanknotesIcon } from "@heroicons/react/24/solid";
+
 import {
     Card,
     CardHeader,
@@ -21,6 +22,7 @@ import {
 } from "@material-tailwind/react";
 import DeleteConfirmationModal from "../deleteConfirmModal";
 import ActivityMotorModal from "../activityMotorModal";
+import { Settings } from "lucide-react";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", "Visibilitas", ""];
 
@@ -292,6 +294,13 @@ export function MotorListTable() {
                                                     <Tooltip content="Edit">
                                                         <IconButton variant="text" className="bg-[#FFC107] mx-2">
                                                             <PencilSquareIcon color="white" className="h-5 w-5" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Link>
+                                                <Link href={`/admin/setting/${motorData.id}`}>
+                                                    <Tooltip content="Setting">
+                                                        <IconButton variant="text" className="bg-green-500">
+                                                            <Settings color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>

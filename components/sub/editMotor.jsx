@@ -4,7 +4,7 @@ import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TextField } from '@mui/material';
-import { Card, CardHeader, Select, Option, Input, Textarea, Button, Typography } from '@material-tailwind/react';
+import { Card, CardHeader, Select, Option, Input, Button, Typography } from '@material-tailwind/react';
 
 const EditMotorForm = ({
     handleSubmit,

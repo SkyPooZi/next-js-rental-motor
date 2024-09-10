@@ -118,6 +118,10 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                                 value={`${days} hari ${hours} jam`}
                                 disabled
                             />
+                            {/* Added this span below the Input */}
+                            <span className="text-xs text-[#FF4D30]">
+                                Jika jam yang dipilih lebih dari 4 jam, maka akan dihitung sebagai 1 hari tambahan.
+                            </span>
                         </div>
                         <div className='text-black w-full text-sm'>
                             Fasilitas
@@ -127,6 +131,7 @@ const DetailPemesanan = ({ motors, selectedMotor, handleSelectChangeNamaMotor, t
                             </ul>
                         </div>
                     </div>
+
                     <div className='text-black w-full'>
                         <div className="grid w-full gap-1.5">
                             <span className="text-black">
