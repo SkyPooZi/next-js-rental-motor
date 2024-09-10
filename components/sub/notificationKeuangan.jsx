@@ -234,7 +234,7 @@ export default function MoneyNotification() {
                                                     <CardFooter className="p-0 pt-2">
                                                         <div className=''>
                                                             <Buttons>
-                                                                <Link href={`/admin/detailHistory/${item.riwayat_id}`}>
+                                                                <Link href={`/admin/detailHistory/${item.riwayat_data.history.id}`}>
                                                                     <Label>
                                                                         <span className="text-white cursor-pointer">
                                                                             Lihat Detail
