@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminSetting from '@/components/sub/admin/adminSetting'; // Correct import path to the component
-import Sidebar from '@/components/sub/main/sidebar'; // Import Sidebar
+import Sidebar from '@/components/main/sidebar'; // Import Sidebar
 import Dashboard from "@/components/sub/admin/dashboard";
 import MotorList from "@/components/sub/admin/motorList";
 import User from "@/components/sub/admin/user";

@@ -89,6 +89,8 @@ export default function page({ params: { motorId } }) {
     const [isModalOpenValidate, setIsModalOpenValidate] = useState(false);
     const [isHidden, setIsHidden] = useState(false);
 
+    const [overtimePrice, setOvertimePrice] = useState('');
+
     const token = Cookies.get('token');
     const router = useRouter();
     const id = Cookies.get('id');
@@ -141,11 +143,36 @@ export default function page({ params: { motorId } }) {
 
     const calculateTotalPembayaran = () => {
         const hargaRentalPerHour = hargaRental / 24; // Convert daily price to hourly price
-        let biayaAdmin = (hargaRentalPerHour * durasi) * 0.02;
+    
+        // Calculate days and hours from durasi
+        let days = Math.floor(durasi / 24);
+        let hours = durasi % 24;
+    
+        // If hours exceed 4, add 1 more day and reset hours to 0
+        if (hours > 4) {
+            days += 1;
+            hours = 0;
+        }
+    
+        // Calculate rental cost based on days
+        let totalHargaMotor = hargaRental * days;
+    
+        // Add overtime price if hours are between 1 and 4
+        if (hours > 0 && hours <= 4) {
+            totalHargaMotor += hargaRentalPerHour * hours;
+        }
+    
+        // Set the total rental price
+        setTotalHargaMotor(totalHargaMotor);
+    
+        // Calculate admin fee
+        let biayaAdmin = totalHargaMotor * 0.02;
         setTotalBiayaAdmin(biayaAdmin);
-        setTotalHargaMotor(hargaRentalPerHour * durasi);
-        let totalPriceWithoutDiscount = (hargaRentalPerHour * durasi) + biayaAdmin;
-
+    
+        // Calculate total price before discount
+        let totalPriceWithoutDiscount = totalHargaMotor + biayaAdmin;
+    
+        // Apply discount if any
         if (diskon_id) {
             const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
             if (selectedDiskon) {
@@ -155,14 +182,18 @@ export default function page({ params: { motorId } }) {
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
-
+    
+        // Deduct points if used
         if (usePoint) {
             totalPriceWithoutDiscount -= point;
         }
-
-        setTotalPembayaran(Math.round(totalPriceWithoutDiscount));
-        return Math.round(totalPriceWithoutDiscount);
+    
+        // Round and set the final payment total
+        const finalTotal = Math.round(totalPriceWithoutDiscount);
+        setTotalPembayaran(finalTotal);
+        return finalTotal;
     };
+    
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
@@ -194,7 +225,7 @@ export default function page({ params: { motorId } }) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi + overtimePrice);
 
     useEffect(() => {
         if (!detailId) return;
@@ -754,6 +785,8 @@ export default function page({ params: { motorId } }) {
                         handleClickPaymentTunai={handleClickPaymentTunai}
                         clickedPaymentCashless={clickedPaymentCashless}
                         handleClickPaymentCashless={handleClickPaymentCashless}
+                        overtimePrice={overtimePrice}
+                        biayaAdmin={totalBiayaAdmin}
                     />
                     <div className='flex flex-row gap-1 mt-4 items-center max-w-[1005px] justify-center w-full'>
                         <MdOutlineTimer size='22px' color='#149CF3' />
