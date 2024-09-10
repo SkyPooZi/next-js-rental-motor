@@ -182,17 +182,16 @@ export default function page({ params: { motorId } }) {
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
-
         // Deduct points if used
         if (usePoint) {
             totalPriceWithoutDiscount -= point;
         }
-
         // Round and set the final payment total
         const finalTotal = Math.round(totalPriceWithoutDiscount);
         setTotalPembayaran(finalTotal);
         return finalTotal;
     };
+    
 
 
     const handleSelectChangeDiskon = (selectedValue) => {
