@@ -143,35 +143,35 @@ export default function page({ params: { motorId } }) {
 
     const calculateTotalPembayaran = () => {
         const hargaRentalPerHour = hargaRental / 24; // Convert daily price to hourly price
-    
+
         // Calculate days and hours from durasi
         let days = Math.floor(durasi / 24);
         let hours = durasi % 24;
-    
+
         // If hours exceed 4, add 1 more day and reset hours to 0
         if (hours > 4) {
             days += 1;
             hours = 0;
         }
-    
+
         // Calculate rental cost based on days
         let totalHargaMotor = hargaRental * days;
-    
+
         // Add overtime price if hours are between 1 and 4
         if (hours > 0 && hours <= 4) {
             totalHargaMotor += hargaRentalPerHour * hours;
         }
-    
+
         // Set the total rental price
         setTotalHargaMotor(totalHargaMotor);
-    
+
         // Calculate admin fee
         let biayaAdmin = totalHargaMotor * 0.02;
         setTotalBiayaAdmin(biayaAdmin);
-    
+
         // Calculate total price before discount
         let totalPriceWithoutDiscount = totalHargaMotor + biayaAdmin;
-    
+
         // Apply discount if any
         if (diskon_id) {
             const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
@@ -182,18 +182,17 @@ export default function page({ params: { motorId } }) {
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
-    
         // Deduct points if used
         if (usePoint) {
             totalPriceWithoutDiscount -= point;
         }
-    
         // Round and set the final payment total
         const finalTotal = Math.round(totalPriceWithoutDiscount);
         setTotalPembayaran(finalTotal);
         return finalTotal;
     };
     
+
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {

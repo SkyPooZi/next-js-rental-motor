@@ -15,6 +15,7 @@ import {
     Input,
     Spinner
 } from "@material-tailwind/react";
+import { FiActivity } from "react-icons/fi";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { format } from "date-fns"
 import { MdDone } from "react-icons/md";
@@ -37,12 +38,14 @@ import {
 } from "@/components/ui/popover";
 import Link from "next/link";
 import DeleteConfirmationModal from "../deleteConfirmModal";
+import ActivityModal from "../activityModal";
 
 const TABLE_HEAD = ["No", "Pengguna", "Jenis Motor", "Tanggal Booking", "Status", ""];
 
 export function HistoryTable({ onSelectRange }) {
     const [date, setDate] = useState(null);
     const [id, setId] = useState(null);
+    const [historyId, setHistoryId] = useState(null);
     const [error, setError] = useState(null);
     const [showNotification, setShowNotification] = useState(false);
     const [history, setHistory] = useState([]);
@@ -136,48 +139,48 @@ export function HistoryTable({ onSelectRange }) {
         setCurrentPage(page);
     };
 
-    const confirmDeleteHistory = (historyId) => {
-        setHistoryToDelete(historyId);
+    const openModal = (detail) => {
+        setHistoryId(detail.id);
         setIsModalOpen(true);
     };
 
-    const deleteHistory = async () => {
-        if (!historyToDelete) {
-            setError('No ID available to delete.');
-            return;
-        }
+    // const deleteHistory = async () => {
+    //     if (!historyToDelete) {
+    //         setError('No ID available to delete.');
+    //         return;
+    //     }
 
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyToDelete}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+    //     try {
+    //         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/history/delete/${historyToDelete}`, {
+    //             method: 'DELETE',
+    //             headers: {
+    //                 'Authorization': `Bearer ${token}`,
+    //                 'Content-Type': 'application/json'
+    //             }
+    //         });
 
-            if (response.ok) {
-                fetchData();
-                setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyToDelete));
-                console.log(`History with id ${historyToDelete} deleted successfully.`);
-                setError('');
-                setShowNotification(true);
-                setTimeout(() => {
-                    setShowNotification(false);
-                }, 3000);
-            } else {
-                const errorMessage = await response.text();
-                console.error('Failed to delete the history:', errorMessage);
-                setError(`Failed to delete the history: ${errorMessage}`);
-            }
-        } catch (error) {
-            console.error('Delete error:', error);
-            setError(`Delete error: ${error.message}`);
-        } finally {
-            setIsModalOpen(false); // Close the modal
-            setHistoryToDelete(null); // Clear the history to delete
-        }
-    };
+    //         if (response.ok) {
+    //             fetchData();
+    //             setHistory((prevHistory) => prevHistory.filter(m => m.id !== historyToDelete));
+    //             console.log(`History with id ${historyToDelete} deleted successfully.`);
+    //             setError('');
+    //             setShowNotification(true);
+    //             setTimeout(() => {
+    //                 setShowNotification(false);
+    //             }, 3000);
+    //         } else {
+    //             const errorMessage = await response.text();
+    //             console.error('Failed to delete the history:', errorMessage);
+    //             setError(`Failed to delete the history: ${errorMessage}`);
+    //         }
+    //     } catch (error) {
+    //         console.error('Delete error:', error);
+    //         setError(`Delete error: ${error.message}`);
+    //     } finally {
+    //         setIsModalOpen(false); // Close the modal
+    //         setHistoryToDelete(null); // Clear the history to delete
+    //     }
+    // };
 
     const handleButtonClick = (component) => {
         setActiveComponent(component);
@@ -433,15 +436,15 @@ export function HistoryTable({ onSelectRange }) {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                {/* <Tooltip content="Delete">
+                                                <Tooltip content="Activity">
                                                     <IconButton
                                                         variant="text"
-                                                        className="bg-red-500"
-                                                        onClick={() => confirmDeleteHistory(historyData.id)}
+                                                        className="bg-primary"
+                                                        onClick={() => openModal(historyData)}
                                                     >
-                                                        <TrashIcon color="white" className="h-5 w-5" />
+                                                        <FiActivity color="white" className="h-5 w-5" />
                                                     </IconButton>
-                                                </Tooltip> */}
+                                                </Tooltip>
                                             </td>
                                         </tr>
                                     ))
@@ -501,11 +504,16 @@ export function HistoryTable({ onSelectRange }) {
             </div>
 
             {/* Use the DeleteConfirmationModal component */}
-            <DeleteConfirmationModal
+            {/* <DeleteConfirmationModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={deleteHistory}
                 entityName="riwayat" // Pass the entity name here
+            /> */}
+            <ActivityModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false) && setMotorId(null)}
+                historyId={historyId}
             />
         </>
     );

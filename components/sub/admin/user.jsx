@@ -10,6 +10,7 @@ import MotorList from "@/components/sub/admin/motorList";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
+import MoneyManagement from "./laporanKeuangan";
 import { UserListTable } from "@/components/sub/admin/userTable";
 
 export default function User() {
@@ -24,6 +25,7 @@ export default function User() {
                 {activeComponent === "list" && <MotorList />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
             {activeComponent === 'dashboard' ? (
@@ -33,6 +35,8 @@ export default function User() {
             ) : activeComponent === 'discount' ? (
                 null
             ) : activeComponent === 'history' ? (
+                null
+            ) : activeComponent === 'moneyManagement' ? (
                 null
             ) : activeComponent === 'rating' ? (
                 null

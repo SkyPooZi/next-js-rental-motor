@@ -171,7 +171,7 @@ const NewOrderBookedList = () => {
                                         }}
                                         className='px-3 py-3 rounded-full bg-green-500 cursor-pointer'
                                     >
-                                        <ReactWhatsapp number={order.nomor_hp} message="Hello World!!!" className="flex items-center font-bold text-white wa">
+                                        <ReactWhatsapp number={order.nomor_hp} message={`Hai ${order.nama_lengkap}, Motor yang anda sewa adalah motor ${order.list_motor.nama_motor}} `} className="flex items-center font-bold text-white wa">
                                             <FaWhatsapp size='20' color='white' />
                                         </ReactWhatsapp>
                                     </motion.div>

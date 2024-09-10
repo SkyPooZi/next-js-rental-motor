@@ -29,6 +29,10 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [tanggal_mulai, setTanggalMulai] = useState('');
     const [tanggal_selesai, setTanggalSelesai] = useState('');
     const [durasi, setDurasi] = useState('');
+    const [nama_lengkap, setNamaLengkap] = useState('');
+    const [email, setEmail] = useState('');
+    const [nomor_hp, setNomorHp] = useState('');
+    const [beforeDurasi, setBeforeDurasi] = useState('');
     const [disabledRanges, setDisabledRanges] = useState([]);
     const [image, setImage] = useState(null);
     const [motor_id, setMotorId] = useState('');
@@ -36,7 +40,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
     const [motorData, setMotorData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [rescheduleModalDetails, setRescheduleModalDetails] = useState(null);
-    const [initialDuration, setInitialDuration] = useState(null);  // Initialize to null
+    const [initialDuration, setInitialDuration] = useState(null);
     const [notificationMessage, setNotificationMessage] = useState('');
     const [notificationType, setNotificationType] = useState('');
     const [showNotification, setShowNotification] = useState(false);
@@ -67,6 +71,14 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         const formattedTime = date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
 
         return `${formattedDate}, ${formattedTime} ${timeOfDay}`;
+    };
+
+    const formatDuration = (hours) => {
+        const days = Math.floor(hours / 24);
+        const remainingHours = hours % 24;
+        const dayText = days > 0 ? `${days} hari` : '';
+        const hourText = remainingHours > 0 ? `${remainingHours} jam` : '';
+        return `${dayText} ${hourText}`.trim();
     };
 
     useEffect(() => {
@@ -117,8 +129,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
             const formattedDate = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
             setTanggalMulai(formattedDate);
 
-            // Automatically set end date based on the original duration
-            const calculatedEndDate = dayjs(date).add(initialDuration, 'day');
+            const calculatedEndDate = dayjs(date).add(initialDuration, 'hour');
             setTanggalSelesai(calculatedEndDate.format('YYYY-MM-DD HH:mm:ss'));
         } else {
             setTanggalMulai('');
@@ -126,27 +137,34 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         }
     };
 
-    const validateTimeMatch = () => {
-        if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
-
-        const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
-        const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
-
-        const newStartTime = dayjs(tanggal_mulai);
-        const newEndTime = dayjs(tanggal_selesai);
-
-        const originalDuration = originalEndTime.diff(originalStartTime, 'second');
-        const newDuration = newEndTime.diff(newStartTime, 'second');
-
-        return originalDuration === newDuration;
+    const handleDateEnd = (start, duration) => {
+        const endDate = dayjs(start).add(duration, 'hour');
+        return endDate.format('YYYY-MM-DD HH:mm:ss');
     };
+
+    // const validateTimeMatch = () => {
+    //     if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
+
+    //     const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
+    //     const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
+
+    //     const newStartTime = dayjs(tanggal_mulai);
+    //     const newEndTime = dayjs(tanggal_selesai);
+
+    //     const originalDuration = originalEndTime.diff(originalStartTime, 'second');
+    //     const newDuration = newEndTime.diff(newStartTime, 'second');
+
+    //     return originalDuration === newDuration;
+    // };
 
     useEffect(() => {
         if (tanggal_mulai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
-            const duration = endDate.diff(startDate, 'day');
-            setDurasi(duration);
+            const totalDurationHours = endDate.diff(startDate, 'hour');
+            const days = Math.floor(totalDurationHours / 24);
+            const hours = totalDurationHours % 24;
+            setDurasi(`${days} hari ${hours} jam`);
         }
     }, [tanggal_mulai, tanggal_selesai]);
 
@@ -161,11 +179,17 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     setImage(`${process.env.NEXT_PUBLIC_API_URL}/storage/${data.list_motor.gambar_motor}`);
                     setMotorData(data.list_motor.nama_motor);
                     setMotorId(data.list_motor.id);
+                    setNamaLengkap(data.nama_lengkap);
+                    setNomorHp(data.nomor_hp);
+                    setEmail(data.email);
+
+                    const formattedDurasi = formatDuration(data.durasi);
+                    setBeforeDurasi(formattedDurasi);
 
                     const startDate = dayjs(data.tanggal_mulai);
                     const endDate = dayjs(data.tanggal_selesai);
-                    const initialDurationValue = endDate.diff(startDate, 'day');
-                    setInitialDuration(initialDurationValue);  // Set initial duration
+                    const initialDurationValue = endDate.diff(startDate, 'hour');
+                    setInitialDuration(initialDurationValue);
 
                     setOriginalStartTime(startDate.format('HH:mm:ss'));
                     setOriginalEndTime(endDate.format('HH:mm:ss'));
@@ -198,6 +222,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
             historyId,
             token,
             durasi,
+            beforeDurasi,
             initialDuration,
             handleRescheduleAndNotify,
             handlePaymentAndReschedule,
@@ -208,12 +233,12 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
 
     const handleRescheduleAndNotify = async () => {
         try {
-            const result = await handleReschedule(token, historyId, tanggal_mulai, tanggal_selesai);
+            const result = await handleReschedule(token, historyId, email, nama_lengkap, tanggal_mulai, tanggal_selesai);
             if (result.success) {
                 showNotificationWithTimeout('Penjadwalan Ulang Berhasil!', 'success');
                 setTimeout(() => {
                     onSuccess();
-                }, 3000);
+                }, 1000);
             } else {
                 throw new Error(result.error);
             }
@@ -227,6 +252,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         onClose();
         setTanggalMulai('');
         setTanggalSelesai('');
+        setDurasi('');
     };
 
     const formatTime = (dateString) => {
@@ -297,7 +323,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                 </Label>
                                 <Label>
                                     <span className='text-base'>
-                                        {`Durasi: ${rescheduleModalDetails.durasi} hari`}
+                                        {`Durasi: ${beforeDurasi}`}
                                     </span>
                                 </Label>
                                 <Label>
@@ -339,23 +365,17 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                 Durasi
                                 <Input
                                     label="Durasi (hari)"
-                                    value={`${durasi} hari`}
+                                    value={`${durasi}`}
                                     disabled
                                 />
                             </div>
                         </div>
                         <Button
                             onClick={onConfirm}
-                            disabled={!tanggal_mulai || isLoading || initialDuration === null || durasi !== initialDuration}
+                            disabled={!tanggal_mulai || isLoading || initialDuration === null || durasi !== `${Math.floor(initialDuration / 24)} hari ${initialDuration % 24} jam`}
                         >
                             {isLoading ? 'Loading...' : 'Konfirmasi'}
                         </Button>
-
-                        {!validateTimeMatch() && (
-                            <div className='text-red-500 text-sm mt-2'>
-                                Waktu mulai dan selesai harus sama dengan pesanan sebelumnya {`${formatTime(rescheduleModalDetails.tanggal_mulai)} - ${formatTime(rescheduleModalDetails.tanggal_selesai)}`}
-                            </div>
-                        )}
                     </div>
                 </div>
             </motion.div>

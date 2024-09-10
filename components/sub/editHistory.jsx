@@ -45,8 +45,14 @@ const EditHistoryForm = ({
     minEndDate,
     total_pembayaran,
     nomor_hp,
-    nomor_kontak_darurat
+    nomor_kontak_darurat,
+    overtimePrice,
+    biayaAdmin,
+    durasi,
+    hargaRental
 }) => {
+    const days = Math.floor(durasi / 24);
+    const hours = durasi % 24;
     return (
         <form action='post' method='post' onSubmit={handleSubmit}>
             <Card className="w-full h-full mb-12 lg:mb-0">
@@ -226,6 +232,18 @@ const EditHistoryForm = ({
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="w-full flex flex-col gap-2">
                                 <span className="text-black">
+                                    Durasi
+                                </span>
+                                <Input
+                                    disabled
+                                    label={`Tidak ada`}
+                                    value={`${history.durasi} jam`}
+                                />
+                            </div>
+                        </div>
+                        <div className="flex flex-col md:flex-row gap-4">
+                            <div className="w-full flex flex-col gap-2">
+                                <span className="text-black">
                                     Keperluan Menyewa
                                 </span>
                                 <Textarea
@@ -323,11 +341,14 @@ const EditHistoryForm = ({
                                             // onChange={handleSelectChangeDiskon}
                                             disabled
                                         >
-                                            {diskons.map((id_diskon) => (
-                                                <Option key={id_diskon.id} value={id_diskon.nama_diskon}>
-                                                    {id_diskon.nama_diskon}
-                                                </Option>
-                                            ))}
+                                            {diskons.map((diskon) => {
+                                                const potonganRupiah = (hargaRental * days * diskon.potongan_harga) / 100;
+                                                return (
+                                                    <Option key={diskon.id} value={diskon.id}>
+                                                        {diskon.nama_diskon} - Potongan: Rp. {potonganRupiah.toLocaleString()}
+                                                    </Option>
+                                                );
+                                            })}
                                         </Select>
                                     </div>
                                 )}

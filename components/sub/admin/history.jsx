@@ -10,6 +10,7 @@ import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
 import Dashboard from "@/components/sub/admin/dashboard";
 import Sidebar from '@/components/main/sidebar';
+import MoneyManagement from "./laporanKeuangan";
 import { HistoryTable } from "@/components/sub/admin/historyTable";
 
 export default function History() {
@@ -24,6 +25,7 @@ export default function History() {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "list" && <MotorList />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
             {activeComponent === 'dashboard' ? (
@@ -33,6 +35,8 @@ export default function History() {
             ) : activeComponent === 'discount' ? (
                 null
             ) : activeComponent === 'list' ? (
+                null
+            ) : activeComponent === 'moneyManagement' ? (
                 null
             ) : activeComponent === 'rating' ? (
                 null

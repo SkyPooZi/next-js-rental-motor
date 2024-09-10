@@ -4,7 +4,9 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { MdDone } from "react-icons/md";
-import { PencilSquareIcon, MagnifyingGlassIcon, EyeIcon, TrashIcon, BanknotesIcon } from "@heroicons/react/24/solid";
+import { FiActivity } from "react-icons/fi";
+import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon, BanknotesIcon } from "@heroicons/react/24/solid";
+
 import {
     Card,
     CardHeader,
@@ -19,6 +21,7 @@ import {
     Spinner
 } from "@material-tailwind/react";
 import DeleteConfirmationModal from "../deleteConfirmModal";
+import ActivityMotorModal from "../activityMotorModal";
 import { Settings } from "lucide-react";
 
 const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", "Visibilitas", ""];
@@ -26,6 +29,7 @@ const TABLE_HEAD = ["No", "Nama Motor", "Stock", "Harga", "Status", "Visibilitas
 export function MotorListTable() {
     const [id, setId] = useState(null); // State to store the id
     const [showPopup, setShowPopup] = useState(false);
+    const [motorId, setMotorId] = useState(null);
     const [motor, setMotor] = useState([]);
     const [totalMotor, setTotalMotor] = useState(0);
     const [error, setError] = useState(null);
@@ -89,6 +93,16 @@ export function MotorListTable() {
     const confirmDeleteMotor = (motorId) => {
         setMotorToDelete(motorId);
         setIsModalOpen(true);
+    };
+
+    const openModal = (detail) => {
+        setMotorId(detail.id);
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setMotorId(null);
     };
 
     const deleteMotor = async () => {
@@ -297,6 +311,15 @@ export function MotorListTable() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
+                                                <Tooltip content="Activity">
+                                                    <IconButton
+                                                        variant="text"
+                                                        className="bg-primary mx-2"
+                                                        onClick={() => openModal(motorData)}
+                                                    >
+                                                        <FiActivity color="white" className="h-5 w-5" />
+                                                    </IconButton>
+                                                </Tooltip>
                                                 {/* <Tooltip content="Delete">
                                                     <IconButton
                                                         variant="text"
@@ -338,11 +361,16 @@ export function MotorListTable() {
             </div>
 
             {/* Use the DeleteConfirmationModal component */}
-            <DeleteConfirmationModal
+            {/* <DeleteConfirmationModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={deleteMotor}
                 entityName="motor" // Pass the entity name here
+            /> */}
+            <ActivityMotorModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                motorId={motorId}
             />
         </>
     );

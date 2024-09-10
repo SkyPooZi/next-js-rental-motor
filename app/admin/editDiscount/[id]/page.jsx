@@ -34,6 +34,7 @@ const Page = ({ params: { id } }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [loadData, setLoadData] = useState(true);
     const [response, setResponse] = useState(null);
+    const [is_hidden, setIsHidden] = useState(0);
     const token = Cookies.get('token');
 
     const handleImageChange = (event) => {
@@ -57,6 +58,10 @@ const Page = ({ params: { id } }) => {
         fileInputRef.current.click();
     };
 
+    const handleSelectIsHidden = (value) => {
+        setIsHidden(value);
+    }
+
     useEffect(() => {
         const fetchData = async () => {
             const result = await fetchDiscountDetail(id);
@@ -69,6 +74,7 @@ const Page = ({ params: { id } }) => {
                 setPotonganHarga(result.data.potongan_harga);
                 setTanggalMulai(result.data.tanggal_mulai);
                 setTanggalSelesai(result.data.tanggal_selesai);
+                setIsHidden(result.data.is_hidden);
             }
             setLoadData(false);
         };
@@ -85,6 +91,7 @@ const Page = ({ params: { id } }) => {
             potongan_harga,
             tanggal_mulai,
             tanggal_selesai,
+            is_hidden,
             token,
             setImage,
             setShowNotification,
@@ -196,6 +203,8 @@ const Page = ({ params: { id } }) => {
                                 loading={loading}
                                 nama_diskon={nama_diskon}
                                 potongan_harga={potongan_harga}
+                                is_hidden={is_hidden}
+                                handleSelectIsHidden={handleSelectIsHidden}
                             />
                         ) : (
                             <p>Loading...</p>
