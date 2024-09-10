@@ -1,7 +1,6 @@
 export const updateMotor = async ({
     pengguna_id,
     id,
-    pengguna_id,
     file,
     harga_motor_diantar,
     nama_motor,
@@ -17,7 +16,6 @@ export const updateMotor = async ({
     token,
 }) => {
     const formData = new FormData();
-    if (pengguna_id) formData.append('pengguna_id', pengguna_id);
     if (file) formData.append('gambar_motor', file);
     if (harga_motor_diantar) formData.append('harga_motor_diantar', harga_motor_diantar);
     if (nama_motor) formData.append('nama_motor', nama_motor);

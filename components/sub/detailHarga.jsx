@@ -3,9 +3,22 @@ import { Select, Option, Radio } from '@material-tailwind/react';
 import { Label } from '@/components/ui/label';
 import { AiOutlineDollarCircle } from 'react-icons/ai';
 
-const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, handleCheckboxChange, point, pointValue, diskons, handleSelectChangeDiskon, total_pembayaran, clickedPaymentTunai, handleClickPaymentTunai, clickedPaymentCashless, handleClickPaymentCashless }) => {
-    const days = Math.floor(durasi / 24);
-    const hours = durasi % 24;
+const DetailHarga = ({
+    hargaRental, durasi, nama_motor, usePoint, handleCheckboxChange, point, pointValue, diskons, handleSelectChangeDiskon,
+    total_pembayaran, clickedPaymentTunai, handleClickPaymentTunai, clickedPaymentCashless, handleClickPaymentCashless, biayaAdmin
+}) => {
+    // Calculate days and hours from durasi
+    let days = Math.floor(durasi / 24);
+    let hours = durasi % 24;
+
+    // If hours exceed 4, add 1 more day and reset hours to 0
+    if (hours > 4) {
+        days += 1;
+        hours = 0;
+    }
+
+    // Calculate price per hour (for overtime), but this won't be used if hours > 4
+    const pricePerHour = hargaRental / 24;
 
     return (
         <div className='w-full max-w-[1005px] rounded-xl mt-5 px-5 py-5 bg-white'>
@@ -19,9 +32,11 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                     Gunakan kupon di halaman pembayaran untuk harga yang lebih murah
                 </span>
             </div>
+
             <div className='mt-10'>
-                <div className='flex flex-col gap-8 '>
-                    <div className='flex flex-col gap-5 '>
+                <div className='flex flex-col gap-8'>
+                    <div className='flex flex-col gap-5'>
+                        {/* Harga Sewa */}
                         <div className='flex flex-row gap-5 justify-between'>
                             <Label>
                                 <span className='font-medium text-base'>
@@ -30,7 +45,7 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                             </Label>
                             <Label>
                                 <span className='font-medium text-sm'>
-                                    Rp. {hargaRental.toLocaleString()} (x{days})
+                                    Rp. {hargaRental.toLocaleString()} (x{days} hari)
                                 </span>
                             </Label>
                         </div>
@@ -46,6 +61,38 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                 </span>
                             </Label>
                         </div>
+
+                        <div className="flex flex-row justify-between">
+                            <Label>
+                                <span className='font-medium text-sm text-[#757575]'>
+                                    Biaya Admin 2%
+                                </span>
+                            </Label>
+                            <Label>
+                                <span className='font-medium text-sm'>
+                                    Rp. {(biayaAdmin).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                </span>
+                            </Label>
+                        </div>
+
+                        {/* Overtime Price Section */}
+                        {/* Only show this section if hours is greater than 0 and less than or equal to 4 */}
+                        {hours > 0 && hours <= 4 && (
+                            <div className='flex flex-row justify-between'>
+                                <Label>
+                                    <span className='font-medium text-sm text-[#757575]'>
+                                        Harga Overtime ({hours} jam)
+                                    </span>
+                                </Label>
+                                <Label>
+                                    <span className='font-medium text-sm'>
+                                        Rp. {(pricePerHour * hours).toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                    </span>
+                                </Label>
+                            </div>
+                        )}
+
+                        {/* Checkbox for Points */}
                         <div className='flex flex-row gap-2 mt-2 items-center justify-between'>
                             <div className='flex gap-2 items-center'>
                                 <input
@@ -77,11 +124,11 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                 </Label>
                             </div>
                         </div>
+
+                        {/* Diskon Select */}
                         <div className='flex flex-row justify-end'>
                             <div className='w-full max-w-[368px] flex flex-col gap-2'>
-                                <span className="text-black">
-                                    Diskon
-                                </span>
+                                <span className="text-black">Diskon</span>
                                 {diskons.length > 0 && (
                                     <div className="w-full">
                                         <Select
@@ -90,9 +137,7 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                             value={diskons[0]?.id}
                                         >
                                             {diskons.map((diskon) => {
-                                                const days = Math.ceil(durasi / 24); // Convert duration in hours to days
-                                                const potonganRupiah = (hargaRental * days * diskon.potongan_harga) / 100; // Calculate discount amount
-                                                console.log(`Discount ${diskon.nama_diskon}: Potongan harga=${diskon.potongan_harga}, Potongan rupiah=${potonganRupiah}`);
+                                                const potonganRupiah = (hargaRental * days * diskon.potongan_harga) / 100;
                                                 return (
                                                     <Option key={diskon.id} value={diskon.id}>
                                                         {diskon.nama_diskon} - Potongan: Rp. {potonganRupiah.toLocaleString()}
@@ -104,6 +149,8 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                 )}
                             </div>
                         </div>
+
+                        {/* Total Payment */}
                         <div className='flex flex-row justify-end mt-2'>
                             <Label>
                                 <span className='font-medium md:text-base text-xs'>
@@ -124,6 +171,8 @@ const DetailHarga = ({ hargaRental, durasi, durationText, nama_motor, usePoint, 
                                 </span>
                             </Label>
                         </div>
+
+                        {/* Payment Options */}
                         <div className='flex flex-row gap-12 mt-2 '>
                             <div className={`flex flex-row items-center cursor-pointer`}>
                                 <Radio
