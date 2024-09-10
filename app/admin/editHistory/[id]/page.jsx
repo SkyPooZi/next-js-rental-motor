@@ -57,33 +57,64 @@ const Page = ({ params: { id } }) => {
     const [showNotification, setShowNotification] = useState(false);
     const [durasi, setDurasi] = useState('');
     const [loadData, setLoadData] = useState(true);
+    const [overtimePrice, setOvertimePrice] = useState(0);
+    const penggunaId = Cookies.get('id');
     const token = Cookies.get('token');
 
     useEffect(() => {
         calculateTotalPembayaran();
     }, [hargaRental, durasi, id_diskon]);
 
+    const [totalBiayaDiskon, setTotalBiayaDiskon] = useState(0);
+    const [totalBiayaAdmin, setTotalBiayaAdmin] = useState(0);
+    const [totalHargaMotor, setTotalHargaMotor] = useState(0);
+
     const calculateTotalPembayaran = () => {
-        let totalPriceWithoutDiscount = hargaRental * durasi;
+        console.log(hargaRental, durasi);
+        const hargaRentalPerHour = hargaRental / 24;
+        console.log(hargaRentalPerHour);
+
+        let days = Math.floor(durasi / 24);
+        let hours = durasi % 24;
+        if (hours > 4) {
+            days += 1;
+            hours = 0;
+        }
+        let totalHargaMotor = hargaRental * days;
+        if (hours > 0 && hours <= 4) {
+            totalHargaMotor += hargaRentalPerHour * hours;
+        }
+        setTotalHargaMotor(totalHargaMotor);
+        console.log(totalHargaMotor);
+
+        let biayaAdmin = totalHargaMotor * 0.02;
+        setTotalBiayaAdmin(biayaAdmin);
+        console.log(biayaAdmin);
+
+        let totalPriceWithoutDiscount = totalHargaMotor + biayaAdmin;
+        console.log(totalPriceWithoutDiscount);
 
         if (id_diskon) {
             const selectedDiskon = diskons.find((diskon) => diskon.id === id_diskon);
             if (selectedDiskon) {
                 const potonganHargaPercentage = selectedDiskon.potongan_harga;
                 const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                setTotalBiayaDiskon(discountAmount);
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
 
-        setTotalPembayaran(Math.round(totalPriceWithoutDiscount));
-        return Math.round(totalPriceWithoutDiscount);
+        const finalTotal = Math.round(totalPriceWithoutDiscount);
+        setTotalPembayaran(finalTotal);
+        console.log(finalTotal);
+        return finalTotal;
     };
 
     const handleSelectChangeDiskon = (value) => {
         setDiskon(value);
     }
 
-    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi);
+    const [total_pembayaran, setTotalPembayaran] = useState(hargaRental * durasi + overtimePrice);
 
     const handleSelectChangeNamaMotor = (value) => {
         setSelectedMotor(value);
@@ -95,6 +126,7 @@ const Page = ({ params: { id } }) => {
                 setDetailMotorId(selectedMotor.id);
                 setMotorId(selectedMotor.id);
                 setHargaRental(selectedMotor.harga_motor_per_1_hari);
+                console.log(selectedMotor.harga_motor_per_1_hari);
             }
         }
     };
@@ -103,13 +135,12 @@ const Page = ({ params: { id } }) => {
         if (tanggal_mulai && tanggal_selesai) {
             const startDate = dayjs(tanggal_mulai);
             const endDate = dayjs(tanggal_selesai);
-            const duration = endDate.diff(startDate, 'day');
-            console.log(duration);
-            setDurasi(duration);
+            const totalHours = endDate.diff(startDate, 'hour');
+            setDurasi(totalHours);
         } else {
             setDurasi(0);
         }
-    }, [tanggal_mulai, tanggal_selesai, setDurasi]);
+    }, [tanggal_mulai, tanggal_selesai]);
 
     useEffect(() => {
         fetchMotor(token, setMotors, setError, setLoadData);
@@ -144,6 +175,7 @@ const Page = ({ params: { id } }) => {
         await EditHistory({
             id,
             token,
+            pengguna_id: penggunaId,
             nama_lengkap,
             email,
             nomor_hp,
@@ -163,6 +195,9 @@ const Page = ({ params: { id } }) => {
             total_pembayaran,
             status_history,
             selectedMotor,
+            total_biaya_overtime: overtimePrice,
+            total_harga_motor: totalHargaMotor,
+            total_biaya_admin: totalBiayaAdmin,
             setHistory,
             setShowNotification,
             setError,
@@ -278,6 +313,10 @@ const Page = ({ params: { id } }) => {
                                 total_pembayaran={total_pembayaran}
                                 nomor_hp={nomor_hp}
                                 nomor_kontak_darurat={nomor_kontak_darurat}
+                                overtimePrice={overtimePrice}
+                                biayaAdmin={totalBiayaAdmin}
+                                durasi={durasi}
+                                hargaRental={hargaRental}
                             />
                         ) : (
                             <p>Loading...</p>

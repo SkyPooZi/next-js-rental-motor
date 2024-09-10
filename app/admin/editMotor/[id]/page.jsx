@@ -55,6 +55,7 @@ const Page = ({ params: { id } }) => {
     const [loadData, setLoadData] = useState(true);
     const [response, setResponse] = useState(null);
     const token = Cookies.get("token");
+    const penggunaId = Cookies.get("id");
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -130,6 +131,7 @@ const Page = ({ params: { id } }) => {
         try {
             const data = await updateMotor({
                 id,
+                pengguna_id: penggunaId,
                 file,
                 nama_motor,
                 tipe_motor,
@@ -150,6 +152,7 @@ const Page = ({ params: { id } }) => {
 
             setMotor((prevMotor) => ({
                 ...prevMotor,
+                ...(penggunaId && { pengguna_id: penggunaId }),
                 ...(nama_motor && { nama_motor: data.listMotor.nama_motor }),
                 ...(tipe_motor && { tipe_motor: data.listMotor.tipe_motor }),
                 ...(merk_motor && { merk_motor: data.listMotor.merk_motor }),

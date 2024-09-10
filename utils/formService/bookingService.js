@@ -198,13 +198,14 @@ export const handleBookingSubmit = async (
                         })
                     });
 
-                    if (!updateResponse.ok || !updateHistoryResponse.ok || !updateDataKeuangan.ok || !sendNotif.ok) {
+                    if (!updateResponse.ok || !updateHistoryResponse.ok || !updateDataKeuangan.ok) {
                         throw new Error('Failed to update invoice status');
                     }
 
                     await updateResponse.json();
                     await updateHistoryResponse.json();
                     await updateDataKeuangan.json();
+                    console.log('success update invoice status');
                     await sendNotif.json();
 
                     if (usePoint) {

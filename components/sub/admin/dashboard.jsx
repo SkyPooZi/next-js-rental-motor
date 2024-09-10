@@ -1,21 +1,23 @@
 'use client';
 import { React, useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Cookies from 'js-cookie';
 import { MdHistory } from "react-icons/md";
 import { FaStar, FaUserCircle, FaMotorcycle } from "react-icons/fa";
 import { LiaHandHoldingUsdSolid } from "react-icons/lia";
 import { Spinner } from "@material-tailwind/react";
 
-import StatCard from '@/components/sub/statCard';
-import FormHeaderDashboard from '@/components/sub/admin/formHeaderDashboard';
-import AllChart from "@/components/sub/allChart";
-import MotorList from "@/components/sub/admin/motorList";
-import User from "@/components/sub/admin/user";
-import History from "@/components/sub/admin/history";
-import Rating from "@/components/sub/admin/rating";
-import NewOrderBookedList from '@/components/sub/admin/newOrderBookedList';
-import Discount from "@/components/sub/admin/discount";
-import Loading from '@/components/ui/loading';
+const StatCard = dynamic(() => import('@/components/sub/statCard'), { ssr: false });
+const FormHeaderDashboard = dynamic(() => import('@/components/sub/admin/formHeaderDashboard'), { ssr: false });
+const AllChart = dynamic(() => import("@/components/sub/allChart"), { ssr: false });
+const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
+const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
+const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
+const MoneyManagement = dynamic(() => import("@/components/sub/admin/laporanKeuangan"), { ssr: false });
+const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
+const NewOrderBookedList = dynamic(() => import('@/components/sub/admin/newOrderBookedList'), { ssr: false });
+const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
+const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });
 import { formatToRupiah } from '@/utils/formatToRupiah';
 import { fetchMotorData } from '@/utils/services/fetchMotor';
 import { fetchSewaData } from '@/utils/services/fetchHistoryProfit';
@@ -116,6 +118,11 @@ export default function Dashboard() {
         setActiveComponent(component);
     };
 
+    if(typeof window !== 'undefined')
+    {
+        console.log("Window Test");
+    }
+
     return (
         <>
             {loading && (
@@ -126,9 +133,10 @@ export default function Dashboard() {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
+            {activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
                 <div className="p-4 xl:ml-80">
                     <FormHeaderDashboard activeComponent={activeComponent} handleBtnClick={handleBtnClick} />
                     <div className="mt-12">

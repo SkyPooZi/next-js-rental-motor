@@ -5,35 +5,6 @@ import { ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon } from
 import { Card, CardHeader, Radio, Input, Select, Option, Textarea, Typography, Popover, PopoverHandler, PopoverContent, } from "@material-tailwind/react";
 
 const MoneyReportDetail = ({ keuangan, image }) => {
-    const formatDate = (dateString) => {
-        const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-        const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-
-        const date = new Date(dateString);
-        const dayOfWeek = days[date.getDay()];
-        const day = date.getDate();
-        const month = months[date.getMonth()];
-        const year = date.getFullYear();
-        let hours = date.getHours();
-        const minutes = date.getMinutes();
-
-        let period = 'pagi';
-        if (hours === 0) {
-            hours = 12;
-        } else if (hours < 12) {
-            period = 'pagi';
-        } else if (hours === 12) {
-            period = 'siang';
-        } else if (hours > 12 && hours < 18) {
-            hours -= 12;
-            period = 'siang';
-        } else if (hours >= 18) {
-            hours -= 12;
-            period = 'malam';
-        }
-        const formattedMinutes = minutes.toString().padStart(2, '0');
-        return `${dayOfWeek}, ${day} ${month} ${year}, ${hours}.${formattedMinutes} ${period}`;
-    };
     return (
         <Card className="mb-20 xl:mb-0 w-full h-full">
             <CardHeader floated={false} shadow={false} className="rounded-none">
@@ -64,6 +35,7 @@ const MoneyReportDetail = ({ keuangan, image }) => {
                                     Rp
                                 </span>
                                 <Input
+                                    disabled
                                     value={keuangan.total_harga_motor}
                                     label={`Masukkan harga motor perhari`}
                                     type="number"
@@ -96,7 +68,212 @@ const MoneyReportDetail = ({ keuangan, image }) => {
                                     Rp
                                 </span>
                                 <Input
+                                    disabled
                                     value={keuangan.total_biaya_overtime}
+                                    label={`Masukkan harga motor perminggu`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Biaya Diantar</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_biaya_diantar}
+                                    label={`Masukkan harga motor perhari`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Potongan Point</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_potongan_point}
+                                    label={`Masukkan harga motor perminggu`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Biaya Diskon</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_biaya_diskon}
+                                    label={`Masukkan harga motor perhari`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Biaya Admin</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_biaya_admin}
+                                    label={`Masukkan harga motor perminggu`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-4">
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Biaya Reschedule</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_biaya_reschedule}
+                                    label={`Kosong`}
+                                    type="number"
+                                />
+                            </div>
+                            <Typography
+                                variant="small"
+                                color="gray"
+                                className="flex items-center gap-1 font-normal"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="currentColor"
+                                    className="-mt-px h-4 w-4"
+                                >
+                                    <path
+                                        fillRule="evenodd"
+                                        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                        clipRule="evenodd"
+                                    />
+                                </svg>
+                                Gunakan angka untuk memasang harga
+                            </Typography>
+                        </div>
+                        <div className="w-full flex flex-col gap-2">
+                            <span className="text-black text-lg">Total Pembayaran</span>
+                            <div className="flex items-center">
+                                <span className="px-3 py-2 bg-gray-200 border border-r-0 border-gray-300 rounded-xl">
+                                    Rp
+                                </span>
+                                <Input
+                                    disabled
+                                    value={keuangan.total_pembayaran}
                                     label={`Masukkan harga motor perminggu`}
                                     type="number"
                                 />

@@ -13,7 +13,6 @@ const AllChart = dynamic(() => import("@/components/sub/allChart"), { ssr: false
 const MotorList = dynamic(() => import("@/components/sub/admin/motorList"), { ssr: false });
 const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false });
 const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
-const HistoryChangeData = dynamic(() => import("@/components/sub/admin/historyChangeData"), { ssr: false });
 const MoneyManagement = dynamic(() => import("@/components/sub/admin/laporanKeuangan"), { ssr: false });
 const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
 const NewOrderBookedList = dynamic(() => import('@/components/sub/admin/newOrderBookedList'), { ssr: false });
@@ -138,7 +137,7 @@ export default function Dashboard() {
                 {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'historyChangeData' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
+            {activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
                 <div className="p-4 xl:ml-80">
                     <FormHeaderDashboard activeComponent={activeComponent} handleBtnClick={handleBtnClick} />
                     <div className="mt-12">

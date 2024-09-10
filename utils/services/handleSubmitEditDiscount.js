@@ -5,6 +5,7 @@ export const updateDiscount = async ({
     potongan_harga,
     tanggal_mulai,
     tanggal_selesai,
+    is_hidden,
     token,
     setImage,
     setShowNotification,
@@ -18,6 +19,7 @@ export const updateDiscount = async ({
     if (potongan_harga) formData.append('potongan_harga', potongan_harga);
     if (tanggal_mulai) formData.append('tanggal_mulai', tanggal_mulai);
     if (tanggal_selesai) formData.append('tanggal_selesai', tanggal_selesai);
+    if (is_hidden) formData.append('is_hidden', is_hidden);
 
     setLoading(true);
 
@@ -44,6 +46,7 @@ export const updateDiscount = async ({
                 ...(potongan_harga && { potongan_harga: data.diskon.potongan_harga }),
                 ...(tanggal_mulai && { tanggal_mulai: data.diskon.tanggal_mulai }),
                 ...(tanggal_selesai && { tanggal_selesai: data.diskon.tanggal_selesai }),
+                ...(is_hidden && { is_hidden: data.diskon.is_hidden }),
             }));
 
             setTimeout(() => {

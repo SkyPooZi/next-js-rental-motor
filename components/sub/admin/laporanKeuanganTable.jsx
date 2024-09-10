@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/popover";
 import Link from "next/link";
 import DeleteConfirmationModal from "../deleteConfirmModal";
+import MoneyNotification from "../notificationKeuangan";
 
 const TABLE_HEAD = ["No", "Pengguna", "Email", "Nama Motor", "Total Pembayaran", ""];
 
@@ -138,7 +139,7 @@ export function MoneyManagementTable({ onSelectRange }) {
                     <Spinner color="blue" size="xl" />
                 </div>
             )}
-            <div className="mb-20 xl:mb-0 p-4">
+            <div className="mb-20 xl:mb-0 pb-5">
                 <Card className="h-full w-full">
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-4 flex flex-col justify-between gap-8 md:flex-row md:items-center">
@@ -245,13 +246,13 @@ export function MoneyManagementTable({ onSelectRange }) {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                <Link href={`/admin/editHistory/${historyData.id}`}>
+                                                {/* <Link href={`/admin/editMoneyManagement/${historyData.id}`}>
                                                     <Tooltip content="Edit">
                                                         <IconButton variant="text" className="bg-[#FFC107] mx-2">
                                                             <PencilSquareIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </Link>
+                                                </Link> */}
                                             </td>
                                         </tr>
                                     ))
@@ -309,6 +310,10 @@ export function MoneyManagementTable({ onSelectRange }) {
                     </CardFooter>
                 </Card>
             </div>
+            <Typography className="pb-5" variant="h5" color="blue-gray">
+                Notifikasi Penggantian Motor
+            </Typography>
+            <MoneyNotification />
         </>
     );
 }

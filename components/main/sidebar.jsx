@@ -149,16 +149,6 @@ const Sidebar = ({ activeComponent, handleButtonClick }) => {
                                         </button>
                                     </li>
                                     <li>
-                                        <button onClick={() => handleButtonClick('historyChangeData')} className="w-full">
-                                            <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'historyChangeData' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
-                                                <MdHistory size='22' />
-                                                <a aria-current="page" className="active">
-                                                    <p className="block antialiased font-sans text-base leading-relaxed text-inherit font-medium capitalize">Riwayat Ubah Data</p>
-                                                </a>
-                                            </div>
-                                        </button>
-                                    </li>
-                                    <li>
                                         <button onClick={() => handleButtonClick('moneyManagement')} className="w-full">
                                             <div className={`middle none font-sans font-bold center transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none hover:duration-500 text-xs py-3 rounded-lg text-white hover:bg-white/10 active:bg-white/30 flex items-center gap-4 px-4 capitalize ${activeComponent === 'moneyManagement' ? ' text-white bg-gradient-to-tr from-blue-600 to-blue-400 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/40 active:opacity-[0.85]' : ''}`}>
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">

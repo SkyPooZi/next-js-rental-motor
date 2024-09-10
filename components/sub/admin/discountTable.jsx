@@ -8,6 +8,7 @@ import { PencilSquareIcon, TrashIcon, MagnifyingGlassIcon, EyeIcon } from "@hero
 import {
     Card,
     CardHeader,
+    Chip,
     Typography,
     Button,
     CardBody,
@@ -19,7 +20,7 @@ import {
 } from "@material-tailwind/react";
 import DeleteConfirmationModal from "../deleteConfirmModal";
 
-const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", ""];
+const TABLE_HEAD = ["No", "Nama Diskon", "Potongan Harga", "Periode", "Visibilitas", ""];
 
 export function DiscountTable() {
     const [id, setId] = useState(null);
@@ -71,15 +72,14 @@ export function DiscountTable() {
         fetchData();
     }, []);
 
-    const filteredDiscounts = diskon.filter(diskon =>
-        diskon.nama_diskon.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredDiscounts = diskon
+        .filter(diskon => diskon.nama_diskon.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => a.is_hidden - b.is_hidden);
 
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const currentDiscountData = filteredDiscounts.slice(startIndex, endIndex);
 
-    // Calculate the total number of pages based on the filtered data
     const totalPages = Math.ceil(filteredDiscounts.length / itemsPerPage);
 
     const handlePageChange = (page) => {
@@ -237,6 +237,23 @@ export function DiscountTable() {
                                                 </div>
                                             </td>
                                             <td className="p-4">
+                                                <div className="w-max">
+                                                    <Chip
+                                                        className="capitalize"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        value={diskonData.is_hidden ? "Disembunyikan" : "Ditampilkan"}
+                                                        color={
+                                                            diskonData.is_hidden === 0
+                                                                ? "yellow"
+                                                                : diskonData.is_hidden === 1
+                                                                    ? "gray"
+                                                                    : "red"
+                                                        }
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td className="p-4">
                                                 <Link href={`/admin/detailDiscount/${diskonData.id}`}>
                                                     <Tooltip content="Detail">
                                                         <IconButton variant="text" className="bg-[#0D6EFD]">
@@ -251,7 +268,7 @@ export function DiscountTable() {
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Link>
-                                                <Tooltip content="Delete">
+                                                {/* <Tooltip content="Delete">
                                                     <IconButton
                                                         variant="text"
                                                         className="bg-red-500"
@@ -259,7 +276,7 @@ export function DiscountTable() {
                                                     >
                                                         <TrashIcon color="white" className="h-5 w-5" />
                                                     </IconButton>
-                                                </Tooltip>
+                                                </Tooltip> */}
                                             </td>
                                         </tr>
                                     )))}

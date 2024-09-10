@@ -1,6 +1,6 @@
 export const updateMotor = async ({
-    pengguna_id,
     id,
+    pengguna_id,
     file,
     harga_motor_diantar,
     nama_motor,
@@ -38,6 +38,13 @@ export const updateMotor = async ({
             },
             body: formData
         });
+
+        // const updateData = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/riwayat-data/detail-list-motor/${id}`, {
+        //     method: 'GET',
+        //     headers: {
+        //         'Authorization': `Bearer ${token}`
+        //     }
+        // })
 
         if (!response.ok) {
             throw new Error(`Failed to update data: ${response.statusText}`);

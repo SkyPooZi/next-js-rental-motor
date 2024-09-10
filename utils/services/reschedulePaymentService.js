@@ -16,7 +16,7 @@ export const handlePaymentAndReschedule = async ({
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                total_pembayaran: 100000,
+                total_pembayaran: 50000,
                 reschedule: `${tanggal_mulai} - ${tanggal_selesai}`
             })
         });
