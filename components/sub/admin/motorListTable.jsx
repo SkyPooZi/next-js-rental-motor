@@ -306,7 +306,7 @@ export function MotorListTable() {
                                                 </Link>
                                                 <Link href={`/admin/editPrice/${motorData.id}`}>
                                                     <Tooltip content="Edit Price">
-                                                        <IconButton variant="text" className="bg-[#0eda2c]">
+                                                        <IconButton variant="text" className="bg-[#0eda2c] ml-2">
                                                             <BanknotesIcon color="white" className="h-5 w-5" />
                                                         </IconButton>
                                                     </Tooltip>
