@@ -117,7 +117,9 @@ export const EditHistory = async ({
             return;
         }
 
-        // Handle successful response for history edit
+        await changeMoneyReport.json();
+        console.log('works')
+
         const data = await response.json();
         setShowNotification(true);
 
@@ -146,7 +148,7 @@ export const EditHistory = async ({
 
         setTimeout(() => {
             setShowNotification(false);
-            window.location.reload();
+            // window.location.reload();
         }, 1000);
 
     } catch (err) {
