@@ -88,6 +88,9 @@ const editKeuanganIfMidtransActive = async (historyId, token) => {
                 }),
             });
 
+            await editResponse.json();
+            console.log('works')
+
             if (!editResponse.ok) {
                 throw new Error('Failed to update keuangan');
             }
