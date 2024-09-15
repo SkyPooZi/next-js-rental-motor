@@ -83,9 +83,9 @@ const GiveRatingModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                 setShowNotification(false);
                 onClose();
                 setLoading(false);
-                window.location.reload();
+                // window.location.reload();
                 router.push('/setting?component=history');
-            }, 1000);
+            }, 2000);
         } else {
             console.error('Failed to update reasons:', result.error);
             setLoading(false);

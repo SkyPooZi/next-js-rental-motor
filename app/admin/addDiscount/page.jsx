@@ -12,6 +12,7 @@ const User = dynamic(() => import("@/components/sub/admin/user"), { ssr: false }
 const History = dynamic(() => import("@/components/sub/admin/history"), { ssr: false });
 const Rating = dynamic(() => import("@/components/sub/admin/rating"), { ssr: false });
 const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr: false });
+const MoneyManagement = dynamic(() => import("@/components/sub/admin/laporanKeuangan"), { ssr: false });
 
 export default function AddDiscount() {
     const [activeComponent, setActiveComponent] = useState("addDiscount");
@@ -36,9 +37,10 @@ export default function AddDiscount() {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
+            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
                 <div className="p-4 xl:ml-80">
                     <FormHeader activeComponent={activeComponent} handleBtnClick={handleBtnClick} />
                     <div className="mt-12">

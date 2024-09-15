@@ -30,7 +30,7 @@ const EditMoneyReport = ({
     id
 }) => {
     return (
-        <form action="post" method="post" onSubmit={handleSubmit}>
+        // <form action="post" method="post" onSubmit={handleSubmit}>
             <Card className="mb-20 xl:mb-0 w-full h-full">
                 <CardHeader floated={false} shadow={false} className="rounded-none">
                     <div className="mb-4 flex flex-col justify-between gap-4">
@@ -360,7 +360,7 @@ const EditMoneyReport = ({
                     </div>
                 </CardHeader>
             </Card>
-        </form>
+        // </form>
     );
 };
 

@@ -22,10 +22,17 @@ const DetailKontak = ({
     const [selectedIcon, setSelectedIcon] = useState(<FaInstagram className="text-pink-500" />);
     const dropdownRef = useRef(null); // Ref for the dropdown
 
-    const toggleDropdown = () => setShowDropdown(!showDropdown);
+    const toggleDropdown = () => {
+        setShowDropdown((prev) => !prev);
+    };
 
     const selectIcon = (icon) => {
         setSelectedIcon(icon);
+        if (icon === FaInstagram) {
+            setAkunSosmed(`instagram: ${akun_sosmed.replace(/(instagram:|facebook:)\s*/i, '')}`);
+        } else if (icon === FaFacebookF) {
+            setAkunSosmed(`facebook: ${akun_sosmed.replace(/(instagram:|facebook:)\s*/i, '')}`);
+        }
         setShowDropdown(false);
     };
 
@@ -104,16 +111,17 @@ const DetailKontak = ({
                             <div className="relative flex items-center">
                                 <button
                                     className={`px-3 py-3 flex gap-2 border border-r-0 rounded-lg ${selectedIcon && selectedIcon.type === FaInstagram
-                                            ? 'bg-pink-100'
-                                            : selectedIcon && selectedIcon.type === FaFacebookF
-                                                ? 'bg-blue-100'
-                                                : 'bg-white'
+                                        ? 'bg-pink-100'
+                                        : selectedIcon && selectedIcon.type === FaFacebookF
+                                            ? 'bg-blue-100'
+                                            : 'bg-white'
                                         }`}
                                     onClick={toggleDropdown}
                                 >
                                     {selectedIcon}
-                                    <IoIosArrowDown className={`${selectedIcon && selectedIcon.type === FaInstagram ? 'text-pink-500' : selectedIcon && selectedIcon.type === FaFacebookF ? 'text-blue-600' : 'text-white'}`} />
+                                    <IoIosArrowDown className={`${selectedIcon && selectedIcon.type === FaInstagram ? 'text-pink-500' : selectedIcon && selectedIcon.type === FaFacebookF ? 'text-blue-600' : 'text-black'}`} />
                                 </button>
+
                                 <Input
                                     label="Masukkan akun sosmed"
                                     value={akun_sosmed}
@@ -121,6 +129,7 @@ const DetailKontak = ({
                                     required
                                     className="border rounded-r"
                                 />
+
                                 {showDropdown && (
                                     <div
                                         ref={dropdownRef}

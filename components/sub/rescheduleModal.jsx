@@ -17,6 +17,7 @@ import { handlePaymentAndReschedule } from '@/utils/services/reschedulePaymentSe
 import { fetchBookedDates } from '@/utils/services/bookingService';
 import { calculateDaysAgo } from '@/utils/services/dateService';
 import { handleReschedule } from '@/utils/services/handleReschedule';
+import { editKeuanganIfMidtransActive } from '@/utils/services/rescheduleService'
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { TextField } from '@mui/material';
@@ -142,21 +143,6 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
         return endDate.format('YYYY-MM-DD HH:mm:ss');
     };
 
-    // const validateTimeMatch = () => {
-    //     if (!tanggal_mulai || !tanggal_selesai || !rescheduleModalDetails) return false;
-
-    //     const originalStartTime = dayjs(rescheduleModalDetails.tanggal_mulai);
-    //     const originalEndTime = dayjs(rescheduleModalDetails.tanggal_selesai);
-
-    //     const newStartTime = dayjs(tanggal_mulai);
-    //     const newEndTime = dayjs(tanggal_selesai);
-
-    //     const originalDuration = originalEndTime.diff(originalStartTime, 'second');
-    //     const newDuration = newEndTime.diff(newStartTime, 'second');
-
-    //     return originalDuration === newDuration;
-    // };
-
     useEffect(() => {
         if (tanggal_mulai) {
             const startDate = dayjs(tanggal_mulai);
@@ -224,8 +210,11 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
             durasi,
             beforeDurasi,
             initialDuration,
+            nama_lengkap,
+            email,
             handleRescheduleAndNotify,
             handlePaymentAndReschedule,
+            editKeuanganIfMidtransActive,
             showNotificationWithTimeoutCancel,
             setIsLoading
         });
@@ -289,7 +278,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, type: 'tween' }}
                 className="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-25">
-                <div className="bg-white p-6 rounded-lg shadow-lg relative z-40">
+                <div className="bg-white p-6 md:p-8 mb-20 md:mb-0 rounded-lg shadow-lg relative z-40 w-full max-w-md md:max-w-lg h-fit max-h-[90%] overflow-y-auto">
                     <MdClose
                         className="absolute top-4 right-4 text-gray-600 cursor-pointer"
                         size={24}
@@ -298,7 +287,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                     <div className='w-full flex flex-col gap-5'>
                         <div className='flex gap-3 items-center'>
                             <Label>
-                                <span className='font-semibold text-base'>
+                                <span className='font-semibold text-base md:text-lg'>
                                     Penjadwalan Ulang
                                 </span>
                             </Label>
@@ -308,21 +297,21 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                 </span>
                             </Label>
                         </div>
-                        <div className='flex flex-row gap-2'>
-                            <Image src={image || '/images/motor/dummy.png'} alt='motor' width={100} height={0} />
+                        <div className='flex flex-col md:flex-row gap-2'>
+                            <Image src={image || '/images/motor/dummy.png'} alt='motor' width={80} height={0} className="md:w-24" />
                             <div className="flex flex-col gap-1">
                                 <Label>
-                                    <span className="text-base">
+                                    <span className="text-sm md:text-base">
                                         {motorData || 'Motor'}
                                     </span>
                                 </Label>
                                 <Label>
-                                    <span className="text-base">
+                                    <span className="text-sm md:text-base">
                                         {`${formatDate(rescheduleModalDetails.tanggal_mulai)} - ${formatDate(rescheduleModalDetails.tanggal_selesai)}`}
                                     </span>
                                 </Label>
                                 <Label>
-                                    <span className='text-base'>
+                                    <span className='text-sm md:text-base'>
                                         {`Durasi: ${beforeDurasi}`}
                                     </span>
                                 </Label>
@@ -336,7 +325,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className='flex md:flex-row flex-col gap-5'>
                                 <div className='w-full flex flex-col gap-2'>
-                                    <span className="text-black">
+                                    <span className="text-black text-sm md:text-base">
                                         Tanggal Mulai <span className="text-[#FF4D33] font-semibold">*</span>
                                     </span>
                                     <DateTimePicker
@@ -348,7 +337,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                     />
                                 </div>
                                 <div className="w-full flex flex-col gap-2">
-                                    <span className="text-black">
+                                    <span className="text-black text-sm md:text-base">
                                         Tanggal Selesai
                                     </span>
                                     <DateTimePicker

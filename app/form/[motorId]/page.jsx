@@ -162,11 +162,12 @@ export default function page({ params: { motorId } }) {
             totalHargaMotor += hargaRentalPerHour * hours;
         }
 
-        // Set the total rental price
+        // Round the total motor price to avoid floating-point issues
+        totalHargaMotor = Math.round(totalHargaMotor);
         setTotalHargaMotor(totalHargaMotor);
 
-        // Calculate admin fee
-        let biayaAdmin = totalHargaMotor * 0.02;
+        // Calculate admin fee as an integer
+        let biayaAdmin = Math.round(totalHargaMotor * 0.02);
         setTotalBiayaAdmin(biayaAdmin);
 
         // Calculate total price before discount
@@ -177,22 +178,22 @@ export default function page({ params: { motorId } }) {
             const selectedDiskon = diskons.find((diskon) => diskon.id === diskon_id);
             if (selectedDiskon) {
                 const potonganHargaPercentage = selectedDiskon.potongan_harga;
-                const discountAmount = (totalPriceWithoutDiscount * potonganHargaPercentage) / 100;
+                const discountAmount = Math.round((totalPriceWithoutDiscount * potonganHargaPercentage) / 100);
                 setTotalBiayaDiskon(discountAmount);
                 totalPriceWithoutDiscount -= discountAmount;
             }
         }
+
         // Deduct points if used
         if (usePoint) {
             totalPriceWithoutDiscount -= point;
         }
+
         // Round and set the final payment total
         const finalTotal = Math.round(totalPriceWithoutDiscount);
         setTotalPembayaran(finalTotal);
         return finalTotal;
     };
-    
-
 
     const handleSelectChangeDiskon = (selectedValue) => {
         if (selectedValue) {
@@ -423,6 +424,30 @@ export default function page({ params: { motorId } }) {
             setResponse(data);
             const historyId = data.history.id;
 
+            const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/1`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!userResponse.ok) {
+                throw new Error('Failed to fetch user data');
+            }
+
+            const userData = await userResponse.json();
+            const ownerNumber = userData.user.nomor_hp;
+
+            const motorResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${motor_id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            const motorData = await motorResponse.json();
+            const biayaDiantar = motorData.listMotor.harga_motor_diantar;
+
             const invoiceResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/invoice/create/${historyId}`, {
                 method: 'POST',
                 headers: {
@@ -430,6 +455,46 @@ export default function page({ params: { motorId } }) {
                     'Authorization': `Bearer ${token}`
                 }
             });
+
+            const updateDataKeuangan = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    history_id: historyId,
+                    total_harga_motor: totalHargaMotor,
+                    total_biaya_overtime: 0,
+                    total_biaya_diantar: biayaDiantar,
+                    total_potongan_point: pointsToUse,
+                    total_biaya_diskon: totalBiayaDiskon,
+                    total_biaya_admin: totalBiayaAdmin,
+                    total_pembayaran: total_pembayaran,
+                })
+            });
+
+            const sendNotif = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/send-notification`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    history_id: historyId,
+                    pesan: `Halo, ${nama_lengkap}!`,
+                    no_telp: ownerNumber,
+                    email: email,
+                })
+            });
+
+            if (!updateDataKeuangan.ok) {
+                throw new Error('Failed to update invoice status');
+            }
+
+            await updateDataKeuangan.json();
+            console.log('success update invoice status');
+            await sendNotif.json();
 
             if (!invoiceResponse.ok) {
                 throw new Error('Failed to create invoice');
@@ -709,7 +774,7 @@ export default function page({ params: { motorId } }) {
             </div>
             <div className='h-full w-full px-5 py-5 md:px-24 md:py-16 bg-[#F6F7F9]'>
                 <PemesananHeader />
-                <form method="post" action="post" onSubmit={handleIsConfirm}>
+                <form method="post" action="post" onSubmit={handleSubmit}>
                     <div className='flex lg:flex-row flex-col gap-5'>
                         <KebijakanDetails1
                             gambarMotor={gambarMotor}
