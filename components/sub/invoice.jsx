@@ -78,6 +78,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
         list_motor,
         diskon,
         point,
+        durasi,
     } = history || {};
 
     const {
@@ -280,10 +281,10 @@ const InvoicePopup = ({ onClose, orderId }) => {
                         </div>
                         <div className='flex-col'>
                             <div className='mb-2'>
-                                <span className='font-bold text-sm md:text-base'>Hari</span>
+                                <span className='font-bold text-sm md:text-base'>Jam</span>
                             </div>
                             <div className=''>
-                                <span className='font-semibold text-sm md:text-base'>{hari}</span>
+                                <span className='font-semibold text-sm md:text-base'>{durasi}</span>
                             </div>
                         </div>
                         <div className='flex-col'>
@@ -299,7 +300,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
                                 <span className='font-bold text-sm md:text-base'>Total</span>
                             </div>
                             <div>
-                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(hari * harga_motor_per_1_hari)}</span>
+                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(total_pembayaran)}</span>
                             </div>
                         </div>
                     </div>
@@ -308,7 +309,7 @@ const InvoicePopup = ({ onClose, orderId }) => {
                         <div className='flex-col'>
                             <div className='flex gap-5 mb-2'>
                                 <span className='font-bold text-sm md:text-base'>Total Pemesanan</span>
-                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(hari * harga_motor_per_1_hari)}</span>
+                                <span className='font-semibold text-sm md:text-base'>{formatRupiah(total_pembayaran)}</span>
                             </div>
                             <div className='flex gap-5 mb-2'>
                                 <span className='font-bold text-sm md:text-base'>Diskon</span>
