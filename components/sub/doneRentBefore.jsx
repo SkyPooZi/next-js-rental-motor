@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Cookies from "js-cookie";
 
@@ -90,14 +91,18 @@ export default function DoneRentBefore() {
     }
 
     return (
-        <div>
+        <div className="flex flex-col gap-5 overflow-hidden">
             {doneRentBeforeDetails.length > 0 ? (
                 doneRentBeforeDetails
                     .sort((a, b) => b.id - a.id)
                     .map((detail) => (
-                        <div key={detail.id} className="w-full flex flex-col gap-3 mb-5 px-5 py-5 bg-white rounded-md">
-                            <div className="flex flex-col md:flex-row gap-3 justify-between">
-                                <div className="flex flex-row gap-2">
+                        <motion.div
+                            initial={{ opacity: 0, x: 100 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5, type: 'spring', stiffness: 100 }}
+                            key={detail.id} className="w-full flex flex-col gap-3 px-5 py-5 bg-white rounded-md">
+                            <div className="flex flex-col md:flex-row gap-6 justify-between">
+                                <div className="flex flex-col md:flex-row gap-2">
                                     <Image src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${detail.list_motor.gambar_motor}`} alt='motor' className="w-24 h-auto" width={500} height={500} />
                                     <div className="flex flex-col gap-2.5">
                                         <Label>
@@ -113,7 +118,7 @@ export default function DoneRentBefore() {
                                         <Label>
                                             <span>Total pembayaran </span>
                                             <span className="font-bold">
-                                            {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
+                                                {`Rp. ${detail.total_pembayaran.toLocaleString('id-ID', { minimumFractionDigits: 0 }).replace(/,/g, '.')}`}
                                             </span>
                                         </Label>
                                     </div>
@@ -128,7 +133,7 @@ export default function DoneRentBefore() {
                             </div>
                             <div className="border-t border-[#FF4D30] mt-2"></div>
                             <div className="w-full flex flex-row gap-2 justify-end">
-                                <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
+                                <a className="hover:underline cursor-pointer" onClick={() => openModalGiveRating(detail)}>
                                     <Button>
                                         <Label>
                                             <span className="cursor-pointer">
@@ -138,7 +143,7 @@ export default function DoneRentBefore() {
                                     </Button>
                                 </a>
                             </div>
-                        </div>
+                        </motion.div>
                     ))
             ) : (
                 null

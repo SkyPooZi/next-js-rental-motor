@@ -223,8 +223,8 @@ export default function MoneyNotification() {
                                             <div className="flex flex-row gap-4">
                                                 <Avatar src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png" alt="avatar" />
                                                 <div className="flex flex-col gap-2">
-                                                    <div className="flex justify-between">
-                                                        <span className="w-[70%] text-red-500">
+                                                    <div className="flex flex-col md:flex-row gap-3 justify-between">
+                                                        <span className="md:w-[70%] text-red-500">
                                                             {item.pesan}
                                                         </span>
                                                         <Label className="">

@@ -4,6 +4,8 @@ export const handleConfirmReschedule = async ({
     durasi,
     beforeDurasi,
     initialDuration,
+    nama_lengkap,
+    email,
     handleRescheduleAndNotify,
     handlePaymentAndReschedule,
     showNotificationWithTimeout,
@@ -45,7 +47,7 @@ export const handleConfirmReschedule = async ({
                 setIsLoading
             });
 
-            await editKeuanganIfMidtransActive(historyId, token);
+            await editKeuanganIfMidtransActive(historyId, token, nama_lengkap, email);
         }
     } catch (error) {
         console.error(error);
@@ -54,7 +56,7 @@ export const handleConfirmReschedule = async ({
     }
 };
 
-const editKeuanganIfMidtransActive = async (historyId, token) => {
+const editKeuanganIfMidtransActive = async (historyId, token, nama_lengkap, email) => {
     try {
         const keuanganResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/all`, {
             method: 'GET',
@@ -64,42 +66,80 @@ const editKeuanganIfMidtransActive = async (historyId, token) => {
             },
         });
 
+        const userData = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/detail/1`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!userData.ok) {
+            throw new Error('Failed to fetch user data');
+        }
+
+        const data = await userData.json();
+        const ownerNumber = data.user.nomor_hp;
+
         if (!keuanganResponse.ok) {
             throw new Error('Failed to fetch keuangan data');
         }
 
         const keuanganData = await keuanganResponse.json();
 
-        const matchedKeuangan = keuanganData.find(
-            (keuangan) => keuangan.history_id === historyId
-        );
+        // Log the full keuangan data for debugging purposes
+        console.log('keuanganData:', keuanganData);
 
-        if (matchedKeuangan) {
-            const keuanganId = matchedKeuangan.id;
+        // Access the 'keuangan' array from the response object
+        if (Array.isArray(keuanganData.keuangan)) {
+            const matchedKeuangan = keuanganData.keuangan.find(
+                (keuangan) => keuangan.history_id === historyId
+            );
 
-            const editResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/edit/${keuanganId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    total_biaya_reschedule: 50000,
-                }),
-            });
+            if (matchedKeuangan) {
+                const keuanganId = matchedKeuangan.id;
 
-            await editResponse.json();
-            console.log('works')
+                const editResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/edit/${keuanganId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        total_biaya_reschedule: 50000,
+                    }),
+                });
 
-            if (!editResponse.ok) {
-                throw new Error('Failed to update keuangan');
+                const sendNotif = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/send-notification`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        history_id: historyId,
+                        pesan: `Halo, ${nama_lengkap}!`,
+                        no_telp: ownerNumber,
+                        email: email,
+                    })
+                });
+
+                await editResponse.json();
+                await sendNotif.json();
+                console.log('works');
+
+                if (!editResponse.ok) {
+                    throw new Error('Failed to update keuangan');
+                }
+
+                console.log('Keuangan updated successfully');
+            } else {
+                console.log('No matching keuangan entry found for this historyId');
             }
-
-            console.log('Keuangan updated successfully');
         } else {
-            console.log('No matching keuangan entry found for this historyId');
+            console.error('keuanganData.keuangan is not an array:', keuanganData.keuangan);
         }
     } catch (error) {
         console.error('Error in editKeuanganIfMidtransActive:', error);
     }
 };
+

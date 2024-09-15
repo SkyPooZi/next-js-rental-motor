@@ -24,6 +24,7 @@ const Discount = dynamic(() => import("@/components/sub/admin/discount"), { ssr:
 const Sidebar = dynamic(() => import('@/components/main/sidebar'), { ssr: false });
 const NavbarAdmin = dynamic(() => import("@/components/sub/admin/navbar"), { ssr: false });
 const OTPPopup = dynamic(() => import('@/components/sub/admin/sendOTP'), { ssr: false });
+const MoneyManagement = dynamic(() => import('@/components/sub/admin/laporanKeuangan'), { ssr: false });
 const Loading = dynamic(() => import('@/components/ui/loading'), { ssr: false });
 import { updateUser } from '@/utils/services/updateUser';
 import { fetchUserData } from '@/utils/services/userService';
@@ -216,9 +217,10 @@ const Page = () => {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
+            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
                 <div className="block p-4 xl:ml-80">
                     <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
                         <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">

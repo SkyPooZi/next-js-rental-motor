@@ -28,6 +28,7 @@ const User = dynamic(() => import('@/components/sub/admin/user'), { ssr: false }
 const History = dynamic(() => import('@/components/sub/admin/history'), { ssr: false });
 const Rating = dynamic(() => import('@/components/sub/admin/rating'), { ssr: false });
 const Discount = dynamic(() => import('@/components/sub/admin/discount'), { ssr: false });
+const MoneyManagement = dynamic(() => import('@/components/sub/admin/laporanKeuangan'), { ssr: false });
 
 export default function Notification() {
     const [showNotification, setShowNotification] = useState(false);
@@ -283,6 +284,7 @@ export default function Notification() {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
             {activeComponent === 'dashboard' ? (
@@ -294,6 +296,8 @@ export default function Notification() {
             ) : activeComponent === 'discount' ? (
                 null
             ) : activeComponent === 'history' ? (
+                null
+            ) : activeComponent === 'moneyManagement' ? (
                 null
             ) : activeComponent === 'rating' ? (
                 null

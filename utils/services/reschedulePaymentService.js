@@ -4,6 +4,7 @@ export const handlePaymentAndReschedule = async ({
     tanggal_mulai,
     tanggal_selesai,
     handleRescheduleAndNotify,
+    editKeuanganIfMidtransActive,
     showNotificationWithTimeout,
     showNotificationWithTimeoutCancel,
     setIsLoading
@@ -31,6 +32,7 @@ export const handlePaymentAndReschedule = async ({
             window.snap.pay(paymentData.snapToken, {
                 onSuccess: async () => {
                     await handleRescheduleAndNotify();
+                    await editKeuanganIfMidtransActive();
                     showNotificationWithTimeout('Penjadwalan Ulang Berhasil!', 'success');
                 },
                 onPending: () => {

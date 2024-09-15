@@ -82,43 +82,41 @@ export const EditHistory = async ({
         // Access the keuangan array from the response
         const reportArray = moneyReport.keuangan;
 
-        // Ensure reportArray is an array
-        if (!Array.isArray(reportArray)) {
-            throw new Error("The money report data is not in the expected array format.");
+        if (Array.isArray(moneyReport.keuangan)) {
+            const matchedKeuangan = moneyReport.keuangan.find(
+                (keuangan) => keuangan.history_id === id
+            );
+
+            if (matchedKeuangan) {
+                const keuanganId = matchedKeuangan.id;
+
+                const editResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/edit/${keuanganId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        total_biaya_overtime: total_biaya_overtime,
+                        total_harga_motor: total_harga_motor,
+                        total_biaya_admin: total_biaya_admin
+                    }),
+                });
+
+                await editResponse.json();
+                console.log('works');
+
+                if (!editResponse.ok) {
+                    throw new Error('Failed to update keuangan');
+                }
+
+                console.log('Keuangan updated successfully');
+            } else {
+                console.log('No matching keuangan entry found for this historyId');
+            }
+        } else {
+            console.error('keuanganData.keuangan is not an array:', keuanganData.keuangan);
         }
-
-        // Convert id to a number for comparison (if necessary)
-        const historyIdNumber = Number(id);
-
-        // Find the matching money report by history_id
-        const matchedReport = reportArray.find(report => report.history_id === historyIdNumber);
-        if (!matchedReport) {
-            throw new Error('No matching money report found for the given history_id');
-        }
-
-        const moneyId = matchedReport.id;
-
-        // Update the money report
-        const changeMoneyReport = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/keuangan/edit/${moneyId}`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                total_biaya_overtime: total_biaya_overtime,
-                total_harga_motor: total_harga_motor,
-                total_biaya_admin: total_biaya_admin
-            })
-        });
-
-        if (!changeMoneyReport.ok) {
-            setError(`Failed to update money report: ${changeMoneyReport.statusText}`);
-            return;
-        }
-
-        await changeMoneyReport.json();
-        console.log('works')
 
         const data = await response.json();
         setShowNotification(true);

@@ -12,6 +12,7 @@ import Sidebar from '@/components/main/sidebar';
 import NavbarAdmin from "@/components/sub/admin/navbar";
 import Loading from '@/components/ui/loading';
 import DiskonDetail from '@/components/sub/diskonDetail';
+import MoneyManagement from '@/components/sub/admin/laporanKeuangan';
 import { fetchDiscountDetail } from '@/utils/services/fetchDiscountDetail';
 
 const Page = ({ params: { id } }) => {
@@ -47,9 +48,10 @@ const Page = ({ params: { id } }) => {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
-            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'rating' ? null :
+            {activeComponent === 'dashboard' || activeComponent === 'list' || activeComponent === 'user' || activeComponent === 'discount' || activeComponent === 'history' || activeComponent === 'moneyManagement' || activeComponent === 'rating' ? null :
                 <div className="block p-4 xl:ml-80">
                     <nav className="block w-full max-w-full bg-transparent text-white shadow-none rounded-xl transition-all px-0 py-1">
                         <div className="flex flex-col-reverse justify-between gap-1 md:flex-row md:items-center">

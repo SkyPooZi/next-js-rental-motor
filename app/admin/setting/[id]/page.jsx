@@ -9,6 +9,7 @@ import User from "@/components/sub/admin/user";
 import History from "@/components/sub/admin/history";
 import Rating from "@/components/sub/admin/rating";
 import Discount from "@/components/sub/admin/discount";
+import MoneyManagement from '@/components/sub/admin/laporanKeuangan';
 import Cookies from 'js-cookie';
 
 const SettingPage = ({ params: { id } }) => {
@@ -41,6 +42,7 @@ const SettingPage = ({ params: { id } }) => {
                 {activeComponent === "user" && <User />}
                 {activeComponent === "discount" && <Discount />}
                 {activeComponent === "history" && <History />}
+                {activeComponent === "moneyManagement" && <MoneyManagement />}
                 {activeComponent === "rating" && <Rating />}
             </div>
             <div className="flex">

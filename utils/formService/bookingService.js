@@ -114,7 +114,7 @@ export const handleBookingSubmit = async (
         }
 
         const data = await userData.json();
-        const ownerNumber = data.user.nomor_hp === null ? '62' : '62';
+        const ownerNumber = data.user.nomor_hp;
 
         const paymentResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/payment/${historyId}`, {
             method: 'GET',
@@ -124,12 +124,21 @@ export const handleBookingSubmit = async (
             },
         });
 
+        const motorResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/list-motor/detail/${motor_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
         if (!paymentResponse.ok) {
             const errorText = await paymentResponse.text();
             throw new Error(`Failed to get payment details: ${errorText}`);
         }
 
         const paymentData = await paymentResponse.json();
+        const motorData = await motorResponse.json();
+        const biayaDiantar = motorData.listMotor.harga_motor_diantar;
         const snapToken = paymentData.snapToken;
         const orderId = paymentData.order_id;
 
@@ -176,7 +185,7 @@ export const handleBookingSubmit = async (
                             history_id: historyId,
                             total_harga_motor: totalHargaMotor,
                             total_biaya_overtime: 0,
-                            total_biaya_diantar: 25000,
+                            total_biaya_diantar: biayaDiantar,
                             total_potongan_point: pointsToUse,
                             total_biaya_diskon: totalBiayaDiskon,
                             total_biaya_admin: totalBiayaAdmin,
