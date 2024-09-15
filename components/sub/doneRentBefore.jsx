@@ -91,7 +91,7 @@ export default function DoneRentBefore() {
     }
 
     return (
-        <div className="flex flex-col gap-5 overflow-hidden">
+        <div className="flex flex-col gap-5 mb-5 overflow-hidden">
             {doneRentBeforeDetails.length > 0 ? (
                 doneRentBeforeDetails
                     .sort((a, b) => b.id - a.id)
@@ -133,7 +133,7 @@ export default function DoneRentBefore() {
                             </div>
                             <div className="border-t border-[#FF4D30] mt-2"></div>
                             <div className="w-full flex flex-row gap-2 justify-end">
-                                <a className="hover:underline cursor-pointer" onClick={() => openModalGiveRating(detail)}>
+                                <a className="hover:underline cursor-pointer" onClick={() => openModal(detail)}>
                                     <Button>
                                         <Label>
                                             <span className="cursor-pointer">

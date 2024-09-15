@@ -175,7 +175,7 @@ export default function Booked() {
                                     </Button>
                                 </div>
                                 <div>
-                                    <Button className="cursor-pointer" onClick={() => openModalReschedule(detail)}>
+                                    <Button className="cursor-pointer" onClick={() => openModal(detail)}>
                                         <Label>
                                             <span className="cursor-pointer">
                                                 Atur Penjadwalan Ulang

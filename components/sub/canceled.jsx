@@ -117,7 +117,7 @@ export default function Canceled() {
                         </div>
                         <div className="border-t border-[#FF4D30] mt-2"></div>
                         <div className="w-full flex flex-row gap-2 justify-end">
-                            <a className="hover:underline cursor-pointer " onClick={() => openModalCancel(detail)}>
+                            <a className="hover:underline cursor-pointer " onClick={() => openModal(detail)}>
                                 <Button>
                                     <Label>
                                         <span className="cursor-pointer">
