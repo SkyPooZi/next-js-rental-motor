@@ -297,7 +297,7 @@ const RescheduleModal = ({ isOpen, onClose, historyId, onSuccess }) => {
                                 </span>
                             </Label>
                         </div>
-                        <div className='flex flex-col md:flex-row gap-2'>
+                        <div className='flex flex-col gap-2'>
                             <Image src={image || '/images/motor/dummy.png'} alt='motor' width={80} height={0} className="md:w-24" />
                             <div className="flex flex-col gap-1">
                                 <Label>
