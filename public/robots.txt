@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://rental-motor-kudus.vercel.app/
+
+# Sitemaps
+Sitemap: https://rental-motor-kudus.vercel.app/sitemap.xml
